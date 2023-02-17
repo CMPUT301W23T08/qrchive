@@ -14,4 +14,9 @@ public class ExampleUnitTest {
     public void addition_isCorrect() {
         assertEquals(4, 2 + 2);
     }
+
+    @Test
+    public void this_test_will_always_fail() {
+        assertEquals(4, 2 + 3);
+    }
 }
