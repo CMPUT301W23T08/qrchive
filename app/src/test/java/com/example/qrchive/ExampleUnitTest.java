@@ -15,8 +15,4 @@ public class ExampleUnitTest {
         assertEquals(4, 2 + 2);
     }
 
-    @Test
-    public void this_test_will_always_fail() {
-        assertEquals(4, 2 + 3);
-    }
 }
