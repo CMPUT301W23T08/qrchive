@@ -83,13 +83,11 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.app_bar_menu, menu);
         MenuItem item = menu.findItem(R.id.menu_search);
         SearchView searchView = (SearchView) item.getActionView();
-        searchView.setBackgroundColor(Color.WHITE);
-        Log.d("this hit..", "onCreateOptionsMenu: ");
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // Handle search query submission
-                Log.d("sumit", "onQueryTextSubmit: ");
+                Log.d("onSumbit", "onQueryTextSubmit: ");
                 return true;
             }
 
