@@ -2,6 +2,10 @@
     <!-- Base application theme. -->
     <style name="Theme.Qrchive" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
 
+        <!--Don't show the primary top/app bar-->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/dark_teal</item>
         <item name="colorPrimaryVariant">@color/very_dark_teal</item>
