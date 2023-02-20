@@ -18,12 +18,16 @@ import android.view.MenuItem;
 import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 /* For BottomNavItemListener: https://stackoverflow.com/questions/68021770/setonnavigationitemselectedlistener-deprecated
 *  For BottomNavImpl: https://www.geeksforgeeks.org/bottomnavigationview-inandroid/
 * */
 
 public class MainActivity extends AppCompatActivity {
+
+    FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +153,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         return true;
+
+        // --- Firestore Setup ---
+        db = FirebaseFirestore.getInstance();
     }
 
     private void transactFragment(Fragment fragment) {
