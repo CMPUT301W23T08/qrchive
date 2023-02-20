@@ -152,10 +152,11 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-        return true;
 
         // --- Firestore Setup ---
         db = FirebaseFirestore.getInstance();
+
+        return true;
     }
 
     private void transactFragment(Fragment fragment) {
