@@ -1,6 +1,10 @@
 package com.example.qrchive;
 
 import androidx.annotation.NonNull;
+
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.SearchView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -24,6 +28,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Dropdown Nav handler
+        BottomNavigationView dropdownNav = findViewById(R.id.dropdown_navigation);
+        LinearLayout dropdownNavWrapper = (LinearLayout) findViewById(R.id.dropdown_navigation_wrapper);
+        dropdownNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                return true;
+            }
+        });
 
         //Bottom Nav Handler
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
@@ -64,6 +78,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
                 Log.d("clicked the dropdown icon: ", "onMenuItemClick: ");
+                int viewState = dropdownNavWrapper.getVisibility();
+
+                if (viewState == View.GONE) {
+                    dropdownNavWrapper.setVisibility(View.VISIBLE);
+                } else if (viewState == View.VISIBLE) {
+                    dropdownNavWrapper.setVisibility(View.GONE);
+                }
                 return false;
             }
         });
@@ -83,22 +104,22 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.app_bar_menu, menu);
         MenuItem item = menu.findItem(R.id.menu_search);
         SearchView searchView = (SearchView) item.getActionView();
+        searchView.setQueryHint("Search for QR . . .");
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // Handle search query submission
+                // TODO Handle search query submission
                 Log.d("onSumbit", "onQueryTextSubmit: ");
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // Handle search query text change
-                Log.d("onchange", "onQueryTextSubmit: ");
+                // TODO Handle search query text change (offer suggestion for partial input)
+                Log.d("onChange", "onQueryTextSubmit: ");
                 return true;
             }
         });
-
         return true;
     }
 

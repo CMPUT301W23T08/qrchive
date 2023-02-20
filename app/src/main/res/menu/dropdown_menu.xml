@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_item_home"
+        android:icon="@drawable/icon_home"
+        android:title="PROFILE"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/menu_item_codes"
+        android:icon="@drawable/image_qrcode"
+        android:title="QR-MAP"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/menu_item_friends"
+        android:icon="@drawable/icon_friends"
+        android:title="SETTINGS"
+        app:showAsAction="always"/>
+</menu>
+

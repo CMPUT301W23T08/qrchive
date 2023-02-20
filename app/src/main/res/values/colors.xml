@@ -26,6 +26,9 @@
     <!--Standard Background color-->
     <color name="background_grey">#F5F5F5</color>
 
+    <!--Standard Background color-->
+    <color name="alternative_background_grey">#ECECEC</color>
+
     <!--Background color for Icons and other images-->
     <color name="icon_background_blue">#4C8ED8</color>
 
