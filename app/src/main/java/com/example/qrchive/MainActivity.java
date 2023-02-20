@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
                 switch(id){ //check id
+                    //case R.id.
                     case R.id.menu_home:
                         transactFragment(new HomeFragment());
                         break;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
                         //todo
 //                        transactFragment();
                         break;
+
                 }
                 return true;
             }

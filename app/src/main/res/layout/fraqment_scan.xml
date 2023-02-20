@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <TextureView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="14"
+        android:id="@+id/texture">
+    </TextureView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:id="@+id/ll_inside"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/take_photo_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_weight="1"
+            android:backgroundTint="#ffff"
+            android:text="Take a photo"
+            android:textColor="@color/white"
+            tools:ignore="TouchTargetSizeCheck"></Button>
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/btnGallery"
+            android:backgroundTint="#ffff"
+            android:textColor="@color/white"
+            android:layout_marginLeft="5dp">
+
+        </Button>
+
+    </LinearLayout>
+
+
+</LinearLayout>
