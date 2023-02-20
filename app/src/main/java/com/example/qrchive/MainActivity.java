@@ -3,6 +3,7 @@ package com.example.qrchive;
 import androidx.annotation.NonNull;
 
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
@@ -32,10 +33,36 @@ public class MainActivity extends AppCompatActivity {
         //Dropdown Nav handler
         BottomNavigationView dropdownNav = findViewById(R.id.dropdown_navigation);
         LinearLayout dropdownNavWrapper = (LinearLayout) findViewById(R.id.dropdown_navigation_wrapper);
+        dropdownNavWrapper.setVisibility(View.GONE);
         dropdownNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                switch(id){ //check id
+                    case R.id.menu_dropdown_profile:
+                        transactFragment(new ProfileFragment());
+                        break;
+                    case R.id.menu_dropdown_map:
+                        transactFragment(new MapFragment());
+                        break;
+                    case R.id.menu_dropdown_settings:
+                        //todo
+                        transactFragment(new SettingsFragment());
+                        break;
+                }
+                dropdownNavWrapper.setVisibility(View.GONE);
                 return true;
+            }
+        });
+
+        //Set onclick listener on the Fragment container to close the dropdown when clicked.
+        FrameLayout fragmentContianer = findViewById(R.id.fragment_container);
+        fragmentContianer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (dropdownNavWrapper.getVisibility() == View.VISIBLE) {
+                    dropdownNavWrapper.setVisibility(View.GONE);
+                }
             }
         });
 
@@ -61,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                         //transactFragment();
                         break;
                 }
+                dropdownNavWrapper.setVisibility(View.GONE);
                 return true;
             }
         });

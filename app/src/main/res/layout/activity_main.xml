@@ -43,11 +43,11 @@
                 android:id="@+id/dropdown_navigation"
                 android:layout_width="match_parent"
                 app:menu="@menu/dropdown_menu"
-                app:itemIconSize="50dp"
-                android:layout_height="110dp"
-                app:itemIconTint="@color/black"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                app:itemIconSize="45dp"
+                android:layout_height="105dp"
                 app:itemTextColor="@color/black"
-                app:itemBackground="@color/alternative_background_grey"
                 app:labelVisibilityMode="labeled">
 
             </com.google.android.material.bottomnavigation.BottomNavigationView>

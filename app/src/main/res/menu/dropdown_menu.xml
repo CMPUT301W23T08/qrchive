@@ -3,20 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_item_home"
-        android:icon="@drawable/icon_home"
+        android:id="@+id/menu_dropdown_profile"
+        android:icon="@drawable/icon_profile"
         android:title="PROFILE"
         app:showAsAction="always"/>
 
     <item
-        android:id="@+id/menu_item_codes"
-        android:icon="@drawable/image_qrcode"
+        android:id="@+id/menu_dropdown_map"
+        android:icon="@drawable/icon_map"
         android:title="QR-MAP"
         app:showAsAction="always"/>
 
     <item
-        android:id="@+id/menu_item_friends"
-        android:icon="@drawable/icon_friends"
+        android:id="@+id/menu_dropdown_settings"
+        android:icon="@drawable/icon_settings"
         android:title="SETTINGS"
         app:showAsAction="always"/>
 </menu>
