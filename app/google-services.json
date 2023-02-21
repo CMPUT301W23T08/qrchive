@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1050358012069",
+    "project_id": "qrchive-50239",
+    "storage_bucket": "qrchive-50239.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1050358012069:android:beab8ea63b65293599554c",
+        "android_client_info": {
+          "package_name": "com.example.qrchive"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1050358012069-9fde19q4q7oabp3vbcpisako00o2v9r2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-NTO-F0DuzzuZk8f-3JF0ixMeBcUuL8o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1050358012069-9fde19q4q7oabp3vbcpisako00o2v9r2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
