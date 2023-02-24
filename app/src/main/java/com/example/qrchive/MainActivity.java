@@ -2,6 +2,7 @@ package com.example.qrchive;
 
 import androidx.annotation.NonNull;
 
+import android.content.Intent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -47,7 +48,9 @@ public class MainActivity extends AppCompatActivity {
                         transactFragment(new ProfileFragment());
                         break;
                     case R.id.menu_dropdown_map:
-                        transactFragment(new MapFragment());
+                        Intent showMap = new Intent(MainActivity.this, MapsActivity.class);
+                        showMap.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(showMap);
                         break;
                     case R.id.menu_dropdown_settings:
                         //todo
@@ -120,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
 
         // Make app default load the home fragment (we will add a conditional here later to test if the user has already created
         // an account before, If not then we show the create account fragment by default.)
