@@ -1,26 +1,26 @@
 package com.example.qrchive;
 
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
-/**
- * create an instance of this fragment.
+/** Profile Fragment
  */
-public class HomeFragment extends Fragment {
+public class ProfileFragment extends Fragment {
 
-    public HomeFragment() {
+    public ProfileFragment() {
         // Required empty public constructor
     }
 
     /**
-     * @return A new instance of fragment HomeFragment.
+     * @return A new instance of fragment ProfileFragment.
      */
-    public static HomeFragment newInstance() {
-        HomeFragment fragment = new HomeFragment();
+    public static ProfileFragment newInstance() {
+        ProfileFragment fragment = new ProfileFragment();
         return fragment;
     }
 
@@ -31,8 +31,7 @@ public class HomeFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 }
