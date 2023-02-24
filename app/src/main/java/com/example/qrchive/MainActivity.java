@@ -2,12 +2,18 @@ package com.example.qrchive;
 
 import androidx.annotation.NonNull;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.SharedPreferences;
+import android.provider.Settings;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -16,23 +22,65 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.local.QueryResult;
+
+import java.util.List;
+import java.util.Map;
+import java.util.prefs.Preferences;
 
 /* For BottomNavItemListener: https://stackoverflow.com/questions/68021770/setonnavigationitemselectedlistener-deprecated
-*  For BottomNavImpl: https://www.geeksforgeeks.org/bottomnavigationview-inandroid/
-* */
+ *  For BottomNavImpl: https://www.geeksforgeeks.org/bottomnavigationview-inandroid/
+ * */
 
 public class MainActivity extends AppCompatActivity {
 
     FirebaseFirestore db;
-
+    SharedPreferences preferences; //IMP: This will work as a 'singleton pattern'/'a global struct' to save all (mostly static) required preferences
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Firestore setup
+        db =  FirebaseFirestore.getInstance();
+
+        // preferences setup
+        preferences = getSharedPreferences("preferences", MODE_PRIVATE);
+        preferences.edit().clear().apply(); // clear any previous preferences
+
+        // Check for Device ID
+        String android_device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        db.collection("Users").whereEqualTo("deviceID", android_device_id).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        // User already exists in database
+                        List<DocumentSnapshot> resultantDocuments = task.getResult().getDocuments();
+                        if (resultantDocuments.size() == 0) {
+                            // Make a dialog box to take user input
+                            // TODO: Make sure unique username
+                            new LoginDialogFragment(db, preferences, android_device_id).show(getSupportFragmentManager(), "Login Dialog");
+                        }
+                        else {
+                            DocumentSnapshot userDoc = resultantDocuments.get(0);
+                            SharedPreferences.Editor prefEditor = preferences.edit();
+                            prefEditor.putString("userName", userDoc.getData().get("userName").toString());
+                            prefEditor.putString("emailID", userDoc.getData().get("emailID").toString());
+                            prefEditor.putString("deviceID", android_device_id);
+                            prefEditor.apply();
+                        }
+                    }
+                });
 
         //Dropdown Nav handler
         BottomNavigationView dropdownNav = findViewById(R.id.dropdown_navigation);
@@ -123,8 +171,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Make app default load the home fragment (we will add a conditional here later to test if the user has already created
         // an account before, If not then we show the create account fragment by default.)
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment())
-                .commit();
+        transactFragment(new HomeFragment());
+//        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment())
+//                .commit();
 
     }
 
@@ -153,8 +202,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // --- Firestore Setup ---
-        db = FirebaseFirestore.getInstance();
 
         return true;
     }
