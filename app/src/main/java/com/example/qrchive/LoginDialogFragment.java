@@ -58,22 +58,3 @@ public class LoginDialogFragment extends DialogFragment {
                 .create();
     }
 }
-
-//public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-//        View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_add_city, null);
-//        EditText editCityName = view.findViewById(R.id.edit_text_city_text);
-//        EditText editProvinceName = view.findViewById(R.id.edit_text_province_text);
-//        return new AlertDialog.Builder(requireContext())
-//                .setView(view)
-//                .setTitle("Edit City")
-//                .setNegativeButton("Cancel", null)
-//                .setPositiveButton("Edit", (dialog, which) -> {
-//                    String cityName = editCityName.getText().toString();
-//                    String provinceName = editProvinceName.getText().toString();
-//                    City city = cityArrayAdapter.getItem(itemPostion);
-//                    city.setName(cityName);
-//                    city.setProvince(provinceName);
-//                    cityArrayAdapter.notifyDataSetChanged();
-//                })
-//                .create();
-//    }
