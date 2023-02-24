@@ -1,21 +1,29 @@
 package com.example.qrchive;
 
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.qrchive.databinding.ActivityMapsBinding;
 
+// For Current Location Display: https://www.javatpoint.com/android-google-map-displaying-current-location
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    private GoogleMap map;
     private ActivityMapsBinding binding;
+    private static final int ZOOM_LEVEL = 16;
+    private Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +49,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        map = googleMap;
+        if ( ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+             && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 200);
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        }
+        map.setMyLocationEnabled(true);
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (location != null) {
+            LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, ZOOM_LEVEL));
+        }
+
+        /** HOW TO ADD A PIN AND MOVE LOCATION TO THAT PIN
+         *  // Add a marker in Edmonton and move the camera
+         *         LatLng csBuilding = new LatLng(53.526544, -113.527028);
+         *         map.addMarker(new MarkerOptions().position(csBuilding).title("CS Building"));
+         *         map.moveCamera(CameraUpdateFactory.newLatLngZoom(csBuilding, 16));
+         *
+         * */
+
     }
+
+
 }
