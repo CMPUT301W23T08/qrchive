@@ -78,7 +78,12 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
                 switch(id){ //check id
+<<<<<<< HEAD
                     case R.id.menu_item_home:
+=======
+                    //case R.id.
+                    case R.id.menu_home:
+>>>>>>> ad3c7d66fecca8b45b88a09f89296a00c410f6b9
                         transactFragment(new HomeFragment());
                         break;
                     case R.id.menu_item_codes:
@@ -92,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
                         //todo
                         //transactFragment();
                         break;
+
                 }
                 dropdownNavWrapper.setVisibility(View.GONE);
                 return true;

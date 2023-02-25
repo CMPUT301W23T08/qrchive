@@ -63,4 +63,3 @@ public class ScanFragment extends Fragment {
         super.onPause();
     }
 }
-
