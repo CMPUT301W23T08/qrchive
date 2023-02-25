@@ -44,7 +44,7 @@ import java.util.prefs.Preferences;
 
 public class MainActivity extends AppCompatActivity {
 
-    FirebaseFirestore db;
+    public static FirebaseFirestore db;
     SharedPreferences preferences; //IMP: This will work as a 'singleton pattern'/'a global struct' to save all (mostly static) required preferences
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                             SharedPreferences.Editor prefEditor = preferences.edit();
                             prefEditor.putString("userName", userDoc.getData().get("userName").toString());
                             prefEditor.putString("emailID", userDoc.getData().get("emailID").toString());
+                            prefEditor.putString("userDID", userDoc.getId());
                             prefEditor.putString("deviceID", android_device_id);
                             prefEditor.apply();
                         }
