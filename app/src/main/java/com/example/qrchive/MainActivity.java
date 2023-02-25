@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
                         //todo
                         transactFragment(new SettingsFragment());
                         break;
+
                 }
                 dropdownNavWrapper.setVisibility(View.GONE);
                 return true;
