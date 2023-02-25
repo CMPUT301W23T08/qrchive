@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.menu_item_scan:
                         //todo
-                        //transactFragment();
+                        transactFragment(new ScanFragment());
                         break;
 
                 }
