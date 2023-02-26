@@ -1,4 +1,4 @@
-package com.example.qrchive;
+package com.example.qrchive.Fragments;
 
 
 import android.app.Activity;
@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
+import com.example.qrchive.R;
 import com.google.zxing.Result;
 /**
  * create an instance of this fragment.

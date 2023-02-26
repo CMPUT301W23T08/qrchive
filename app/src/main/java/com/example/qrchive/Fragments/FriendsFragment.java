@@ -1,26 +1,31 @@
-package com.example.qrchive;
+package com.example.qrchive.Fragments;
 
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+
+import com.example.qrchive.R;
 
 /**
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class FriendsFragment extends Fragment {
 
-    public HomeFragment() {
+
+    public FriendsFragment() {
         // Required empty public constructor
     }
 
     /**
-     * @return A new instance of fragment HomeFragment.
+     * @return A new instance of fragment FriendsFragment.
      */
-    public static HomeFragment newInstance() {
-        HomeFragment fragment = new HomeFragment();
+    public static FriendsFragment newInstance() {
+        FriendsFragment fragment = new FriendsFragment();
+
         return fragment;
     }
 
@@ -31,8 +36,7 @@ public class HomeFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        return inflater.inflate(R.layout.fragment_friends, container, false);
     }
 }
