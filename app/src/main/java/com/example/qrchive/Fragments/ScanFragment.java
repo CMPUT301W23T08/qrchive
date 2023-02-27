@@ -3,10 +3,13 @@ package com.example.qrchive.Fragments;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,6 +32,7 @@ public class ScanFragment extends Fragment {
     private CodeScanner mCodeScanner;
 
     private CodeScannerView scannerView;
+    private Button resetButton;
 
     @Nullable
     @Override
@@ -51,6 +55,8 @@ public class ScanFragment extends Fragment {
                         public void run() {
                             Toast.makeText(activity, result.getText(), Toast.LENGTH_SHORT).show();
                             // can get result of the scan with result.getText()
+                            scannerView.setForeground(new ColorDrawable(Color.GRAY));
+
                         }
                     });
                 }
@@ -68,6 +74,14 @@ public class ScanFragment extends Fragment {
             requestPermissionLauncher.launch(
                     android.Manifest.permission.CAMERA);
         }
+
+        resetButton = root.findViewById(R.id.fragment_scan_reset_button);
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                scannerView.setForeground(null);
+            }
+        });
 
 
         return root;
