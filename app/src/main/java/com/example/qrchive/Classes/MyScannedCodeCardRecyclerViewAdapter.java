@@ -1,4 +1,4 @@
-package com.example.qrchive;
+package com.example.qrchive.Classes;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
