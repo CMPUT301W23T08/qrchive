@@ -31,10 +31,10 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         ScannedCode scannedCode = scannedCodes.get(position);
-        holder.codeCardName.setText("Name"); //TODO
+        holder.codeCardName.setText(scannedCode.getName()); //TODO
         holder.codeCardLocation.setText(scannedCode.getLocation());
         holder.codeCardDate.setText(scannedCode.getDate());
-        holder.codeCardPts.setText("100"); // TODO
+        holder.codeCardPts.setText(String.valueOf(scannedCode.getPoints())); // TODO
     }
 
     @Override
