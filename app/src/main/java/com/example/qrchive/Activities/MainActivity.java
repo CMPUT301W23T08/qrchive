@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
                             prefEditor.putString("userName", userDoc.getData().get("userName").toString());
                             prefEditor.putString("emailID", userDoc.getData().get("emailID").toString());
                             prefEditor.putString("deviceID", android_device_id);
+                            prefEditor.putString("userDID", userDoc.getId());
                             prefEditor.apply();
                         }
                     }
