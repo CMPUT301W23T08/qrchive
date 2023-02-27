@@ -1,13 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/list"
-    android:name="com.example.qrchive.ScannedCodeCardFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    app:layoutManager="LinearLayoutManager"
-    tools:context=".Fragments.CodesFragment"
-    tools:listitem="@layout/fragment_codes_content" />
+    >
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/sorted_by_card"
+        style="@style/myCardStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sorted by:"/>
+
+            <Spinner
+                android:id="@+id/sorted_by_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toRightOf="@id/sorted_by_card"
+                />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_list"
+        android:name="com.example.qrchive.ScannedCodeCardFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layoutManager="LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/sorted_by_card"
+        tools:context=".Fragments.CodesFragment"
+        tools:listitem="@layout/fragment_codes_content"
+        />
+
+
+    <LinearLayout
+        android:id="@+id/bottom_cards_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="horizontal">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/bottom_pts_card"
+            style="@style/myCardStyle"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="0.6"
+            app:layout_constraintRight_toLeftOf="@+id/bottom_qrs_card"
+            >
+            <TextView
+                android:id="@+id/bottom_pts_card_text"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_height="80dp"
+                android:textSize="50dp"
+                android:textStyle="bold"
+                android:text="XYZ" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_margin="5dp"
+                android:layout_gravity="bottom|right"
+                android:text="pts"/>
+        </androidx.cardview.widget.CardView>
+        <androidx.cardview.widget.CardView
+            android:id="@+id/bottom_qrs_card"
+            style="@style/myCardStyle"
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="0.4"
+            app:layout_constraintLeft_toRightOf="@+id/bottom_pts_card">
+            <TextView
+                android:id="@+id/bottom_qrs_card_text"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_height="80dp"
+                android:textSize="50dp"
+                android:textStyle="bold"
+                android:text="XYZ" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_margin="5dp"
+                android:layout_gravity="bottom|right"
+                android:text="QRs"/>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

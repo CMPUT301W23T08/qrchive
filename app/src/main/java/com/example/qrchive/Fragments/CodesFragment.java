@@ -12,6 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.qrchive.Classes.MyScannedCodeCardRecyclerViewAdapter;
 import com.example.qrchive.R;
@@ -24,8 +28,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * create an instance of this fragment.
@@ -49,6 +56,15 @@ public class CodesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+}
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_codes, container, false);
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_list);
+
+
         SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         scannedCodes = new ArrayList<>();
@@ -70,23 +86,51 @@ public class CodesFragment extends Fragment {
                                             docData.get("userDID").toString());
                             scannedCodes.add(scannedCode);
                         }
+
+                        // Default sort would be newest to oldest
+                        scannedCodes.sort(Collections.reverseOrder(Comparator.comparing(ScannedCode::getDate)));
                         scannedCodesAdapter.notifyDataSetChanged();
+                        ((TextView) view.findViewById(R.id.bottom_qrs_card_text)).setText(String.valueOf(scannedCodes.size()));
+                        ((TextView) view.findViewById(R.id.bottom_pts_card_text)).setText(String.valueOf(
+                                scannedCodes.stream().mapToInt(ScannedCode::getPoints).sum()
+                        ));
                     }
                 });
 
-}
+        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+        recyclerView.setAdapter(scannedCodesAdapter);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_codes, container, false);
+        Spinner sortedBySpinner = view.findViewById(R.id.sorted_by_spinner);
+        sortedBySpinner.setAdapter(new ArrayAdapter<>(
+                view.getContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"Date", "Location", "Points", "Name"}));
+        sortedBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                switch (selectedItem) {
+                    case "Points":
+                        scannedCodes.sort(Collections.reverseOrder(Comparator.comparingInt(ScannedCode::getPoints)));
+                        break;
+                    case "Location":
+                        scannedCodes.sort(Comparator.comparing(ScannedCode::getLocation));
+                        break;
+                    case "Date":
+                        scannedCodes.sort(Collections.reverseOrder(Comparator.comparing(ScannedCode::getDate)));
+                        break;
+                    case "Name":
+                        scannedCodes.sort(Comparator.comparing(ScannedCode::getName));
+                        break;
+                }
+                scannedCodesAdapter.notifyDataSetChanged();
+            }
 
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            recyclerView.setAdapter(scannedCodesAdapter);
-        }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
         return view;
     }
 }
