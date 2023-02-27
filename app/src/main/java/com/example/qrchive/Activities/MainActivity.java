@@ -1,42 +1,40 @@
-package com.example.qrchive;
+package com.example.qrchive.Activities;
 
 import androidx.annotation.NonNull;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.SearchView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.qrchive.Fragments.CodesFragment;
+import com.example.qrchive.Fragments.FriendsFragment;
+import com.example.qrchive.Fragments.HomeFragment;
+import com.example.qrchive.Fragments.LoginDialogFragment;
+import com.example.qrchive.Fragments.MapFragment;
+import com.example.qrchive.Fragments.ProfileFragment;
+import com.example.qrchive.R;
+import com.example.qrchive.Fragments.ScanFragment;
+import com.example.qrchive.Fragments.SettingsFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.local.QueryResult;
 
 import java.util.List;
-import java.util.Map;
-import java.util.prefs.Preferences;
 
 /* For BottomNavItemListener: https://stackoverflow.com/questions/68021770/setonnavigationitemselectedlistener-deprecated
  *  For BottomNavImpl: https://www.geeksforgeeks.org/bottomnavigationview-inandroid/

@@ -1,4 +1,4 @@
-package com.example.qrchive;
+package com.example.qrchive.Fragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.qrchive.R;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -24,7 +25,7 @@ public class LoginDialogFragment extends DialogFragment {
     String android_device_id;
 
     SharedPreferences preferences;
-    LoginDialogFragment(FirebaseFirestore db, SharedPreferences preferences, String android_device_id) {
+    public LoginDialogFragment(FirebaseFirestore db, SharedPreferences preferences, String android_device_id) {
         super();
         this.db = db;
         this.preferences = preferences;

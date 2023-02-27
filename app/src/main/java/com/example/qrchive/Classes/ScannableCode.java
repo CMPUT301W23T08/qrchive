@@ -1,4 +1,4 @@
-package com.example.qrchive;
+package com.example.qrchive.Classes;
 
 import com.google.common.hash.Hashing;
 
