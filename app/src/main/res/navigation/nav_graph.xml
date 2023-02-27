@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.qrchive.HomeFragment"
+        android:name="com.example.qrchive.Fragments.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/codesFragment"
-        android:name="com.example.qrchive.CodesFragment"
+        android:name="com.example.qrchive.Fragments.CodesFragment"
         android:label="fragment_codes"
         tools:layout="@layout/fragment_codes" />
 </navigation>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_search"
+        android:title="Search"
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.SearchView" />
+    <item
+        android:id="@+id/menu_item_dropdown"
+        android:title=""
+        android:icon="@drawable/icon_menu_horizontal"
+        app:showAsAction="always" />
+</menu>
+

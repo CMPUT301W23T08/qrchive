@@ -1,26 +1,26 @@
-package com.example.qrchive;
-
+package com.example.qrchive.Fragments;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * create an instance of this fragment.
- */
-public class CodesFragment extends Fragment {
+import com.example.qrchive.R;
 
-    public CodesFragment() {
+/** MapFragment
+ */
+public class MapFragment extends Fragment {
+
+    public MapFragment() {
         // Required empty public constructor
     }
 
     /**
-     * @return A new instance of fragment CodesFragment.
+     * @return A new instance of fragment MapFramgent.
      */
     // TODO: Rename and change types and number of parameters
-    public static CodesFragment newInstance(String param1, String param2) {
-        CodesFragment fragment = new CodesFragment();
+    public static SettingsFragment newInstance() {
+        SettingsFragment fragment = new SettingsFragment();
         return fragment;
     }
 
@@ -32,6 +32,6 @@ public class CodesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_codes, container, false);
+        return inflater.inflate(R.layout.fragment_map, container, false);
     }
 }

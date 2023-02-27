@@ -1,29 +1,26 @@
-package com.example.qrchive;
-
+package com.example.qrchive.Fragments;
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * create an instance of this fragment.
+import com.example.qrchive.R;
+
+/** Settings Fragment
  */
-public class FriendsFragment extends Fragment {
+public class SettingsFragment extends Fragment {
 
-
-    public FriendsFragment() {
+    public SettingsFragment() {
         // Required empty public constructor
     }
 
     /**
-     * @return A new instance of fragment FriendsFragment.
+     * @return A new instance of fragment SettingsFragment.
      */
-    public static FriendsFragment newInstance() {
-        FriendsFragment fragment = new FriendsFragment();
-
+    // TODO: Rename and change types and number of parameters
+    public static SettingsFragment newInstance() {
+        SettingsFragment fragment = new SettingsFragment();
         return fragment;
     }
 
@@ -35,6 +32,6 @@ public class FriendsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_friends, container, false);
+        return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_dropdown_profile"
+        android:icon="@drawable/icon_profile"
+        android:title="PROFILE"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/menu_dropdown_map"
+        android:icon="@drawable/icon_map"
+        android:title="QR-MAP"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/menu_dropdown_settings"
+        android:icon="@drawable/icon_settings"
+        android:title="SETTINGS"
+        app:showAsAction="always"/>
+</menu>
+

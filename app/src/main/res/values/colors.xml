@@ -5,9 +5,38 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
     <color name="purple">#6E70F0</color>
     <color name="background_blue">#85E6F2</color>
+
+    <!--QRCHIVE Color Scheme-->
+
+    <!--For bottom and top navigation bars-->
+    <color name="very_dark_teal">#046F8D</color>
+
+    <!--For bottom and top navigation bars-->
+    <color name="dark_teal">#31AED2</color>
+
+    <!--For buttons and rectangles that don't display dense info-->
+    <color name="high_contrast_teal">#8BE4FE</color>
+
+    <!--For buttons and rectangles that display dense info-->
+    <color name="low_contrast_teal">#C0F1FF</color>
+
+    <!--Standard Background color-->
+    <color name="background_grey">#F5F5F5</color>
+
+    <!--Standard Background color-->
+    <color name="alternative_background_grey">#ECECEC</color>
+
+    <!--Background color for Icons and other images-->
+    <color name="icon_background_blue">#4C8ED8</color>
+
+    <!--Shadow color for icons-->
+    <color name="icon_shadow_blue">#3476D0</color>
+
+    <!--Standard Black and White-->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
 
 </resources>
