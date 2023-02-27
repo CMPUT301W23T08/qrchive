@@ -1,4 +1,4 @@
-package com.example.qrchive;
+package com.example.qrchive.Classes;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
@@ -68,8 +68,8 @@ public class ScannableCode {
     public String getName() {
         StringBuilder name = new StringBuilder();
         Hashtable<Integer, String> bitToString = new Hashtable<Integer, String>() {{
-            put(0, "cool");
-            put(1, "hot");
+            put(0, "cool ");
+            put(1, "hot ");
             put(2, "Fro");
             put(3, "Glo");
             put(4, "Mo");
@@ -81,8 +81,6 @@ public class ScannableCode {
             put(10, "Crab");
             put(11, "Shark");
         }};
-
-
 
         for(int i = 0; i < 6; ++i){
             if((hashVal & (1 << i)) != 0){
