@@ -25,6 +25,8 @@ import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
 import com.example.qrchive.R;
 import com.google.zxing.Result;
+
+
 /**
  * create an instance of this fragment.
  */
@@ -33,6 +35,7 @@ public class ScanFragment extends Fragment {
 
     private CodeScannerView scannerView;
     private Button resetButton;
+    private Button flashButton;
 
     @Nullable
     @Override
@@ -55,7 +58,7 @@ public class ScanFragment extends Fragment {
                         public void run() {
                             Toast.makeText(activity, result.getText(), Toast.LENGTH_SHORT).show();
                             // can get result of the scan with result.getText()
-                            scannerView.setForeground(new ColorDrawable(Color.GRAY));
+                            scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
 
                         }
                     });
@@ -75,14 +78,33 @@ public class ScanFragment extends Fragment {
                     android.Manifest.permission.CAMERA);
         }
 
+
         resetButton = root.findViewById(R.id.fragment_scan_reset_button);
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                scannerView.setForeground(null);
+                scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
+                if (mCodeScanner != null) {
+                    mCodeScanner.releaseResources();
+                    mCodeScanner.startPreview();
+                } else {
+                    mCodeScanner = new CodeScanner(activity, scannerView);
+                    mCodeScanner.setDecodeCallback(new DecodeCallback() {
+                        @Override
+                        public void onDecoded(@NonNull final Result result) {
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(activity, result.getText(), Toast.LENGTH_SHORT).show();
+                                    scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
+                                }
+                            });
+                        }
+                    });
+                    mCodeScanner.startPreview();
+                }
             }
         });
-
 
         return root;
     }
