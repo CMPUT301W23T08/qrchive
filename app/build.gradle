@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'androidx.navigation.safeargs'
     id 'com.google.gms.google-services'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -52,6 +53,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.5.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
 
     //JUnit Testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.2'
@@ -74,6 +76,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics-buildtools:2.9.2'
     implementation 'com.google.firebase:firebase-firestore:24.4.3'// for SHA256 Hashing
     implementation platform('com.google.firebase:firebase-bom:31.2.2')
+
 
     // Camera permission request
     //    implementation 'androidx.activity:activity:1.8.0-alpha01'

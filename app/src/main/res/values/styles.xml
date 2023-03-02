@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="myCardStyle">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_margin">@dimen/text_margin</item>
+        <item name="cardCornerRadius">5dp</item>
+        <item name="cardBackgroundColor">@color/high_contrast_teal</item>
+        <item name="cardElevation">8dp</item>
+    </style>
+</resources>

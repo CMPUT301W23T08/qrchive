@@ -1,11 +1,12 @@
-package com.example.qrchive;
+package com.example.qrchive.Fragments;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+
+import com.example.qrchive.R;
 
 /**
  * create an instance of this fragment.
