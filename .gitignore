@@ -13,4 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-/app/src/main/res/values/localMapsKey.xml
+apikey.properties

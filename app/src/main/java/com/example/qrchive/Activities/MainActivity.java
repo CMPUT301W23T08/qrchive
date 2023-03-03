@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -18,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.qrchive.BuildConfig;
 import com.example.qrchive.Fragments.CodesFragment;
 import com.example.qrchive.Fragments.FriendsFragment;
 import com.example.qrchive.Fragments.HomeFragment;
@@ -33,12 +36,16 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.rpc.context.AttributeContext;
+
+import org.xmlpull.v1.XmlPullParser;
 
 import java.util.List;
 
 /* For BottomNavItemListener: https://stackoverflow.com/questions/68021770/setonnavigationitemselectedlistener-deprecated
  *  For BottomNavImpl: https://www.geeksforgeeks.org/bottomnavigationview-inandroid/
  * */
+
 
 public class MainActivity extends AppCompatActivity {
 
