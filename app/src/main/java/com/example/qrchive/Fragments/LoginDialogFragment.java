@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.qrchive.R;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -48,13 +49,16 @@ public class LoginDialogFragment extends DialogFragment {
                     user.put("friends", new ArrayList<String>());
                     user.put("userName", userNameField.getText().toString());
                     user.put("emailID",emailField.getText().toString());
-                    db.collection("Users").add(user);
+
+                    DocumentReference docref = db.collection("Users").document();
+                    docref.set(user);
 
                     // Populating preferences
                     SharedPreferences.Editor prefEdit = preferences.edit();
                     prefEdit.putString("userName", userNameField.getText().toString());
                     prefEdit.putString("emailID", emailField.getText().toString());
                     prefEdit.putString("deviceID", android_device_id);
+                    prefEdit.putString("userDID", docref.getId());
                 })
                 .create();
     }
