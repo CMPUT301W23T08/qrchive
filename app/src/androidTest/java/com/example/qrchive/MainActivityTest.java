@@ -32,13 +32,13 @@ public class MainActivityTest {
     @Test
     public void testNavigationToCodeFragment() {
         // Assert Codes Fragment TextView Title Does not exist yet
-        onView(withId(R.id.codes_fragment_title)).check(doesNotExist());
+        onView(withId(R.id.sorted_by_card)).check(doesNotExist());
 
         // Navigate to the codes fragment by clicking on Menu Item
         onView(withId(R.id.menu_item_codes)).perform(click());
 
         // Assert Codes Fragment Title TextView has appeared.
-        onView(withId(R.id.codes_fragment_title)).check(matches(isDisplayed()));
+        onView(withId(R.id.sorted_by_card)).check(matches(isDisplayed()));
     }
 
     /** Basic Test to assert that the package loaded is qrchive.
