@@ -2,17 +2,15 @@ package com.example.qrchive.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
-
 import com.example.qrchive.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,30 +19,46 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-// For Current Location Display: https://www.javatpoint.com/android-google-map-displaying-current-location
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-
-    private final int REQUEST_PERMISSION_STATE = 1;
-    private final static int ZOOM_LEVEL = 16;
-    private boolean locationPermissionGranted;
-    private LocationManager locationManager;
     private GoogleMap mMap;
+    private LocationManager locationManager;
+    private Location currentLocation;
+
+    private static final int REQUEST_CODE_FINE_LOCATION = 200;
+    private static final int REQUEST_CODE_LOCATION_SERVICES = 1;
+    private final static int ZOOM_LEVEL = 16;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            //TODO: handle permission request
-            Toast.makeText(this, "Location Permission is not enabled. Some features are not available", Toast.LENGTH_SHORT).show();
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
 
-        } else {
-            // Permission has already been granted
-            locationPermissionGranted = true;
-            initMap();
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.getUiSettings().setMapToolbarEnabled(true);
+
+        // Permission Check;
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            // Request Permissions from User.
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
+            return;
         }
+
+        // Get device location
+        mMap.setMyLocationEnabled(true);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 10F, (LocationListener) this);
+        currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        scatterQRLocations();
     }
 
     @Override
@@ -55,36 +69,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (requestCode == 200) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission was granted
-                initMap();
+                Intent intent = getIntent();
+                finish();
+                startActivity(intent);
+                Toast.makeText(this, "Thank you for allowing location", Toast.LENGTH_SHORT).show();
             } else {
                 // Permission denied
-                Toast.makeText(this, "Location permission is required for some features",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Location permission is required for some features", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    private void initMap() {
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-    }
-
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        // Forced permission check;
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        mMap.setMyLocationEnabled(true);
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        scatterQRLocations();
+    public void onLocationChanged(Location location) {
+        currentLocation = location;
+        moveCameraToCurrentLocation();
     }
 
+    /** Move camera to current location. May be null if Location Services is not enabled.
+     * This is a separate permission from FINE_LOCATION.
+     * */
+    private void moveCameraToCurrentLocation() {
+
+        // Website: JavaPoint
+        // Answer: https://www.javatpoint.com/android-google-map-displaying-current-location
+
+        double latitude = currentLocation.getLatitude();
+        double longitude = currentLocation.getLongitude();
+
+        LatLng myLocation = new LatLng(latitude, longitude);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, ZOOM_LEVEL));
+    }
 
     /**
      * @method: scatter some QR codes around the current location of the user.
@@ -97,12 +112,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
 
-        Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        double latitude = lastLocation.getLatitude();
-        double longitude = lastLocation.getLongitude();
-
-        LatLng myLocation = new LatLng(latitude, longitude);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, ZOOM_LEVEL));
+        moveCameraToCurrentLocation();
+        double latitude = currentLocation.getLatitude();
+        double longitude = currentLocation.getLongitude();
 
         int numCodes = 100;
         double scale = 0.01;
@@ -128,7 +140,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             LatLng randomQRMarker = new LatLng(final_lat, final_long);
             mMap.addMarker(new MarkerOptions().position(randomQRMarker).title("QR Code!"));
-
         }
     }
 }
