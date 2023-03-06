@@ -11,6 +11,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.widget.Toast;
+import com.example.qrchive.Classes.MapModel;
 import com.example.qrchive.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,6 +25,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private LocationManager locationManager;
     private Location currentLocation;
+    private MapModel mapModel;
+    private boolean fine_location_enabled = false;
 
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
     private static final int REQUEST_CODE_LOCATION_SERVICES = 1;
@@ -58,6 +61,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 10F, (LocationListener) this);
         currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
+        if (currentLocation == null) {
+            Toast.makeText(this, "Navigate to settings to enable location services", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        moveCameraToCurrentLocation();
         scatterQRLocations();
     }
 
@@ -72,6 +81,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Intent intent = getIntent();
                 finish();
                 startActivity(intent);
+                fine_location_enabled = true;
                 Toast.makeText(this, "Thank you for allowing location", Toast.LENGTH_SHORT).show();
             } else {
                 // Permission denied
@@ -112,7 +122,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
 
-        moveCameraToCurrentLocation();
         double latitude = currentLocation.getLatitude();
         double longitude = currentLocation.getLongitude();
 
