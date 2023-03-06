@@ -2,5 +2,6 @@
     <string name="app_name">qrchive</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="reset_button">Reset</string>
+    <string name="title_activity_maps">MapsActivity</string>
 
 </resources>
