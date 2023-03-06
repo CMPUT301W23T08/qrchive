@@ -1,16 +1,24 @@
-package com.example.qrchive.Fragments;
+package com.example.qrchive;
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.example.qrchive.R;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.Toast;
 
 /** Settings Fragment
  */
 public class SettingsFragment extends Fragment {
-
     public SettingsFragment() {
         // Required empty public constructor
     }
@@ -25,13 +33,28 @@ public class SettingsFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    public void onCreate(Bundle savedInstanceState) {super.onCreate(savedInstanceState);}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+        View settingsView = inflater.inflate(R.layout.fragment_settings, container, false);
+
+
+        // getting the geolocation switch from fragment_setting
+        Button switchLocationPrefBtn = settingsView.findViewById(R.id.switchLocationPrefBtn);
+
+        switchLocationPrefBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show location settings when the user acknowledges the alert dialog
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        });
+        return settingsView;
     }
+
+
 }

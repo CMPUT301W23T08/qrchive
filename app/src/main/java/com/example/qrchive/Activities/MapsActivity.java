@@ -6,10 +6,17 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -30,21 +37,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean locationPermissionGranted;
     private LocationManager locationManager;
     private GoogleMap mMap;
+    private static final int REQUEST_CODE_LOCATION_SETTINGS = 1;
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            //TODO: handle permission request
-            Toast.makeText(this, "Location Permission is not enabled. Some features are not available", Toast.LENGTH_SHORT).show();
 
-        } else {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            Toast.makeText(this, "Location Permission is not enabled. Some features are not available", Toast.LENGTH_SHORT).show();
+            requestUserLocationService();
+
+
+            }else{
             // Permission has already been granted
-            locationPermissionGranted = true;
+            locationPermissionGranted = true; // might be ambiguous
             initMap();
         }
+
+
+
     }
 
     @Override
@@ -91,6 +108,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * */
     private void scatterQRLocations() {
 
+
         // Forced permission check;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -98,6 +116,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+        // ensures that lastLocation is a non-null object
+        if (lastLocation == null) {
+            Criteria criteria = new Criteria();
+            String provider = locationManager.getBestProvider(criteria, true);
+            lastLocation = locationManager.getLastKnownLocation(provider);
+        }
+
         double latitude = lastLocation.getLatitude();
         double longitude = lastLocation.getLongitude();
 
@@ -129,6 +155,53 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng randomQRMarker = new LatLng(final_lat, final_long);
             mMap.addMarker(new MarkerOptions().position(randomQRMarker).title("QR Code!"));
 
+        }
+    }
+
+    /**
+     * @method: prompts user to change location preferences
+     */
+    private void requestUserLocationService(){
+        // Inspiration from:
+        //  Siddarth Nyati, Feb 28, 2018, How to prompt user to turn on location?, https://stackoverflow.com/questions/36681528/how-to-prompt-user-to-turn-on-location
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Location permission is required for some features");
+        builder.setMessage("Please enable Location Services to use this feature");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                // Show location settings when the user acknowledges the alert dialog
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivityForResult(intent, REQUEST_CODE_LOCATION_SETTINGS);
+            }
+        });
+        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                startActivity(new Intent(MapsActivity.this, MainActivity.class));
+            }
+        });
+        Dialog alertDialog = builder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
+    }
+
+
+    /**
+     *
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode The integer result code returned by the child activity
+     *                   through its setResult().
+     * @param data An Intent, which can return result data to the caller
+     *               (various data can be attached to Intent "extras").
+     *
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_LOCATION_SETTINGS) {
+            initMap();
         }
     }
 }
