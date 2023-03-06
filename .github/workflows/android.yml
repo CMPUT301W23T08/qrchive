@@ -22,5 +22,9 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+    
+    - name: Inject API Key into local.properties
+      run: echo "MAPS_API_KEY="AIzaSyBjBKxQPoyQ5OEA8NL9x08LflycdZrwrmk"" > local.properties
+    
     - name: Build with Gradle
       run: ./gradlew build
