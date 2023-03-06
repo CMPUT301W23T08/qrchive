@@ -1,30 +1,34 @@
 package com.example.qrchive.Activities;
 
+import androidx.annotation.NonNull;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Bundle;
+import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 import android.provider.Settings;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import androidx.appcompat.widget.Toolbar;
+
+import com.example.qrchive.BuildConfig;
 import com.example.qrchive.Fragments.CodesFragment;
 import com.example.qrchive.Fragments.FriendsFragment;
 import com.example.qrchive.Fragments.HomeFragment;
 import com.example.qrchive.Fragments.LoginDialogFragment;
 import com.example.qrchive.Fragments.ProfileFragment;
-import com.example.qrchive.Fragments.ScanFragment;
 import com.example.qrchive.R;
-import com.example.qrchive.SettingsFragment;
+import com.example.qrchive.Fragments.ScanFragment;
+import com.example.qrchive.Fragments.SettingsFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -32,6 +36,9 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.rpc.context.AttributeContext;
+
+import org.xmlpull.v1.XmlPullParser;
 
 import java.util.List;
 
