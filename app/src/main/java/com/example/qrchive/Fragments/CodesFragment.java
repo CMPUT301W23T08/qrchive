@@ -79,10 +79,11 @@ public class CodesFragment extends Fragment {
                         for (DocumentSnapshot document : docs) {
                             Map<String, Object> docData = document.getData();
                             ScannedCode scannedCode = new ScannedCode
-                                    (document.getId(),
-                                            docData.get("codeDID").toString(),
+                                    (docData.get("hash").toString(),
+                                            Integer.parseInt(docData.get("hashVal").toString()),
                                             docData.get("date").toString(),
                                             docData.get("location").toString(),
+                                            docData.get("locationImage").toString(),
                                             docData.get("userDID").toString());
                             scannedCodes.add(scannedCode);
                         }

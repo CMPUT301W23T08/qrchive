@@ -35,6 +35,7 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
         holder.codeCardLocation.setText(scannedCode.getLocation());
         holder.codeCardDate.setText(scannedCode.getDate());
         holder.codeCardPts.setText(String.valueOf(scannedCode.getPoints())); // TODO
+        holder.codeCardAscii.setText(scannedCode.getAscii());
     }
 
     @Override
@@ -43,7 +44,7 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final ImageView codeCardImage;
+        public final TextView codeCardAscii;
         public final TextView codeCardName;
         public final TextView codeCardLocation;
         public final TextView codeCardDate;
@@ -51,7 +52,7 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
 
         public ViewHolder(@NonNull FragmentCodesContentBinding binding) {
             super(binding.getRoot());
-            codeCardImage = binding.codeCardImage;
+            codeCardAscii = binding.codeCardAscii;
             codeCardName = binding.codeCardName;
             codeCardLocation = binding.codeCardLocation;
             codeCardDate = binding.codeCardDate;
