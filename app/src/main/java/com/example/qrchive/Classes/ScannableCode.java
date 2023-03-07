@@ -1,8 +1,7 @@
 package com.example.qrchive.Classes;
 
-import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
-import java.lang.Math;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
 
@@ -105,6 +104,7 @@ public class ScannableCode {
         asciiSquare.append("      , - ~ ~ ~ - ,\n" +          // forehead
                            "  , '               ' ,\n");       // forehead
 
+        // this look creative and quite creepy ngl
         Hashtable<Integer, String> bitToRound = new Hashtable<Integer, String>() {{
             put(0, "    ,      ~        ~       ,\n"); // eyebrows
             put(1, "    ,                       ,\n"); // no eyebrows

@@ -16,13 +16,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
+import com.example.qrchive.Classes.CurrentQRCode;
 import com.example.qrchive.R;
 import com.google.zxing.Result;
 
@@ -32,6 +32,9 @@ import com.google.zxing.Result;
  */
 public class ScanFragment extends Fragment {
     private CodeScanner mCodeScanner;
+
+   // save scanned code
+    private CurrentQRCode currentQRCode;
 
     private CodeScannerView scannerView;
     private Button resetButton;
@@ -56,6 +59,7 @@ public class ScanFragment extends Fragment {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            // result is the code scanned
                             Toast.makeText(activity, result.getText(), Toast.LENGTH_SHORT).show();
                             // can get result of the scan with result.getText()
                             scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
@@ -97,6 +101,8 @@ public class ScanFragment extends Fragment {
                                 public void run() {
                                     Toast.makeText(activity, result.getText(), Toast.LENGTH_SHORT).show();
                                     scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
+                                    currentQRCode = new CurrentQRCode();
+                                    currentQRCode.setQRcode(result.getText());
                                 }
                             });
                         }
