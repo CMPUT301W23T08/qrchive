@@ -5,10 +5,54 @@
     android:layout_height="match_parent"
     tools:context=".Fragments.SettingsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="This is the settings fragment" />
+        android:orientation="vertical"
+        android:textAlignment="center">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Settings"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            android:textColor="@color/black"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="5dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/change_location_preferences"
+                android:textSize="15dp"
+                tools:ignore="TextSizeCheck" />
+
+            <Space
+                android:layout_width="100dp"
+                android:layout_height="match_parent"/>
+
+            <Button
+                android:id="@+id/cnageLocPrefBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="change"/>
+
+
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
 
 </FrameLayout>
