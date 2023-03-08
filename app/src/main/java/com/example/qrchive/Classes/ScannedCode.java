@@ -1,4 +1,7 @@
 package com.example.qrchive.Classes;
+import com.google.common.hash.Hashing;
+
+import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
 import java.util.Random;
 
@@ -13,6 +16,13 @@ public class ScannedCode {
     private String name;
     private String ascii;
 
+    // Alternative constructor which takes the codeName instead of the hash, and hashVal
+    // (hence calculates the hash and hashVal on the fly)
+    public ScannedCode(String code, String date, String location, String locationImage, String userDID) {
+        this(Hashing.sha256().hashString(code, StandardCharsets.UTF_8).toString(),
+                Hashing.sha256().hashString(code, StandardCharsets.UTF_8).asInt(),
+                date, location, locationImage, userDID);
+    }
     public ScannedCode(String hash, int hashVal, String date, String location, String locationImage, String userDID) {
         this.hash = hash;
         this.hashVal = hashVal;
