@@ -58,7 +58,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Get device location
         mMap.setMyLocationEnabled(true);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 10F, (LocationListener) this);
         currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
         if (currentLocation == null) {
@@ -66,7 +65,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
 
-        moveCameraToCurrentLocation();
         scatterQRLocations();
     }
 
@@ -93,7 +91,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         currentLocation = location;
-        moveCameraToCurrentLocation();
+        // if we want to update camera always to current location
+        // moveCameraToCurrentLocation();
     }
 
     /** Move camera to current location. May be null if Location Services is not enabled.
