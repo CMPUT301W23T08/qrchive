@@ -65,6 +65,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
 
+        moveCameraToCurrentLocation();
         scatterQRLocations();
     }
 
@@ -92,7 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onLocationChanged(Location location) {
         currentLocation = location;
         // if we want to update camera always to current location
-        // moveCameraToCurrentLocation();
+//         moveCameraToCurrentLocation();
     }
 
     /** Move camera to current location. May be null if Location Services is not enabled.
@@ -114,40 +115,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * @method: scatter some QR codes around the current location of the user.
      * */
     private void scatterQRLocations() {
-
-        // Forced permission check;
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        double latitude = currentLocation.getLatitude();
         double longitude = currentLocation.getLongitude();
+        double latitude = currentLocation.getLatitude();
 
-        int numCodes = 100;
-        double scale = 0.01;
+        mapModel = new MapModel(latitude, longitude);
+        mapModel.getNearbyQRCodes();
 
-        for (int i=0 ; i< numCodes; i++)  {
-            //calculate some values
-            double final_lat;
-            double final_long;
-            boolean negativeLat = (int) (Math.random() * 1000) % 2 == 0;
-            boolean negativeLong = (int) (Math.random() * 1000) % 2 == 0;
-            double randLat  = Math.random() * scale;
-            double randLong = Math.random() * scale;
-
-            if (negativeLat) {
-                final_lat = ((-1 * randLat) + latitude);
-            } else {
-                final_lat = (randLat + latitude);
-            } if (negativeLong) {
-                final_long = ((-1 * randLong) + longitude);
-            } else {
-                final_long = (randLong + longitude);
-            }
-
-            LatLng randomQRMarker = new LatLng(final_lat, final_long);
-            mMap.addMarker(new MarkerOptions().position(randomQRMarker).title("QR Code!"));
-        }
+//        // Forced permission check;
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            return;
+//        }
+//
+//        double latitude = currentLocation.getLatitude();
+//        double longitude = currentLocation.getLongitude();
+//
+//        int numCodes = 100;
+//        double scale = 0.01;
+//
+//        for (int i=0 ; i< numCodes; i++)  {
+//            //calculate some values
+//            double final_lat;
+//            double final_long;
+//            boolean negativeLat = (int) (Math.random() * 1000) % 2 == 0;
+//            boolean negativeLong = (int) (Math.random() * 1000) % 2 == 0;
+//            double randLat  = Math.random() * scale;
+//            double randLong = Math.random() * scale;
+//
+//            if (negativeLat) {
+//                final_lat = ((-1 * randLat) + latitude);
+//            } else {
+//                final_lat = (randLat + latitude);
+//            } if (negativeLong) {
+//                final_long = ((-1 * randLong) + longitude);
+//            } else {
+//                final_long = (randLong + longitude);
+//            }
+//
+//            LatLng randomQRMarker = new LatLng(final_lat, final_long);
+//            mMap.addMarker(new MarkerOptions().position(randomQRMarker).title("QR Code!"));
+//        }
     }
 }
