@@ -1,5 +1,6 @@
 package com.example.qrchive.Classes;
 import com.google.common.hash.Hashing;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
@@ -9,24 +10,35 @@ public class ScannedCode {
     private String hash;
     private int hashVal;
     private String date;
-    private String location;
+    private boolean hasLocation;
+    private GeoPoint location;
     private String locationImage;
     private String userDID;
     private int points;
     private String name;
     private String ascii;
 
-    // Alternative constructor which takes the codeName instead of the hash, and hashVal
-    // (hence calculates the hash and hashVal on the fly)
-    public ScannedCode(String code, String date, String location, String locationImage, String userDID) {
+    // Constructor which uses code and assumes no location
+    public ScannedCode(String code, String date, String locationImage, String userDID) {
         this(Hashing.sha256().hashString(code, StandardCharsets.UTF_8).toString(),
                 Hashing.sha256().hashString(code, StandardCharsets.UTF_8).asInt(),
-                date, location, locationImage, userDID);
+                date, new GeoPoint(0,0), false, locationImage, userDID);
+        // even though i pass (0,0) for geopoint, it SHOULD NOT BE USED as hasLocation is false
     }
-    public ScannedCode(String hash, int hashVal, String date, String location, String locationImage, String userDID) {
+
+    // Constructor which uses code and assumes location
+    public ScannedCode(String code, String date, GeoPoint location, String locationImage, String userDID) {
+        this(Hashing.sha256().hashString(code, StandardCharsets.UTF_8).toString(),
+                Hashing.sha256().hashString(code, StandardCharsets.UTF_8).asInt(),
+                date, location, true, locationImage, userDID);
+    }
+
+    // Base Constructor
+    public ScannedCode(String hash, int hashVal, String date, GeoPoint location, boolean hasLocation, String locationImage, String userDID) {
         this.hash = hash;
         this.hashVal = hashVal;
         this.date = date;
+        this.hasLocation = hasLocation;
         this.location = location;
         this.locationImage = locationImage;
         this.userDID = userDID;
@@ -160,7 +172,7 @@ public class ScannedCode {
         return date;
     }
 
-    public String getLocation() {
+    public GeoPoint getLocation() {
         return location;
     }
 

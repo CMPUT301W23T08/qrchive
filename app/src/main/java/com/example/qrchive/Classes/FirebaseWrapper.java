@@ -11,6 +11,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -48,7 +49,8 @@ public class FirebaseWrapper {
                                     (docData.get("hash").toString(),
                                             Integer.parseInt(docData.get("hashVal").toString()),
                                             docData.get("date").toString(),
-                                            docData.get("location").toString(),
+                                            (GeoPoint) docData.get("location"),
+                                            (boolean) docData.get("hasLocation"),
                                             docData.get("locationImage").toString(),
                                             docData.get("userDID").toString());
                             scannedCodes.add(scannedCode);
