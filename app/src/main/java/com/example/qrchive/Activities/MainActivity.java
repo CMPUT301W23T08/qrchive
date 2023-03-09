@@ -219,7 +219,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         return true;
     }
 
@@ -229,7 +228,4 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
         return;
     }
-
-
-
 }
