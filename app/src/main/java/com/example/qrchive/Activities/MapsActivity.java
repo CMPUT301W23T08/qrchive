@@ -10,8 +10,11 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 import com.example.qrchive.Classes.MapModel;
+import com.example.qrchive.Classes.ScannedCode;
+import com.example.qrchive.Classes.onCodesGeoQueriedListener;
 import com.example.qrchive.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -20,7 +23,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
+import java.util.List;
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, onCodesGeoQueriedListener {
 
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -111,49 +116,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, ZOOM_LEVEL));
     }
 
+    private void drawCodeMarker(ScannedCode code) {
+        String location = code.getLocation();
+        Log.d("Location: ", location);
+        mMap.addMarker(new MarkerOptions().position(new LatLng(1, 1)).title("QR Code!"));
+    }
+
     /**
      * @method: scatter some QR codes around the current location of the user.
      * */
     private void scatterQRLocations() {
+        Log.d("SCATTER QR LOCATIONS ", "HERE");
         double longitude = currentLocation.getLongitude();
         double latitude = currentLocation.getLatitude();
-
         mapModel = new MapModel(latitude, longitude);
-        mapModel.getNearbyQRCodes();
+        mapModel.setNearbyQRCodes(this);
+    }
 
-//        // Forced permission check;
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            return;
-//        }
-//
-//        double latitude = currentLocation.getLatitude();
-//        double longitude = currentLocation.getLongitude();
-//
-//        int numCodes = 100;
-//        double scale = 0.01;
-//
-//        for (int i=0 ; i< numCodes; i++)  {
-//            //calculate some values
-//            double final_lat;
-//            double final_long;
-//            boolean negativeLat = (int) (Math.random() * 1000) % 2 == 0;
-//            boolean negativeLong = (int) (Math.random() * 1000) % 2 == 0;
-//            double randLat  = Math.random() * scale;
-//            double randLong = Math.random() * scale;
-//
-//            if (negativeLat) {
-//                final_lat = ((-1 * randLat) + latitude);
-//            } else {
-//                final_lat = (randLat + latitude);
-//            } if (negativeLong) {
-//                final_long = ((-1 * randLong) + longitude);
-//            } else {
-//                final_long = (randLong + longitude);
-//            }
-//
-//            LatLng randomQRMarker = new LatLng(final_lat, final_long);
-//            mMap.addMarker(new MarkerOptions().position(randomQRMarker).title("QR Code!"));
-//        }
+    @Override
+    public void onCodesGeoQueried(List<ScannedCode> nearbyCodes) {
+        Log.d("SCATTER QR LOCATIONS ", String.valueOf(mapModel.getNearbyQRCodes()));
+
+        for (ScannedCode code : mapModel.getNearbyQRCodes()) {
+            drawCodeMarker(code);
+        }
     }
 }

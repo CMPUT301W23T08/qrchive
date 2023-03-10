@@ -6,10 +6,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -23,12 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import kotlin.Triple;
+
 public class MapModel {
 
-    private final double radius = 0.03;
-    private List<ScannedCode> nearByCodes;
+    private final double radius = 200;
     private GeoPoint center;
     private FirebaseFirestore db;
+    private List<ScannedCode> nearByCodes;
     private GeoFirestore geoFirestore;
     private double latitude;
     private double longitude;
@@ -36,45 +40,42 @@ public class MapModel {
     public MapModel(double latitude, double longitude) {
 
         // initialize members
-        nearByCodes = new ArrayList<>();
-        db = FirebaseFirestore.getInstance();
         this.longitude = longitude;
         this.latitude = latitude;
+        nearByCodes = new ArrayList<>();
+        db = FirebaseFirestore.getInstance();
     }
 
-    public void getNearbyQRCodes() {
-        Log.d("CALL GET NEAT BY QR CODES", "==================");
+    public List<ScannedCode> getNearbyQRCodes() {
+        return nearByCodes;
+    }
 
-        db.collection("ScannedCodes")
+    public void setNearbyQRCodes(onCodesGeoQueriedListener callback) {
+
+
+        geoFirestore = new GeoFirestore(db.collection("ScannedCodesTest"));
+        GeoPoint currentLocation = new GeoPoint(this.latitude, this.longitude);
+
+        // Geo Query requires the fields g: hashed location and l: GeoPoint representing location.
+        // there is a way to rename the fields with settings, so that we could use
+        db.collection("ScannedCodesTest")
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Map<String, Object> data = document.getData();
-                                if (data.get("location") != null) {
-                                    Log.d("QR Code", data.get("location").toString());
-                                } else {
-                                    Log.d("QR Code", "data.get(Code) == null");
-                                }
-
-                            }
-                        } else {
-
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            GeoPoint scannedLocation = document.getGeoPoint("location");
+                            geoFirestore.setLocation(document.getId(), scannedLocation);
                         }
                     }
                 });
 
-        geoFirestore = new GeoFirestore(db.collection("ScannedCodes"));
-        GeoPoint currentLocation = new GeoPoint(this.latitude, this.longitude);
+        // Make a GeoQuery for documents with location within radius of current location.
         GeoQuery geoQuery = geoFirestore.queryAtLocation(currentLocation, this.radius);
-
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onGeoQueryReady() {
                 // All documents within the search radius have been loaded
-
+                callback.onCodesGeoQueried(nearByCodes);
             }
 
             @Override
@@ -84,24 +85,33 @@ public class MapModel {
 
             @Override
             public void onKeyEntered(String key, GeoPoint location) {
-                // Document with key entered the search radius
+                Log.d("======= ON KEY ENTER", "==================");
+
                 // Add code to retrieve the document from Firestore
-                db.collection("ScannedCodes")
+                db.collection("ScannedCodesTest")
                         .document(key)
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 if (task.isSuccessful()) {
-                                    Log.d("GOOD --- GOOD", "==================");
                                     DocumentSnapshot document = task.getResult();
                                     if (document != null) {
                                         Map<String, Object> docData = document.getData();
-                                        docData.get("location");
+                                        if (docData != null) {
+                                            GeoPoint codeLocation = (GeoPoint) docData.get("location");
+                                            ScannedCode scannedCode = new ScannedCode(
+                                                    document.getId(),
+                                                    "",
+                                                    docData.get("date").toString(),
+                                                    codeLocation.toString(),
+                                                    docData.get("userDID").toString()
+                                            );
+                                            nearByCodes.add(scannedCode);
+                                            Log.d("================= Found the code", docData.toString());
+                                        } else { Log.d("================= Code is NUILL", ":("); }
                                     }
-                                } else {
-                                    Log.d("NO GOOD --- HERE", "==================");
-                                }
+                                } else { Log.d("================= Task Unsuccessful?", ":("); }
                             }
                         });
             }
@@ -109,7 +119,6 @@ public class MapModel {
             @Override
             public void onKeyExited(String key) {
                 // Document with key exited the search radius
-
                 Log.d("CODE NO MATCH HERE", "==================");
             }
 
