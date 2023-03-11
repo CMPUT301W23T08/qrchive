@@ -36,7 +36,8 @@
         android:id="@+id/recycler_list"
         android:name="com.example.qrchive.ScannedCodeCardFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.8"
         app:layoutManager="LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/sorted_by_card"
         tools:context=".Fragments.CodesFragment"
@@ -47,7 +48,7 @@
     <LinearLayout
         android:id="@+id/bottom_cards_holder"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         android:orientation="horizontal">
 

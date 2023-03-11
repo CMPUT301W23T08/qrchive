@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.MyScannedCodeCardRecyclerViewAdapter;
 import com.example.qrchive.R;
 
@@ -40,18 +41,19 @@ import java.util.stream.Collectors;
 public class CodesFragment extends Fragment {
 
     private List<ScannedCode> scannedCodes;
+    private FirebaseWrapper fbw;
     private MyScannedCodeCardRecyclerViewAdapter scannedCodesAdapter;
-    public CodesFragment() {
-        // Required empty public constructor
+    public CodesFragment(FirebaseWrapper fbw) {
+        this.fbw = fbw;
     }
 
-    /**
-     * @return A new instance of fragment CodesFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static CodesFragment newInstance(String param1, String param2) {
-        return new CodesFragment();
-    }
+//    /**
+//     * @return A new instance of fragment CodesFragment.
+//     */
+//    // TODO: Rename and change types and number of parameters
+//    public static CodesFragment newInstance(String param1, String param2) {
+//        return new CodesFragment();
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,36 +69,18 @@ public class CodesFragment extends Fragment {
 
         SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        scannedCodes = new ArrayList<>();
+        scannedCodes = fbw.getScannedCodesDict().get(fbw.getMyUserDID());
         scannedCodesAdapter = new MyScannedCodeCardRecyclerViewAdapter(scannedCodes);
 
-        db.collection("ScannedCodes").whereEqualTo("userDID", preferences.getString("userDID", "")).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        int a = 1;
-                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
-                        for (DocumentSnapshot document : docs) {
-                            Map<String, Object> docData = document.getData();
-                            ScannedCode scannedCode = new ScannedCode
-                                    (document.getId(),
-                                            docData.get("codeDID").toString(),
-                                            docData.get("date").toString(),
-                                            docData.get("location").toString(),
-                                            docData.get("userDID").toString());
-                            scannedCodes.add(scannedCode);
-                        }
 
-                        // Default sort would be newest to oldest
-                        scannedCodes.sort(Collections.reverseOrder(Comparator.comparing(ScannedCode::getDate)));
-                        scannedCodesAdapter.notifyDataSetChanged();
-                        ((TextView) view.findViewById(R.id.bottom_qrs_card_text)).setText(String.valueOf(scannedCodes.size()));
-                        ((TextView) view.findViewById(R.id.bottom_pts_card_text)).setText(String.valueOf(
-                                scannedCodes.stream().mapToInt(ScannedCode::getPoints).sum()
-                        ));
-                    }
-                });
-
+        scannedCodesAdapter.notifyDataSetChanged(); /* todo, this CAN be the reason why Codes
+                                                    /* fragment is empty (race condition between
+                                                    / *this line and FirebaseWrapper still
+                                                    / *initializing the codes for this user) */
+        ((TextView) view.findViewById(R.id.bottom_qrs_card_text)).setText(String.valueOf(scannedCodes.size()));
+        ((TextView) view.findViewById(R.id.bottom_pts_card_text)).setText(String.valueOf(
+                scannedCodes.stream().mapToInt(ScannedCode::getPoints).sum()
+        ));
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         recyclerView.setAdapter(scannedCodesAdapter);
 
