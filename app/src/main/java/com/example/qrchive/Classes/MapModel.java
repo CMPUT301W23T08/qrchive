@@ -52,7 +52,6 @@ public class MapModel {
 
     public void setNearbyQRCodes(onCodesGeoQueriedListener callback) {
 
-
         geoFirestore = new GeoFirestore(db.collection("ScannedCodesTest"));
         GeoPoint currentLocation = new GeoPoint(this.latitude, this.longitude);
 
@@ -75,8 +74,6 @@ public class MapModel {
             @Override
             public void onGeoQueryReady() {
                 // All documents within the search radius have been loaded
-                Log.d("======= ON GEOQUERY READY", nearByCodes.toString());
-                callback.onCodesGeoQueried(nearByCodes);
             }
 
             @Override
@@ -86,8 +83,6 @@ public class MapModel {
 
             @Override
             public void onKeyEntered(String key, GeoPoint location) {
-                Log.d("======= ON KEY ENTER", "==================");
-
                 // Add code to retrieve the document from Firestore
                 db.collection("ScannedCodesTest")
                         .document(key)
@@ -109,7 +104,7 @@ public class MapModel {
                                                     docData.get("userDID").toString()
                                             );
                                             nearByCodes.add(scannedCode);
-                                            Log.d("================= Found the code", docData.toString());
+                                            callback.onCodesGeoQueried(scannedCode);
                                         } else { Log.d("================= Code is NUILL", ":("); }
                                     }
                                 } else { Log.d("================= Task Unsuccessful?", ":("); }

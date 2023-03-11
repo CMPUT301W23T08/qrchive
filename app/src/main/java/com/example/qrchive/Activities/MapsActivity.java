@@ -57,6 +57,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(true);
 
+        Toast.makeText(this, "Map Ready", Toast.LENGTH_SHORT).show();
+
         // Google Official Documentation for Map Styling
         // Source: https://developers.google.com/maps/documentation/android-sdk/styling
 
@@ -163,15 +165,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapModel.setNearbyQRCodes(this);
     }
 
-    /** @method: Callback method triggered when the MapModel finishes calculating
-     * the available QR codes in the radius of the users current location.
+    /** @method: Draw a code marker on the map with the name of the QR and
+     * the points associated.
      * */
     @Override
-    public void onCodesGeoQueried(List<ScannedCode> nearbyCodes) {
-        Log.d("SCATTER QR LOCATIONS ", String.valueOf(mapModel.getNearbyQRCodes()));
-
-        for (ScannedCode code : mapModel.getNearbyQRCodes()) {
-            drawCodeMarker(code);
-        }
+    public void onCodesGeoQueried(ScannedCode code) {
+        GeoPoint location = code.getLocation();
+        String name = code.getName();
+        String points = String.valueOf(code.getPoints());
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                .title(name)
+                .snippet(points + " pts")
+                .flat(true)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
     }
+
 }
