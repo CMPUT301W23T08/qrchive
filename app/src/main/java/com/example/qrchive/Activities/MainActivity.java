@@ -2,8 +2,10 @@ package com.example.qrchive.Activities;
 
 import androidx.annotation.NonNull;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.provider.Settings;
@@ -12,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
@@ -57,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseWrapper fbw;
     SharedPreferences preferences; //IMP: This will work as a 'singleton pattern'/'a global struct' to save all (mostly static) required preferences
+    private static final int REQUEST_CODE_FINE_LOCATION = 200;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         preferences = getSharedPreferences("preferences", MODE_PRIVATE);
         SharedPreferences.Editor prefEditor = preferences.edit();
         prefEditor.clear().apply(); // clear any previous preferences
+
 
         // Check for Device ID and then set up the firebase wrapper object
         String android_device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -220,7 +226,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
 
         return true;
     }
