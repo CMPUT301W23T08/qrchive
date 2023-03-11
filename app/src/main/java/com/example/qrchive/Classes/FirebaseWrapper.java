@@ -20,7 +20,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
+// In the ScannedCodes collection on firebase, the userDID, location, hasLocation, hash can ...
+// ... uniquely identify a QR code
 public class FirebaseWrapper {
     public FirebaseFirestore db;
     private String myDeviceID;
@@ -52,7 +55,8 @@ public class FirebaseWrapper {
                                             (GeoPoint) docData.get("location"),
                                             (boolean) docData.get("hasLocation"),
                                             docData.get("locationImage").toString(),
-                                            docData.get("userDID").toString());
+                                            docData.get("userDID").toString(),
+                                            document.getId());
                             scannedCodes.add(scannedCode);
                         }
 
@@ -70,6 +74,19 @@ public class FirebaseWrapper {
 
     public HashMap<String, ArrayList<ScannedCode>> getScannedCodesDict() {
         return scannedCodesDict;
+    }
+
+    // Deletes the code from firebase and also updates the hashmap
+    public void deleteCode(ScannedCode scannedCode) {
+//        Tasks.await()
+        db.collection("ScannedCodes").document(scannedCode.getScannedCodeDID())
+                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                    }
+                });
+
     }
 
     public ArrayList<String> getUsers() {

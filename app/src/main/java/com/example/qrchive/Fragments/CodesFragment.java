@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,18 +21,13 @@ import com.example.qrchive.Classes.MyScannedCodeCardRecyclerViewAdapter;
 import com.example.qrchive.R;
 
 import com.example.qrchive.Classes.ScannedCode;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * create an instance of this fragment.
@@ -71,6 +65,18 @@ public class CodesFragment extends Fragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         scannedCodes = fbw.getScannedCodesDict().get(fbw.getMyUserDID());
         scannedCodesAdapter = new MyScannedCodeCardRecyclerViewAdapter(scannedCodes);
+        scannedCodesAdapter.setOnItemClickListener(new MyScannedCodeCardRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void OnItemClick(View view, int position) {
+                ScannedCode scannedCode = scannedCodes.get(position);
+                Snackbar.make(getContext(), view, scannedCode.getName(), Snackbar.LENGTH_LONG).show();
+
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new OnClickCodeFragment(scannedCode, fbw))
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
 
 
         scannedCodesAdapter.notifyDataSetChanged(); /* todo, this CAN be the reason why Codes
