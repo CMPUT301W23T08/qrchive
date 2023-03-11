@@ -1,11 +1,23 @@
 package com.example.qrchive.Fragments;
 
 
+import static android.content.Context.LOCATION_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
+import static android.content.Intent.getIntent;
+
+import static androidx.core.content.ContextCompat.getSystemService;
+
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
+
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,16 +30,21 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
+import com.example.qrchive.Activities.MainActivity;
+import com.example.qrchive.Activities.MapsActivity;
 import com.example.qrchive.R;
 import com.google.zxing.Result;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 
 
@@ -36,7 +53,8 @@ import java.util.List;
  */
 public class ScanFragment extends Fragment {
     private static final int TARGET_FRAGMENT_REQUEST_CODE = 1;
-    private static final String EXTRA_GREETING_MESSAGE ="EXTRA_PREFERENCES";
+    private static final String EXTRA_GREETING_MESSAGE = "EXTRA_PREFERENCES";
+    private static final int REQUEST_CODE_FINE_LOCATION = 200;
     private CodeScanner mCodeScanner;
 
     private CodeScannerView scannerView;
@@ -66,10 +84,25 @@ public class ScanFragment extends Fragment {
                             // can get result of the scan with result.getText()
                             scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
 
-                            new ScanResultPopupFragment().show(getChildFragmentManager(), "popup");
+                            SharedPreferences preferences = activity.getSharedPreferences("preferences", MODE_PRIVATE); // to get user name and other user information
 
+                            Location currentLocation = getCurLocation();
 
+                            boolean withinRadius = false;
+                            //TODO: check if user has scanned the same code
+                            boolean sameCode = false; // this will be the placeholder for if the user has scanned the same code
 
+                            if(sameCode){
+                                //TODO: check to see if the qrcode has been scanned within a certain radius
+                                withinRadius = true;
+                            }
+
+                            if(withinRadius && sameCode ){
+                                Toast.makeText(activity, "You have scanned this code within this area already. This QRCode will not be added", Toast.LENGTH_SHORT).show();
+                                return;
+                            }else{
+                                new ScanResultPopupFragment().show(getChildFragmentManager(), "popup");
+                            }
                         }
                     });
                 }
@@ -195,6 +228,36 @@ public class ScanFragment extends Fragment {
 
             //TODO: add other data
 
+        }
+    }
+
+    public Location getCurLocation(){
+
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
+                return null;
+            }
+            LocationManager locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+            // I could not get the request location updates to work in this fragment
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 10F, (LocationListener) getContext());
+            Location currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            return currentLocation;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 200) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission was granted
+                Toast.makeText(getContext(), "Thank you for allowing location", Toast.LENGTH_SHORT).show();
+            } else {
+                // Permission denied
+                Toast.makeText(getContext(), "Location permission is required for some features", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
