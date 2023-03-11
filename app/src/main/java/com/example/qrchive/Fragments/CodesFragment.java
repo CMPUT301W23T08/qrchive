@@ -3,12 +3,7 @@ package com.example.qrchive.Fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +12,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.example.qrchive.Classes.MyScannedCodeCardRecyclerViewAdapter;
-import com.example.qrchive.R;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.qrchive.Classes.MyScannedCodeCardRecyclerViewAdapter;
 import com.example.qrchive.Classes.ScannedCode;
+import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -32,7 +31,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * create an instance of this fragment.
@@ -64,13 +62,14 @@ public class CodesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_codes, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_list);
 
-
+        String android_device_id = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         scannedCodes = new ArrayList<>();
         scannedCodesAdapter = new MyScannedCodeCardRecyclerViewAdapter(scannedCodes);
 
-        db.collection("ScannedCodes").whereEqualTo("userDID", preferences.getString("userDID", "")).get()
+        // This part use device id as login
+        db.collection("ScannedCodes").whereEqualTo("userDID", android_device_id).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {

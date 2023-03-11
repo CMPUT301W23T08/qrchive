@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,9 +24,16 @@ import androidx.fragment.app.Fragment;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
-import com.example.qrchive.Classes.CurrentQRCode;
+import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.zxing.Result;
+
+import java.util.Date;
 
 
 /**
@@ -33,11 +42,14 @@ import com.google.zxing.Result;
 public class ScanFragment extends Fragment {
     private CodeScanner mCodeScanner;
 
-   // save scanned code
-    private CurrentQRCode currentQRCode;
+   // Firebase
 
+    ScannedCode scannedCode;
     private CodeScannerView scannerView;
+
+    FirebaseFirestore db;
     private Button resetButton;
+
     private Button flashButton;
 
     @Nullable
@@ -59,10 +71,24 @@ public class ScanFragment extends Fragment {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            // result is the code scanned
                             Toast.makeText(activity, result.getText(), Toast.LENGTH_SHORT).show();
-                            // can get result of the scan with result.getText()
                             scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
+
+                            // Add after Scan || No validation yet
+                            Date date = new Date();
+                            GeoPoint location = new GeoPoint(0,0);
+                            //ScannedCode(String scannedCodeDID, String codeDID, String date, String location, String userDID)
+                            String android_device_id = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+                            scannedCode = new ScannedCode(result.getText(),result.getText(), date.toString(), location.toString(), android_device_id);
+                            Log.d("ScanFragment", scannedCode.toString());
+                            db = FirebaseFirestore.getInstance();
+                            db.collection("ScannedCodes").add(scannedCode).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentReference> task) {
+                                    Log.d("ScanFragment", "Add successfully");
+                                }
+
+                            });
 
                         }
                     });
@@ -101,8 +127,20 @@ public class ScanFragment extends Fragment {
                                 public void run() {
                                     Toast.makeText(activity, result.getText(), Toast.LENGTH_SHORT).show();
                                     scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
-                                    currentQRCode = new CurrentQRCode();
-                                    currentQRCode.setQRcode(result.getText());
+                                    Date date = new Date();
+                                    GeoPoint location = new GeoPoint(0,0);
+                                    //ScannedCode(String scannedCodeDID, String codeDID, String date, String location, String userDID)
+                                    String android_device_id = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+                                    scannedCode = new ScannedCode(result.getText(),result.getText(), date.toString(), location.toString(), android_device_id);
+                                    Log.d("ScanFragment", scannedCode.toString());
+                                    db = FirebaseFirestore.getInstance();
+                                    db.collection("ScannedCodes").add(scannedCode).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                                            Log.d("ScanFragment", "Add successfully");
+                                        }
+
+                                    });
                                 }
                             });
                         }

@@ -10,6 +10,9 @@ public class ScannedCode {
     private int points;
     private String name;
 
+    public ScannedCode() {
+
+    }
     public ScannedCode(String scannedCodeDID, String codeDID, String date, String location, String userDID) {
         Random random = new Random();
         this.scannedCodeDID = scannedCodeDID;
