@@ -69,7 +69,6 @@ public class CodesFragment extends Fragment {
             @Override
             public void OnItemClick(View view, int position) {
                 ScannedCode scannedCode = scannedCodes.get(position);
-                Snackbar.make(getContext(), view, scannedCode.getName(), Snackbar.LENGTH_LONG).show();
 
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new OnClickCodeFragment(scannedCode, fbw))
