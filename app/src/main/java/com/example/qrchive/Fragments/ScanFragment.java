@@ -80,19 +80,14 @@ public class ScanFragment extends Fragment {
 
                             //ScannedCode(String scannedCodeDID, String codeDID, String date, String location, String userDID)
 
-                            // Without geolocation permission
+                            // Without geolocation permission and no location Image capture
                             //ScannedCode(String code, String date, String locationImage, String userDID)
                             String android_device_id = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
                             scannedCode = new ScannedCode(result.getText(),date.toString(),"temporary not available" , android_device_id); // location.toString(),
                             Log.d("ScanFragment", scannedCode.toString());
                             db = FirebaseFirestore.getInstance();
-                            db.collection("ScannedCodes").add(scannedCode).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentReference> task) {
-                                    Log.d("ScanFragment", "Add successfully");
-                                }
 
-                            });
+                            // TODO: Add scannedCode into Firebase
 
                         }
                     });
