@@ -18,25 +18,22 @@
             android:id="@+id/flash_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:text="@string/flash_button_label"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/guideline_vertical"
+            app:layout_constraintStart_toStartOf="@+id/guideline_horizontal"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <Button
 
+            android:id="@+id/fragment_scan_reset_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/reset_button"
+            android:textAlignment="center"
+            android:layout_marginBottom="72dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="72dp"
-            android:id="@+id/fragment_scan_reset_button"
-            android:text="@string/reset_button"
-            android:textAlignment="center"></Button>
-
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <com.budiyev.android.codescanner.CodeScannerView
             android:id="@+id/scanner_view"
@@ -45,9 +42,21 @@
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="-39dp">
 
-
         </com.budiyev.android.codescanner.CodeScannerView>
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="16dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="16dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
