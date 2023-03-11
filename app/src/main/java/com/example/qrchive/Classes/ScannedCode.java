@@ -19,7 +19,7 @@ public class ScannedCode {
     private String ascii;
 
     // Constructor which uses code and assumes no location
-    public ScannedCode(String code, String date, String locationImage, String userDID, String did) {
+    public ScannedCode(String code, String date, String locationImage, String userDID) {
         this(Hashing.sha256().hashString(code, StandardCharsets.UTF_8).toString(),
                 Hashing.sha256().hashString(code, StandardCharsets.UTF_8).asInt(),
                 date, new GeoPoint(0,0), false, locationImage, userDID);

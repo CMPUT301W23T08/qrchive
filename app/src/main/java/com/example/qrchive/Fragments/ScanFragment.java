@@ -77,9 +77,13 @@ public class ScanFragment extends Fragment {
                             // Add after Scan || No validation yet
                             Date date = new Date();
                             GeoPoint location = new GeoPoint(0,0);
+
                             //ScannedCode(String scannedCodeDID, String codeDID, String date, String location, String userDID)
+
+                            // Without geolocation permission
+                            //ScannedCode(String code, String date, String locationImage, String userDID)
                             String android_device_id = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-                            scannedCode = new ScannedCode(result.getText(),result.getText(), date.toString(), location.toString(), android_device_id);
+                            scannedCode = new ScannedCode(result.getText(),date.toString(),"temporary not available" , android_device_id); // location.toString(),
                             Log.d("ScanFragment", scannedCode.toString());
                             db = FirebaseFirestore.getInstance();
                             db.collection("ScannedCodes").add(scannedCode).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -130,8 +134,10 @@ public class ScanFragment extends Fragment {
                                     Date date = new Date();
                                     GeoPoint location = new GeoPoint(0,0);
                                     //ScannedCode(String scannedCodeDID, String codeDID, String date, String location, String userDID)
+
+
                                     String android_device_id = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-                                    scannedCode = new ScannedCode(result.getText(),result.getText(), date.toString(), location.toString(), android_device_id);
+                                    scannedCode = new ScannedCode(result.getText(), date.toString(), location.toString(), android_device_id);
                                     Log.d("ScanFragment", scannedCode.toString());
                                     db = FirebaseFirestore.getInstance();
                                     db.collection("ScannedCodes").add(scannedCode).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
