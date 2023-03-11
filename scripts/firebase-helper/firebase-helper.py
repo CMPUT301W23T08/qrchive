@@ -37,18 +37,20 @@ uofa_locations = [
     (53.527324283280635, -113.52933562074229)
 ]
 
-for location in uofa_locations:
-    geoPoint = firestore.GeoPoint(location[0], location[1]);
-    data = {
+# for location in uofa_locations:
+    # geoPoint = firestore.GeoPoint(location[0], location[1]);
+my_loc = firestore.GeoPoint(53.47795464327414, -113.54275911011919);
+data = {
     u'date': u'03/01/23',
     u'hasLocation': True,
     u'hash': u'9054102b56fd7f26f1e864550a7e148af16564816a119e2fe2bfea0115c4467a',
     u'hashVal': u'1221',
-    u'location': geoPoint,
+    u'location': my_loc,
     u'locationImage': u'placeholder_name.png',
     u'userDID': u'D9vkTy1EoQfULzVhcytb',
-    }
-    db.collection(u'ScannedCodesTest').document().set(data)
+}
+db.collection(u'ScannedCodesTest').document().set(data)
+
 
 # text_list = ["1", "2", "3", "4"]
 # for text in text_list:
