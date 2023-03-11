@@ -75,6 +75,7 @@ public class MapModel {
             @Override
             public void onGeoQueryReady() {
                 // All documents within the search radius have been loaded
+                Log.d("======= ON GEOQUERY READY", nearByCodes.toString());
                 callback.onCodesGeoQueried(nearByCodes);
             }
 
@@ -102,9 +103,9 @@ public class MapModel {
                                             GeoPoint codeLocation = (GeoPoint) docData.get("location");
                                             ScannedCode scannedCode = new ScannedCode(
                                                     document.getId(),
-                                                    "",
                                                     docData.get("date").toString(),
-                                                    codeLocation.toString(),
+                                                    (GeoPoint) docData.get("location"),
+                                                    "placeholder_img.png",
                                                     docData.get("userDID").toString()
                                             );
                                             nearByCodes.add(scannedCode);
