@@ -1,8 +1,14 @@
 package com.example.qrchive.Activities;
 
+import androidx.annotation.NonNull;
+
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
@@ -12,11 +18,19 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import com.example.qrchive.BuildConfig;
+import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Fragments.CodesFragment;
 import com.example.qrchive.Fragments.FriendsFragment;
 import com.example.qrchive.Fragments.HomeFragment;
@@ -27,13 +41,18 @@ import com.example.qrchive.Fragments.SettingsFragment;
 import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /* For BottomNavItemListener: https://stackoverflow.com/questions/68021770/setonnavigationitemselectedlistener-deprecated
  *  For BottomNavImpl: https://www.geeksforgeeks.org/bottomnavigationview-inandroid/
@@ -42,21 +61,25 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    FirebaseFirestore db;
+    FirebaseWrapper fbw;
     SharedPreferences preferences; //IMP: This will work as a 'singleton pattern'/'a global struct' to save all (mostly static) required preferences
+    private static final int REQUEST_CODE_FINE_LOCATION = 200;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // Firestore setup
-        db =  FirebaseFirestore.getInstance();
+        FirebaseFirestore db =  FirebaseFirestore.getInstance();
 
         // preferences setup
         preferences = getSharedPreferences("preferences", MODE_PRIVATE);
-        preferences.edit().clear().apply(); // clear any previous preferences
+        SharedPreferences.Editor prefEditor = preferences.edit();
+        prefEditor.clear().apply(); // clear any previous preferences
 
-        // Check for Device ID
+
+        // Check for Device ID and then set up the firebase wrapper object
         String android_device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             db.collection("Users").whereEqualTo("deviceID", android_device_id).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -71,13 +94,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                         else {
                             DocumentSnapshot userDoc = resultantDocuments.get(0);
-                            SharedPreferences.Editor prefEditor = preferences.edit();
                             prefEditor.putString("userName", userDoc.getData().get("userName").toString());
                             prefEditor.putString("emailID", userDoc.getData().get("emailID").toString());
                             prefEditor.putString("deviceID", android_device_id);
                             prefEditor.putString("userDID", userDoc.getId());
                             prefEditor.apply();
                         }
+                        String userDID = preferences.getString("userDID", "");
+                        fbw = new FirebaseWrapper(userDID);
                     }
                 });
 
@@ -132,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                         transactFragment(new HomeFragment());
                         break;
                     case R.id.menu_item_codes:
-                        transactFragment(new CodesFragment());
+                        transactFragment(new CodesFragment(fbw));
                         break;
                     case R.id.menu_item_friends:
                         //todo
@@ -205,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
 
         return true;
     }

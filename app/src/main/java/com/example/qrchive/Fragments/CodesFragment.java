@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.MyScannedCodeCardRecyclerViewAdapter;
 import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
@@ -26,7 +27,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -38,23 +38,24 @@ import java.util.Map;
 public class CodesFragment extends Fragment {
 
     private List<ScannedCode> scannedCodes;
+    private FirebaseWrapper fbw;
     private MyScannedCodeCardRecyclerViewAdapter scannedCodesAdapter;
-    public CodesFragment() {
-        // Required empty public constructor
+    public CodesFragment(FirebaseWrapper fbw) {
+        this.fbw = fbw;
     }
 
-    /**
-     * @return A new instance of fragment CodesFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static CodesFragment newInstance(String param1, String param2) {
-        return new CodesFragment();
-    }
+//    /**
+//     * @return A new instance of fragment CodesFragment.
+//     */
+//    // TODO: Rename and change types and number of parameters
+//    public static CodesFragment newInstance(String param1, String param2) {
+//        return new CodesFragment();
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-}
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -65,10 +66,10 @@ public class CodesFragment extends Fragment {
         String android_device_id = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        scannedCodes = new ArrayList<>();
+        scannedCodes = fbw.getScannedCodesDict().get(fbw.getMyUserDID());
         scannedCodesAdapter = new MyScannedCodeCardRecyclerViewAdapter(scannedCodes);
 
-        // This part use device id as login
+
         db.collection("ScannedCodes").whereEqualTo("userDID", android_device_id).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -95,7 +96,10 @@ public class CodesFragment extends Fragment {
                         ));
                     }
                 });
-
+        ((TextView) view.findViewById(R.id.bottom_qrs_card_text)).setText(String.valueOf(scannedCodes.size()));
+        ((TextView) view.findViewById(R.id.bottom_pts_card_text)).setText(String.valueOf(
+                scannedCodes.stream().mapToInt(ScannedCode::getPoints).sum()
+        ));
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         recyclerView.setAdapter(scannedCodesAdapter);
 
