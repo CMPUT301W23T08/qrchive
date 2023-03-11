@@ -4,5 +4,7 @@
     <string name="title_activity_maps">MapsActivity</string>
     <string name="reset_button">Reset</string>
     <string name="change_location_preferences"> Change location preferences</string>
+    <string name="flash_button_label">Flash Off</string>
+    <string name="flash_button_label_off">Flash On</string>
 
 </resources>

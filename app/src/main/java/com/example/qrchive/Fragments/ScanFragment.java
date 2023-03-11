@@ -27,6 +27,7 @@ import com.example.qrchive.R;
 import com.google.zxing.Result;
 
 
+
 /**
  * create an instance of this fragment.
  */
@@ -35,6 +36,7 @@ public class ScanFragment extends Fragment {
 
     private CodeScannerView scannerView;
     private Button resetButton;
+
     private Button flashButton;
 
     @Nullable
@@ -78,6 +80,19 @@ public class ScanFragment extends Fragment {
                     android.Manifest.permission.CAMERA);
         }
 
+        flashButton = root.findViewById(R.id.flash_button);
+        flashButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCodeScanner.isFlashEnabled()) {
+                    mCodeScanner.setFlashEnabled(false);
+                    flashButton.setText(R.string.flash_button_label);
+                } else {
+                    mCodeScanner.setFlashEnabled(true);
+                    flashButton.setText(R.string.flash_button_label_off);
+                }
+            }
+        });
 
         resetButton = root.findViewById(R.id.fragment_scan_reset_button);
         resetButton.setOnClickListener(new View.OnClickListener() {
