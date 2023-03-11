@@ -96,6 +96,7 @@ public class ScanFragment extends Fragment {
 
         resetButton = root.findViewById(R.id.fragment_scan_reset_button);
         resetButton.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
