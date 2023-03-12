@@ -98,7 +98,7 @@ public class MapModel {
                                             GeoPoint codeLocation = (GeoPoint) docData.get("location");
                                             ScannedCode scannedCode = new ScannedCode(
                                                     document.get("hash").toString(),
-                                                    Integer.valueOf((String) document.get("hashVal")),
+                                                    Integer.parseInt(docData.get("hashVal").toString()),
                                                     docData.get("date").toString(),
                                                     (GeoPoint) docData.get("location"),
                                                     true,
