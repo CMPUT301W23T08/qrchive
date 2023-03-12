@@ -57,8 +57,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(true);
 
-        Toast.makeText(this, "Map Ready", Toast.LENGTH_SHORT).show();
-
         // Google Official Documentation for Map Styling
         // Source: https://developers.google.com/maps/documentation/android-sdk/styling
 
