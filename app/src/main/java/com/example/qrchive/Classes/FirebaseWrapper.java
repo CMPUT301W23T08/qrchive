@@ -55,8 +55,7 @@ public class FirebaseWrapper {
                                             (GeoPoint) docData.get("location"),
                                             (boolean) docData.get("hasLocation"),
                                             docData.get("locationImage").toString(),
-                                            docData.get("userDID").toString(),
-                                            document.getId());
+                                            docData.get("userDID").toString());
                             scannedCodes.add(scannedCode);
                         }
 
@@ -79,6 +78,8 @@ public class FirebaseWrapper {
     // Deletes the code from firebase and also updates the hashmap
     public void deleteCode(ScannedCode scannedCode) {
 //        Tasks.await()
+
+        /* TODO switch delete to not use ScannedCodeDID
         db.collection("ScannedCodes").document(scannedCode.getScannedCodeDID())
                 .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -86,6 +87,8 @@ public class FirebaseWrapper {
 
                     }
                 });
+        */
+
 
     }
 

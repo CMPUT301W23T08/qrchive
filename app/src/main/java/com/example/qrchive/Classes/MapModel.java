@@ -81,6 +81,9 @@ public class MapModel {
                 // Handle error
             }
 
+
+            //  ScannedCode(String hash, int hashVal, String date, GeoPoint location, boolean hasLocation, String locationImage, String userDID, String scannedCodeDID
+            //  ScannedCode(String code, String date, GeoPoint location, String locationImage, String userDID, String scannedCodeDID) {
             @Override
             public void onKeyEntered(String key, GeoPoint location) {
                 // Add code to retrieve the document from Firestore
@@ -97,7 +100,7 @@ public class MapModel {
                                         if (docData != null) {
                                             GeoPoint codeLocation = (GeoPoint) docData.get("location");
                                             ScannedCode scannedCode = new ScannedCode(
-                                                    document.getId(),
+                                                    docData.get("hash").toString(),
                                                     docData.get("date").toString(),
                                                     (GeoPoint) docData.get("location"),
                                                     "placeholder_img.png",
