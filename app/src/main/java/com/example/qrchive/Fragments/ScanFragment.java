@@ -47,12 +47,14 @@ import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.hash.Hashing;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.Result;
 
 import org.imperiumlabs.geofirestore.GeoFirestore;
+import org.imperiumlabs.geofirestore.listeners.GeoQueryDataEventListener;
 import org.imperiumlabs.geofirestore.listeners.GeoQueryEventListener;
 
 import java.nio.charset.StandardCharsets;
@@ -62,6 +64,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -85,6 +88,7 @@ public class ScanFragment extends Fragment {
     private GeoPoint currentLocationGeopoint;
     private Button flashButton;
     boolean withinImpermissibleRadius;
+    int docsWithinImpermissibleRadius = 0;
 
     public ScanFragment(FirebaseWrapper fbw) {
         this.fbw = fbw;
@@ -119,33 +123,31 @@ public class ScanFragment extends Fragment {
                             Location currentLocation = getCurLocation();
                             currentLocationGeopoint = new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude());
 
-                            geoFirestore.queryAtLocation(currentLocationGeopoint, IMPERMISSIBLE_RADIUS).addGeoQueryEventListener(new GeoQueryEventListener() {
+                            geoFirestore.queryAtLocation(currentLocationGeopoint, IMPERMISSIBLE_RADIUS).addGeoQueryDataEventListener(new GeoQueryDataEventListener() {
                                 @Override
-                                public void onKeyEntered(@NonNull String key, @NonNull GeoPoint geoPoint) {
+                                public void onDocumentEntered(@NonNull DocumentSnapshot documentSnapshot, @NonNull GeoPoint geoPoint) {
+                                    if (Objects.equals(documentSnapshot.get("userDID"), fbw.getMyUserDID()) &&
+                                            Objects.equals(documentSnapshot.get("hash"), Hashing.sha256().hashString(mResult.getText(), StandardCharsets.UTF_8).toString())) {
+                                        docsWithinImpermissibleRadius++;
+                                    }
                                 }
                                 @Override
-                                public void onKeyExited(@NonNull String s) {}
+                                public void onDocumentExited(@NonNull DocumentSnapshot documentSnapshot) {}
                                 @Override
-                                public void onKeyMoved(@NonNull String s, @NonNull GeoPoint geoPoint) {}
+                                public void onDocumentMoved(@NonNull DocumentSnapshot documentSnapshot, @NonNull GeoPoint geoPoint) {}
+                                @Override
+                                public void onDocumentChanged(@NonNull DocumentSnapshot documentSnapshot, @NonNull GeoPoint geoPoint) {}
                                 @Override
                                 public void onGeoQueryReady() {
-                                    db.collection("ScannedCodes")
-                                            .whereEqualTo("userDID", fbw.getMyUserDID())
-                                            .whereEqualTo("hash", Hashing.sha256().hashString(mResult.getText(), StandardCharsets.UTF_8).toString())
-                                            .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                    // number of SAME qr codes by the same user within the impermissible radius
-                                                    int docsNumber = task.getResult().getDocuments().size();
-                                                    withinImpermissibleRadius = docsNumber != 0;
-                                                    if (withinImpermissibleRadius) {
-                                                        Toast.makeText(activity, "You have scanned this code within this area already. This QRCode will not be added", Toast.LENGTH_SHORT).show();
-                                                        return;
-                                                    }
-                                                    new ScanResultPopupFragment().show(getChildFragmentManager(), "popup");
-                                                }
-                                            });
+                                    if (docsWithinImpermissibleRadius > 0) {
+                                        Toast.makeText(activity, "You have scanned this code within this area already. This QRCode will not be added", Toast.LENGTH_SHORT).show();
+                                        docsWithinImpermissibleRadius = 0;
+                                        return;
+                                    }
+                                    docsWithinImpermissibleRadius = 0;
+                                    new ScanResultPopupFragment().show(getChildFragmentManager(), "popup");
                                 }
+
                                 @Override
                                 public void onGeoQueryError(@NonNull Exception e) {}
                             });
@@ -295,6 +297,11 @@ public class ScanFragment extends Fragment {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     fbw.refreshScannedCodesForUser(fbw.getMyUserDID());
+                    // despite the user saying not to make Location public, we still record the `l` location
+                    // this is to prevent the user to keep on scanning the code at the same location
+                    // despite no public location data
+                    geoFirestore.setLocation(scannedCodeDID, currentLocationGeopoint);
+                    Toast.makeText(getContext(), "The code has been submitted!", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -327,24 +334,32 @@ public class ScanFragment extends Fragment {
             return null;
         }
         LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-
-        if (locationManager != null) {
-            LocationListener locationListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {}
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {}
-                @Override
-                public void onProviderEnabled(String provider) {}
-                @Override
-                public void onProviderDisabled(String provider) {}
-            };
-
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-            // You can also use LocationManager.NETWORK_PROVIDER for a faster location fix, but it may not be as accurate
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {}
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            @Override
+            public void onProviderEnabled(String provider) {}
+            @Override
+            public void onProviderDisabled(String provider) {}
+        };
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        // You can also use LocationManager.NETWORK_PROVIDER for a faster location fix, but it may not be as accurate
+        Location currentLocation = null;
+        while (currentLocation == null) {
+            try {
+                // Request location updates
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                // Wait for location updates
+                Thread.sleep(1000);
+                // Get the current location
+                currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        return location;
+        return currentLocation;
     }
 
     @Override
