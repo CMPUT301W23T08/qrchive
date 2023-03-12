@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.menu_item_scan:
                         //todo
-                        transactFragment(new ScanFragment(fbw));
+                        transactFragment(new ScanFragment());
                         break;
 
                 }

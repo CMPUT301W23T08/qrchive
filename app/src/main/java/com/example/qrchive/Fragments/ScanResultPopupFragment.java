@@ -59,7 +59,9 @@ public class ScanResultPopupFragment extends DialogFragment {
         builder.setPositiveButton("submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                sendResult();
+                for(String item : selectedPreferences){
+                    sendResult();
+                }
             }
         });
 
