@@ -83,6 +83,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics-buildtools:2.9.2'
     implementation 'com.google.firebase:firebase-firestore:24.4.3'// for SHA256 Hashing
     implementation 'com.firebase:geofire-android-common:3.1.0' // for GeoLocation type
+    implementation 'com.github.imperiumlabs:GeoFirestore-Android:v1.5.0'
     implementation platform('com.google.firebase:firebase-bom:31.2.2')
 
 
