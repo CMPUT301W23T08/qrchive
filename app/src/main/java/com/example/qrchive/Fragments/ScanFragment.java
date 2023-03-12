@@ -30,6 +30,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -51,11 +53,15 @@ import java.util.List;
 /**
  * create an instance of this fragment.
  */
-public class ScanFragment extends Fragment {
+public class  ScanFragment extends Fragment {
     private static final int TARGET_FRAGMENT_REQUEST_CODE = 1;
     private static final String EXTRA_GREETING_MESSAGE = "EXTRA_PREFERENCES";
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
     private CodeScanner mCodeScanner;
+
+    private PreviewView previewView;
+
+    private ImageCapture imageCapture;
 
     private CodeScannerView scannerView;
     private Button resetButton;
@@ -68,8 +74,13 @@ public class ScanFragment extends Fragment {
         final Activity activity = getActivity();
         View root = inflater.inflate(R.layout.fragment_scan, container, false);
 
+        previewView = root.findViewById(R.id.previewView);
+
         scannerView = root.findViewById(R.id.scanner_view);
         mCodeScanner = new CodeScanner(activity, scannerView);
+
+        // TODO: setting up cameraX inside
+
         if (ContextCompat.checkSelfPermission(
                 activity, android.Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED) {

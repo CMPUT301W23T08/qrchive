@@ -88,6 +88,7 @@ dependencies {
 
 
     // Camera permission request
-    //    implementation 'androidx.activity:activity:1.8.0-alpha01'
-    //    implementation 'androidx.fragment:fragment-*:1.6.0-alpha06'
+    implementation "androidx.camera:camera-camera2:1.1.0"
+    implementation "androidx.camera:camera-lifecycle:1.1.0"
+    implementation "androidx.camera:camera-view:1.0.0-alpha22"
 }
