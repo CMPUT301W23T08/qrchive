@@ -40,12 +40,27 @@ import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
 import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Activities.MapsActivity;
+import com.example.qrchive.Classes.FirebaseWrapper;
+import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.common.hash.Hashing;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.Result;
 
+import org.imperiumlabs.geofirestore.GeoFirestore;
+import org.imperiumlabs.geofirestore.listeners.GeoQueryEventListener;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -55,11 +70,23 @@ public class ScanFragment extends Fragment {
     private static final int TARGET_FRAGMENT_REQUEST_CODE = 1;
     private static final String EXTRA_GREETING_MESSAGE = "EXTRA_PREFERENCES";
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
+    private static final double IMPERMISSIBLE_RADIUS = 1.0; // Radius under which we DONT allow the
+                                                          // same user to scan the same code
     private CodeScanner mCodeScanner;
+    private FirebaseWrapper fbw;
+    private FirebaseFirestore db;
+    private GeoFirestore geoFirestore;
+    private Result mResult;
 
     private CodeScannerView scannerView;
     private Button resetButton;
+    private GeoPoint currentLocationGeopoint;
     private Button flashButton;
+    boolean withinImpermissibleRadius;
+
+    public ScanFragment(FirebaseWrapper fbw) {
+        this.fbw = fbw;
+    }
 
     @Nullable
     @Override
@@ -70,6 +97,9 @@ public class ScanFragment extends Fragment {
 
         scannerView = root.findViewById(R.id.scanner_view);
         mCodeScanner = new CodeScanner(activity, scannerView);
+
+        db = fbw.db;
+        geoFirestore = new GeoFirestore(db.collection("ScannedCodes"));
         if (ContextCompat.checkSelfPermission(
                 activity, android.Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED) {
@@ -80,29 +110,43 @@ public class ScanFragment extends Fragment {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(activity, result.getText(), Toast.LENGTH_SHORT).show();
-                            // can get result of the scan with result.getText()
+                            mResult = result;
+                            Toast.makeText(activity, mResult.getText(), Toast.LENGTH_SHORT).show();
                             scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
 
-                            SharedPreferences preferences = activity.getSharedPreferences("preferences", MODE_PRIVATE); // to get user name and other user information
-
                             Location currentLocation = getCurLocation();
+                            currentLocationGeopoint = new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude());
 
-                            boolean withinRadius = false;
-                            //TODO: check if user has scanned the same code
-                            boolean sameCode = false; // this will be the placeholder for if the user has scanned the same code
-
-                            if(sameCode){
-                                //TODO: check to see if the qrcode has been scanned within a certain radius
-                                withinRadius = true;
-                            }
-
-                            if(withinRadius && sameCode ){
-                                Toast.makeText(activity, "You have scanned this code within this area already. This QRCode will not be added", Toast.LENGTH_SHORT).show();
-                                return;
-                            }else{
-                                new ScanResultPopupFragment().show(getChildFragmentManager(), "popup");
-                            }
+                            geoFirestore.queryAtLocation(currentLocationGeopoint, IMPERMISSIBLE_RADIUS).addGeoQueryEventListener(new GeoQueryEventListener() {
+                                @Override
+                                public void onKeyEntered(@NonNull String key, @NonNull GeoPoint geoPoint) {
+                                }
+                                @Override
+                                public void onKeyExited(@NonNull String s) {}
+                                @Override
+                                public void onKeyMoved(@NonNull String s, @NonNull GeoPoint geoPoint) {}
+                                @Override
+                                public void onGeoQueryReady() {
+                                    db.collection("ScannedCodes")
+                                            .whereEqualTo("userDID", fbw.getMyUserDID())
+                                            .whereEqualTo("hash", Hashing.sha256().hashString(mResult.getText(), StandardCharsets.UTF_8).toString())
+                                            .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    // number of SAME qr codes by the same user within the impermissible radius
+                                                    int docsNumber = task.getResult().getDocuments().size();
+                                                    withinImpermissibleRadius = docsNumber != 0;
+                                                    if (withinImpermissibleRadius) {
+                                                        Toast.makeText(activity, "You have scanned this code within this area already. This QRCode will not be added", Toast.LENGTH_SHORT).show();
+                                                        return; // TODO test this
+                                                    }
+                                                    new ScanResultPopupFragment().show(getChildFragmentManager(), "popup");
+                                                }
+                                            });
+                                }
+                                @Override
+                                public void onGeoQueryError(@NonNull Exception e) {}
+                            });
                         }
                     });
                 }
@@ -218,19 +262,43 @@ public class ScanFragment extends Fragment {
 
             ArrayList<String> preferences = data.getStringArrayListExtra(EXTRA_GREETING_MESSAGE);
 
+            String code = mResult.getText();
+            String date = new Date().toString();
+            String locationImg = "placeholder_img";
+            ScannedCode scannedCodeToUpload;
             if(preferences.contains("Allow use of photo")){
+//                locationImg = ...
                 // TODO: Add photo
+
             }
 
             if(preferences.contains("Allow use of geolocation")){
                 // TODO: add location
+                scannedCodeToUpload = new ScannedCode(code, date, currentLocationGeopoint, locationImg, fbw.getMyUserDID());
+
             }
-
-            //TODO: add other data
-
+            else {
+                scannedCodeToUpload = new ScannedCode(code, date, locationImg, fbw.getMyUserDID());
+            }
+            // At this point, scannedCode is ready!
+            Map<String, Object> scannedCodeMap = new HashMap<>();
+            scannedCodeMap.put("date", scannedCodeToUpload.getDate());
+            scannedCodeMap.put("hasLocation", scannedCodeToUpload.getHasLocation());
+            scannedCodeMap.put("hash", scannedCodeToUpload.getHash());
+            scannedCodeMap.put("hashVal", scannedCodeToUpload.getHashVal());
+            scannedCodeMap.put("location", scannedCodeToUpload.getLocation());
+            scannedCodeMap.put("locationImage", scannedCodeToUpload.getLocationImage());
+            scannedCodeMap.put("userDID", scannedCodeToUpload.getUserDID());
+            fbw.db.collection("ScannedCodes").document().set(scannedCodeMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    fbw.refreshScannedCodesForUser(fbw.getMyUserDID());
+                }
+            });
         }
     }
 
+    // TODO: (IMPORTANT) MAKE THIS FUNCTION CHOOSE THE BEST LOCATION PROVIDER DURING RUNTIME
     public Location getCurLocation(){
 
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -244,6 +312,34 @@ public class ScanFragment extends Fragment {
 
             return currentLocation;
     }
+
+    // ALTERNATE CODE WHICH WORKED
+//    public Location getCurLocation(){
+//
+//        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
+//            return null;
+//        }
+//        LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+//
+//        if (locationManager != null) {
+//            LocationListener locationListener = new LocationListener() {
+//                @Override
+//                public void onLocationChanged(Location location) {}
+//                @Override
+//                public void onStatusChanged(String provider, int status, Bundle extras) {}
+//                @Override
+//                public void onProviderEnabled(String provider) {}
+//                @Override
+//                public void onProviderDisabled(String provider) {}
+//            };
+//
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+//            // You can also use LocationManager.NETWORK_PROVIDER for a faster location fix, but it may not be as accurate
+//        }
+//        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//        return location;
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
