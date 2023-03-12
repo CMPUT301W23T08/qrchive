@@ -197,9 +197,6 @@ public class ScannedCode {
     public int getHashVal() {
         return hashVal;
     }
-    public boolean getHasLocation() {
-        return hasLocation;
-    }
     public String getLocationImage() {
         return locationImage;
     }
@@ -213,13 +210,6 @@ public class ScannedCode {
 
     public String getAscii() {
         return this.ascii;
-    }
-    public String getHash() {
-        return this.hash;
-    }
-
-    public int getHashVal() {
-        return this.hashVal;
     }
 
     public String getScannedCodeDID() {

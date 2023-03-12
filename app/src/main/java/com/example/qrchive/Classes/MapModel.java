@@ -52,12 +52,12 @@ public class MapModel {
 
     public void setNearbyQRCodes(onCodesGeoQueriedListener callback) {
 
-        geoFirestore = new GeoFirestore(db.collection("ScannedCodesTest"));
+        geoFirestore = new GeoFirestore(db.collection("ScannedCodes"));
         GeoPoint currentLocation = new GeoPoint(this.latitude, this.longitude);
 
         // Geo Query requires the fields g: hashed location and l: GeoPoint representing location.
         // there is a way to rename the fields with settings, so that we could use
-        db.collection("ScannedCodesTest")
+        db.collection("ScannedCodes")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -84,7 +84,7 @@ public class MapModel {
             @Override
             public void onKeyEntered(String key, GeoPoint location) {
                 // Add code to retrieve the document from Firestore
-                db.collection("ScannedCodesTest")
+                db.collection("ScannedCodes")
                         .document(key)
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -97,12 +97,14 @@ public class MapModel {
                                         if (docData != null) {
                                             GeoPoint codeLocation = (GeoPoint) docData.get("location");
                                             ScannedCode scannedCode = new ScannedCode(
-                                                    document.getId(),
+                                                    document.get("hash").toString(),
+                                                    Integer.valueOf((String) document.get("hashVal")),
                                                     docData.get("date").toString(),
                                                     (GeoPoint) docData.get("location"),
+                                                    true,
                                                     "placeholder_img.png",
-                                                    docData.get("userDID").toString()
-                                            );
+                                                    docData.get("userDID").toString(),
+                                                    document.getId());
                                             nearByCodes.add(scannedCode);
                                             callback.onCodesGeoQueried(scannedCode);
                                         } else { Log.d("================= Code is NUILL", ":("); }

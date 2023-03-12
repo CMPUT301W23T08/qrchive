@@ -9,6 +9,7 @@ import static androidx.core.content.ContextCompat.getSystemService;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -61,6 +62,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -266,6 +268,7 @@ public class ScanFragment extends Fragment {
             String date = new Date().toString();
             String locationImg = "placeholder_img";
             ScannedCode scannedCodeToUpload;
+            String scannedCodeDID = UUID.randomUUID().toString();
             if(preferences.contains("Allow use of photo")){
 //                locationImg = ...
                 // TODO: Add photo
@@ -273,11 +276,11 @@ public class ScanFragment extends Fragment {
             }
 
             if(preferences.contains("Allow use of geolocation")){
-                scannedCodeToUpload = new ScannedCode(code, date, currentLocationGeopoint, locationImg, fbw.getMyUserDID());
+                scannedCodeToUpload = new ScannedCode(code, date, currentLocationGeopoint, locationImg, fbw.getMyUserDID(), scannedCodeDID);
 
             }
             else {
-                scannedCodeToUpload = new ScannedCode(code, date, locationImg, fbw.getMyUserDID());
+                scannedCodeToUpload = new ScannedCode(code, date, locationImg, fbw.getMyUserDID(), scannedCodeDID);
             }
             // At this point, scannedCode is ready!
             Map<String, Object> scannedCodeMap = new HashMap<>();
@@ -288,7 +291,7 @@ public class ScanFragment extends Fragment {
             scannedCodeMap.put("location", scannedCodeToUpload.getLocation());
             scannedCodeMap.put("locationImage", scannedCodeToUpload.getLocationImage());
             scannedCodeMap.put("userDID", scannedCodeToUpload.getUserDID());
-            fbw.db.collection("ScannedCodes").document().set(scannedCodeMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            fbw.db.collection("ScannedCodes").document(scannedCodeDID).set(scannedCodeMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     fbw.refreshScannedCodesForUser(fbw.getMyUserDID());
@@ -298,47 +301,51 @@ public class ScanFragment extends Fragment {
     }
 
     // TODO: (IMPORTANT) MAKE THIS FUNCTION CHOOSE THE BEST LOCATION PROVIDER DURING RUNTIME
-    public Location getCurLocation(){
-
-            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
-                return null;
-            }
-            LocationManager locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-            // I could not get the request location updates to work in this fragment
-//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 10F, (LocationListener) getContext());
-            Location currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-            return currentLocation;
-    }
-
-    // ALTERNATE CODE WHICH WORKED
 //    public Location getCurLocation(){
 //
-//        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
-//            return null;
-//        }
-//        LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+//            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
+//                return null;
+//            }
+//            LocationManager locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+//            // I could not get the request location updates to work in this fragment
+////            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 10F, (LocationListener) getContext());
+//            Location currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 //
-//        if (locationManager != null) {
-//            LocationListener locationListener = new LocationListener() {
-//                @Override
-//                public void onLocationChanged(Location location) {}
-//                @Override
-//                public void onStatusChanged(String provider, int status, Bundle extras) {}
-//                @Override
-//                public void onProviderEnabled(String provider) {}
-//                @Override
-//                public void onProviderDisabled(String provider) {}
-//            };
+//            if (currentLocation == null) {
+//                currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//            }
 //
-//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-//            // You can also use LocationManager.NETWORK_PROVIDER for a faster location fix, but it may not be as accurate
-//        }
-//        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-//        return location;
+//            return currentLocation;
 //    }
+
+    // ALTERNATE CODE WHICH WORKED
+    public Location getCurLocation(){
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
+            return null;
+        }
+        LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+
+        if (locationManager != null) {
+            LocationListener locationListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {}
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {}
+                @Override
+                public void onProviderEnabled(String provider) {}
+                @Override
+                public void onProviderDisabled(String provider) {}
+            };
+
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            // You can also use LocationManager.NETWORK_PROVIDER for a faster location fix, but it may not be as accurate
+        }
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        return location;
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
