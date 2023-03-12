@@ -7,4 +7,10 @@
     <string name="flash_button_label">Flash Off</string>
     <string name="flash_button_label_off">Flash On</string>
 
+
+    <string-array name="popupPrefrences">
+        <item>Allow use of photo</item>
+        <item>Allow use of geolocation</item>
+    </string-array>
+
 </resources>
