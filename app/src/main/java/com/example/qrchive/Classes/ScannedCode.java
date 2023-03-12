@@ -191,6 +191,18 @@ public class ScannedCode {
     public String getUserDID() {
         return userDID;
     }
+    public String getHash() {
+        return hash;
+    }
+    public int getHashVal() {
+        return hashVal;
+    }
+    public boolean getHasLocation() {
+        return hasLocation;
+    }
+    public String getLocationImage() {
+        return locationImage;
+    }
 
     public int getPoints() {
         return this.points;
