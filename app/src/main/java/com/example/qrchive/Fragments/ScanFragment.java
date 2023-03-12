@@ -58,9 +58,9 @@ import java.util.List;
 
 public class ScanFragment extends Fragment {
 
-    // private static final int TARGET_FRAGMENT_REQUEST_CODE = 1;
-    // private static final String EXTRA_GREETING_MESSAGE = "EXTRA_PREFERENCES";
-    // private static final int REQUEST_CODE_FINE_LOCATION = 200;
+     private static final int TARGET_FRAGMENT_REQUEST_CODE = 1;
+     private static final String EXTRA_GREETING_MESSAGE = "EXTRA_PREFERENCES";
+     private static final int REQUEST_CODE_FINE_LOCATION = 200;
 
     private CodeScanner mCodeScanner;
     // The scanner view displays the camera preview on the screen.
