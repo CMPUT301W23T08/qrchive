@@ -5,4 +5,10 @@
     <string name="reset_button">Reset</string>
     <string name="change_location_preferences"> Change location preferences</string>
 
+
+    <string-array name="popupPrefrences">
+        <item>Allow use of photo</item>
+        <item>Allow use of geolocation</item>
+    </string-array>
+
 </resources>
