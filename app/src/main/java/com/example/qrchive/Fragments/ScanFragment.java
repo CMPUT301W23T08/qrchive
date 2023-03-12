@@ -138,7 +138,7 @@ public class ScanFragment extends Fragment {
                                                     withinImpermissibleRadius = docsNumber != 0;
                                                     if (withinImpermissibleRadius) {
                                                         Toast.makeText(activity, "You have scanned this code within this area already. This QRCode will not be added", Toast.LENGTH_SHORT).show();
-                                                        return; // TODO test this
+                                                        return;
                                                     }
                                                     new ScanResultPopupFragment().show(getChildFragmentManager(), "popup");
                                                 }
@@ -273,7 +273,6 @@ public class ScanFragment extends Fragment {
             }
 
             if(preferences.contains("Allow use of geolocation")){
-                // TODO: add location
                 scannedCodeToUpload = new ScannedCode(code, date, currentLocationGeopoint, locationImg, fbw.getMyUserDID());
 
             }
