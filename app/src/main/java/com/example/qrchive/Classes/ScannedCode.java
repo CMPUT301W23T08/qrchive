@@ -3,6 +3,7 @@ import com.google.common.hash.Hashing;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.Hashtable;
 
 public class ScannedCode {
@@ -182,10 +183,11 @@ public class ScannedCode {
     public String getLocationString() {
         GeoPoint location = this.getLocation();
         // return Location N/A on no location, otherwise return a location string
+        DecimalFormat df = new DecimalFormat("#.###");
         return (!hasLocation)
                 ? "Location N/A"
-                : "Lat: " + location.getLatitude() + ", " +
-                "Long: " + location.getLongitude();
+                : "Lat: " + df.format(location.getLatitude()) + ", " +
+                "Long: " + df.format(location.getLongitude());
     }
 
     public String getUserDID() {

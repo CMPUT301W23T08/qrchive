@@ -11,11 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
-import com.google.android.material.snackbar.Snackbar;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -70,7 +70,7 @@ public class OnClickCodeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 fbw.deleteCode(scannedCode);
-                Snackbar.make(getContext(), v, "\"" + scannedCode.getName() + "\"" + " has been deleted!", Snackbar.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "\"" + scannedCode.getName() + "\"" + " has been deleted!", Toast.LENGTH_SHORT).show();
                 fbw.refreshScannedCodesForUser(scannedCode.getUserDID());
                 try {
                     Thread.sleep(1000);
