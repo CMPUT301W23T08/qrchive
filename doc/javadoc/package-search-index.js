@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.example.qrchive"},{"l":"com.example.qrchive.Activities"},{"l":"com.example.qrchive.Classes"},{"l":"com.example.qrchive.Fragments"}]
