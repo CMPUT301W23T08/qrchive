@@ -30,7 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * CodesFragment displays a users list of scanned codes.
+ * CodesFragment displays this list of users scanned codes.
  * It is a simple subclass of {@link Fragment}.
  *
  * @author Shelly
