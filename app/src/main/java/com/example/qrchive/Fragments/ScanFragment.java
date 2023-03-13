@@ -9,6 +9,8 @@ import static androidx.core.content.ContextCompat.getSystemService;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,7 +21,10 @@ import android.location.Location;
 
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +36,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.Preview;
+import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -47,6 +55,7 @@ import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.hash.Hashing;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -58,14 +67,32 @@ import org.imperiumlabs.geofirestore.listeners.GeoQueryDataEventListener;
 import org.imperiumlabs.geofirestore.listeners.GeoQueryEventListener;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
+
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 
 
 /**
@@ -76,7 +103,7 @@ public class ScanFragment extends Fragment {
     private static final String EXTRA_GREETING_MESSAGE = "EXTRA_PREFERENCES";
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
     private static final double IMPERMISSIBLE_RADIUS = 1.0; // Radius under which we DONT allow the
-                                                          // same user to scan the same code
+    // same user to scan the same code
     private CodeScanner mCodeScanner;
     private FirebaseWrapper fbw;
     private FirebaseFirestore db;
@@ -89,6 +116,8 @@ public class ScanFragment extends Fragment {
     private Button flashButton;
     boolean withinImpermissibleRadius;
     int docsWithinImpermissibleRadius = 0;
+
+
 
     public ScanFragment(FirebaseWrapper fbw) {
         this.fbw = fbw;
@@ -104,7 +133,11 @@ public class ScanFragment extends Fragment {
         scannerView = root.findViewById(R.id.scanner_view);
         mCodeScanner = new CodeScanner(activity, scannerView);
 
+
+
         db = fbw.db;
+
+
         geoFirestore = new GeoFirestore(db.collection("ScannedCodes"));
         if (ContextCompat.checkSelfPermission(
                 activity, android.Manifest.permission.CAMERA) ==
@@ -116,6 +149,7 @@ public class ScanFragment extends Fragment {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
                             mResult = result;
                             Toast.makeText(activity, mResult.getText(), Toast.LENGTH_SHORT).show();
                             scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
@@ -144,13 +178,18 @@ public class ScanFragment extends Fragment {
                                         docsWithinImpermissibleRadius = 0;
                                         return;
                                     }
+                                    // !
                                     docsWithinImpermissibleRadius = 0;
-                                    new ScanResultPopupFragment().show(getChildFragmentManager(), "popup");
+                                    new ScanResultPopupFragment(fbw).show(getParentFragmentManager(), "popup");
                                 }
 
                                 @Override
                                 public void onGeoQueryError(@NonNull Exception e) {}
                             });
+
+
+
+
                         }
                     });
                 }
@@ -217,7 +256,6 @@ public class ScanFragment extends Fragment {
                     // decision.
                 }
             });
-
     @Override
     public void onResume() {
         super.onResume();

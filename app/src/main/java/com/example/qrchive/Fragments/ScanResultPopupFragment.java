@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.R;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -23,6 +24,7 @@ public class ScanResultPopupFragment extends DialogFragment {
 
     private List<String> selectedPreferences;
 
+    private FirebaseWrapper fbw;
 
     /**
      *
@@ -59,7 +61,8 @@ public class ScanResultPopupFragment extends DialogFragment {
         builder.setPositiveButton("submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                sendResult();
+                getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new CaptureFragment(fbw),null).commit();
+                //sendResult();
             }
         });
 
@@ -73,9 +76,8 @@ public class ScanResultPopupFragment extends DialogFragment {
         return builder.create();
     }
 
-    public static ScanResultPopupFragment getInstance(){
-        ScanResultPopupFragment fragment = new ScanResultPopupFragment();
-        return fragment;
+    public ScanResultPopupFragment(FirebaseWrapper fbw) {
+        this.fbw = fbw;
     }
 
 
