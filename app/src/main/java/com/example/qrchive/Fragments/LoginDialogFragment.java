@@ -20,11 +20,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * LoginDialogFragment is the fragment that displays when a user is signing on for the first time.
+ * It is a subclass of {@link DialogFragment}.
+ *
+ * @author Shelly
+ * @version 1.0
+ */
 public class LoginDialogFragment extends DialogFragment {
     FirebaseFirestore db;
     String android_device_id;
 
     SharedPreferences preferences;
+
+    /**
+     * The constructor for LoginDialogFragment
+     *
+     * @param db is an instance of the Firebase DB
+     * @param preferences is an instance of SharedPreferences to allow for user settings.
+     * @param android_device_id is the users device ID.
+     */
     public LoginDialogFragment(FirebaseFirestore db, SharedPreferences preferences, String android_device_id) {
         super();
         this.db = db;
@@ -32,6 +47,14 @@ public class LoginDialogFragment extends DialogFragment {
         this.android_device_id = android_device_id;
     }
 
+    /**
+     * onCreateDialog is used to show an AlertDialog that allows for a user to register.
+     *
+     * @param savedInstanceState The last saved instance state of the Fragment,
+     * or null if this is a freshly created Fragment.
+     *
+     * @return Returns an instance of Dialog.
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

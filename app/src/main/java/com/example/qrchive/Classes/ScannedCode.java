@@ -5,6 +5,13 @@ import com.google.firebase.firestore.GeoPoint;
 import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
 
+/**
+ * ScannedCode represents a code that has been captured and stores all the required metadata to operate
+ * on such a code.
+ *
+ * @author Shelly & Grayden
+ * @version 1.0
+ */
 public class ScannedCode {
     private String hash;
     private int hashVal;
@@ -18,7 +25,16 @@ public class ScannedCode {
     private String ascii;
     private String scannedCodeDID; // Document ID on firestore corresponding to this scannedCode
 
-    // Constructor which uses code and assumes no location
+
+    /**
+     * This is a constructor for ScannedCode which uses code and assumes location should not be used.
+     *
+     * @param code is the value of the QR code.
+     * @param date is the date as a string.
+     * @param locationImage is a string representing the location image.
+     * @param userDID is the users ID.
+     * @param scannedCodeDID is the scanned codes ID.
+     */
     public ScannedCode(String code, String date, String locationImage, String userDID, String scannedCodeDID) {
         this(Hashing.sha256().hashString(code, StandardCharsets.UTF_8).toString(),
                 Hashing.sha256().hashString(code, StandardCharsets.UTF_8).asInt(),
@@ -26,13 +42,34 @@ public class ScannedCode {
         // even though i pass (0,0) for geopoint, it SHOULD NOT BE USED as hasLocation is false
     }
 
-    // Constructor which uses code and assumes location
+    /**
+     * This is a constructor for ScannedCode which uses code and assumes location should be used.
+     *
+     * @param code is the value of the QR code.
+     * @param date is the date as a string.
+     * @param location is the location stored as a GeoPoint.
+     * @param locationImage is a string representing the location image.
+     * @param userDID is the users ID.
+     * @param scannedCodeDID is the scanned codes ID.
+     */
     public ScannedCode(String code, String date, GeoPoint location, String locationImage, String userDID, String scannedCodeDID) {
         this(Hashing.sha256().hashString(code, StandardCharsets.UTF_8).toString(),
                 Hashing.sha256().hashString(code, StandardCharsets.UTF_8).asInt(),
                 date, location, true, locationImage, userDID, scannedCodeDID);
     }
 
+    /**
+     * This is a constructor for ScannedCode which uses hash.
+     *
+     * @param hash the hashed QR code.
+     * @param hashVal the numerical value of the first 4 bytes of the hashed QR code.
+     * @param date is the date as a string.
+     * @param location is the location stored as a GeoPoint.
+     * @param hasLocation is a boolean representing whether location should be used or not.
+     * @param locationImage is a string representing the location image.
+     * @param userDID is the users ID.
+     * @param scannedCodeDID is the scanned codes ID.
+     */
     // Base Constructor
     public ScannedCode(String hash, int hashVal, String date, GeoPoint location, boolean hasLocation, String locationImage, String userDID, String scannedCodeDID) {
         this.hash = hash;
@@ -169,16 +206,38 @@ public class ScannedCode {
         }
     }
 
+    /**
+     * A getter function for date.
+     *
+     * @return Returns the private attribute date.
+     */
     public String getDate() {
         return date;
     }
 
+    /**
+     * A getter function for location as a GeoPoint.
+     *
+     * @return Returns the private attribute location as a GeoPoint.
+     */
     public GeoPoint getLocation() {
         return location;
     }
+
+    /**
+     * A getter function for hasLocation.
+     *
+     * @return Returns the private attribute hasLocation.
+     */
     public boolean getHasLocation() {
         return hasLocation;
     }
+
+    /**
+     * A getter function for location as a string.
+     *
+     * @return Returns the private attribute location as a string.
+     */
     public String getLocationString() {
         GeoPoint location = this.getLocation();
         // return Location N/A on no location, otherwise return a location string
@@ -188,30 +247,71 @@ public class ScannedCode {
                 "Long: " + location.getLongitude();
     }
 
+    /**
+     * A getter function for userDID.
+     *
+     * @return Returns the private attribute userDID.
+     */
     public String getUserDID() {
         return userDID;
     }
+
+    /**
+     * A getter function for hash.
+     *
+     * @return Returns the private attribute hash.
+     */
     public String getHash() {
         return hash;
     }
+    /**
+     * A getter function for hashVal.
+     *
+     * @return Returns the private attribute hashVal.
+     */
     public int getHashVal() {
         return hashVal;
     }
+    /**
+     * A getter function for locationImage.
+     *
+     * @return Returns the private attribute locationImage.
+     */
     public String getLocationImage() {
         return locationImage;
     }
 
+    /**
+     * A getter function for points.
+     *
+     * @return Returns the private attribute points.
+     */
     public int getPoints() {
         return this.points;
     }
+    /**
+     * A getter function for name.
+     *
+     * @return Returns the private attribute name.
+     */
     public String getName() {
         return this.name;
     }
 
+    /**
+     * A getter function for ascii.
+     *
+     * @return Returns the private attribute ascii.
+     */
     public String getAscii() {
         return this.ascii;
     }
 
+    /**
+     * A getter function for scannedCodeDID.
+     *
+     * @return Returns the private attribute scannedCodeDID.
+     */
     public String getScannedCodeDID() {
         return this.scannedCodeDID;
     }
