@@ -72,6 +72,9 @@ public class CaptureFragment extends Fragment {
         super.onCreate(savedInstanceState);
         cameraExecutor = Executors.newSingleThreadExecutor();
 
+        /**
+         * This function responsible for setting up cameraX
+         */
     }
     private void startCamera()
     {
@@ -103,6 +106,9 @@ public class CaptureFragment extends Fragment {
             }
         }, ContextCompat.getMainExecutor(requireContext()));
     }
+    /**
+     * This function representing for taking photo and saving as jpeg file inside Pictures folder
+     */
     private void takePhoto() {
         String name = new SimpleDateFormat(FILENAME_FORMAT, Locale.CANADA)
                 .format(System.currentTimeMillis());
@@ -135,6 +141,19 @@ public class CaptureFragment extends Fragment {
         );
 
     }
+
+    /**
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -155,6 +174,11 @@ public class CaptureFragment extends Fragment {
         return view;
 
     }
+
+    /**
+     * Check whether all required condition is satisfied for permission
+     * @return flag as boolean
+     */
     private boolean allPermissionGranted() {
         boolean flag = true;
         for(String permission: REQUESTED_PERMISSIONS) {
@@ -162,6 +186,10 @@ public class CaptureFragment extends Fragment {
         }
         return flag;
     }
+
+    /**
+     * Destroy camera
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
