@@ -30,13 +30,23 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * create an instance of this fragment.
+ * CodesFragment displays this list of users scanned codes.
+ * It is a simple subclass of {@link Fragment}.
+ *
+ * @author Shelly
+ * @version 1.0
  */
 public class CodesFragment extends Fragment {
 
     private List<ScannedCode> scannedCodes;
     private FirebaseWrapper fbw;
     private MyScannedCodeCardRecyclerViewAdapter scannedCodesAdapter;
+
+    /**
+     * The constructor for the fragment.
+     *
+     * @param fbw is an instance of the FirebaseWrapper that allows for queries to the Firebase DB.
+     */
     public CodesFragment(FirebaseWrapper fbw) {
         this.fbw = fbw;
     }
@@ -49,11 +59,30 @@ public class CodesFragment extends Fragment {
 //        return new CodesFragment();
 //    }
 
+    /**
+     * onCreate is called to do initial creation of a fragment.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 }
 
+    /**
+     * onCreateView is called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return Returns the view that was instantiated.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -66,6 +95,12 @@ public class CodesFragment extends Fragment {
         scannedCodes = fbw.getScannedCodesDict().get(fbw.getMyUserDID());
         scannedCodesAdapter = new MyScannedCodeCardRecyclerViewAdapter(scannedCodes);
         scannedCodesAdapter.setOnItemClickListener(new MyScannedCodeCardRecyclerViewAdapter.OnItemClickListener() {
+            /**
+             * OnItemClick is a click listener for the view adapter.
+             *
+             * @param view is the view that is being clicked on.
+             * @param position is the position in the view adapter that has been clicked.
+             */
             @Override
             public void OnItemClick(View view, int position) {
                 ScannedCode scannedCode = scannedCodes.get(position);
@@ -95,6 +130,14 @@ public class CodesFragment extends Fragment {
                 android.R.layout.simple_spinner_dropdown_item,
                 new String[]{"Date", "Location", "Points", "Name"}));
         sortedBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * onItemSelected is a callback function that is invoked when an item has been selected.
+             *
+             * @param parent is the AdapterView.
+             * @param view is the view.
+             * @param position is the position in the view adapter.
+             * @param id is the id of the item that has been selected.
+             */
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedItem = parent.getItemAtPosition(position).toString();
@@ -115,6 +158,11 @@ public class CodesFragment extends Fragment {
                 scannedCodesAdapter.notifyDataSetChanged();
             }
 
+            /**
+             * onNothingSelected is a callback function that occurs when no items are selected.
+             *
+             * @param parent is the AdapterView.
+             */
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
