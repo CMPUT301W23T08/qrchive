@@ -54,7 +54,7 @@ public class FirebaseWrapper {
      * refreshScannedCodesForUser will re-initialize the scannedCodesDict with all of the users
      * scanned codes.
      *
-     * @param userDID is the user device ID we are trying to fetch the codes for.
+     * @param userDID is the user document ID we are trying to fetch the codes for.
      */
     public void refreshScannedCodesForUser(String userDID) {
         ArrayList<ScannedCode> scannedCodes = new ArrayList<>();
