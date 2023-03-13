@@ -33,6 +33,7 @@
 
         <LinearLayout
             android:id="@+id/dropdown_navigation_wrapper"
+            android:background="@color/background_grey"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">

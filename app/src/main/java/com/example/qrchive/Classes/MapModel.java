@@ -95,7 +95,6 @@ public class MapModel {
                                     if (document != null) {
                                         Map<String, Object> docData = document.getData();
                                         if (docData != null) {
-                                            GeoPoint codeLocation = (GeoPoint) docData.get("location");
                                             ScannedCode scannedCode = new ScannedCode(
                                                     document.get("hash").toString(),
                                                     Integer.parseInt(docData.get("hashVal").toString()),
