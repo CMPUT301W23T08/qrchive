@@ -24,10 +24,6 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toTopOf="@id/code_ascii"
             style="@style/myCardStyleOnItemClick">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
                 <TextView
                     android:id="@+id/code_name"
                     android:layout_width="wrap_content"
@@ -36,13 +32,17 @@
                     android:textAlignment="center"
                     android:text="Loading..."/>
 
-                <ImageView
-                    android:id="@+id/delete_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@android:drawable/ic_menu_delete"/>
-            </LinearLayout>
         </androidx.cardview.widget.CardView>
+
+        <ImageView
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/code_card_name"
+            app:layout_constraintBottom_toTopOf="@id/code_ascii"
+            android:src="@android:drawable/ic_menu_delete"/>
         <TextView
             android:id="@+id/code_ascii"
             app:layout_constraintTop_toBottomOf="@+id/code_card_name"
