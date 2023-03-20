@@ -29,6 +29,7 @@ import com.example.qrchive.Fragments.CodesFragment;
 import com.example.qrchive.Fragments.FriendsFragment;
 import com.example.qrchive.Fragments.HomeFragment;
 import com.example.qrchive.Fragments.LoginDialogFragment;
+import com.example.qrchive.Fragments.MapsFragment;
 import com.example.qrchive.Fragments.ProfileFragment;
 import com.example.qrchive.R;
 import com.example.qrchive.Fragments.ScanFragment;
@@ -115,16 +116,11 @@ public class MainActivity extends AppCompatActivity {
                         transactFragment(new ProfileFragment());
                         break;
                     case R.id.menu_dropdown_map:
-                        Intent showMap = new Intent(MainActivity.this, MapsActivity.class);
-                        showMap.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(showMap);
+                        transactFragment(new MapsFragment());
                         break;
-
                     case R.id.menu_dropdown_settings:
-                        //todo
                         transactFragment(new SettingsFragment());
                         break;
-
                 }
                 dropdownNavWrapper.setVisibility(View.GONE);
                 return true;

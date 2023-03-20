@@ -1,18 +1,22 @@
-package com.example.qrchive.Activities;
+package com.example.qrchive.Fragments;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.Fragment;
 import android.Manifest;
-import android.content.Intent;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
+import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.MapModel;
 import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.Classes.onCodesGeoQueriedListener;
@@ -27,97 +31,79 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.GeoPoint;
 
-import java.util.List;
+public class MapsFragment extends Fragment implements onCodesGeoQueriedListener {
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, onCodesGeoQueriedListener {
-
+    private String TAG = "=================== HERE ====================";
     private GoogleMap mMap;
+    private MainActivity thisActivity;
     private LocationManager locationManager;
     private Location currentLocation;
     private MapModel mapModel;
-    private boolean fine_location_enabled = false;
 
-    private static final String TAG = MapsActivity.class.getSimpleName();
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
     private static final int REQUEST_CODE_LOCATION_SERVICES = 1;
     private final static int ZOOM_LEVEL = 16;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+    private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        /**
+         * Manipulates the map once available.
+         * This callback is triggered when the map is ready to be used.
+         */
+        @Override
+        public void onMapReady(GoogleMap googleMap) {
+            Log.d(TAG, "onMapReady: ");
+            mMap = googleMap;
+            mMap.getUiSettings().setMapToolbarEnabled(true);
+            try {
+                boolean success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json ));
+                if (!success) {
+                    Log.e(TAG, "Failed to parse style.json");
+                }
+            } catch (Resources.NotFoundException e) {
+                Log.e(TAG, "Can't find the style json", e);
+            }
+
+            // Permission Check;
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                // Request Permissions from User.
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
+                return;
+            }
+
+            // Get device location
+            mMap.setMyLocationEnabled(true);
+            locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            if (currentLocation == null) {
+                Toast.makeText(getActivity(), "Navigate to settings to enable location services", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            moveCameraToCurrentLocation();
+            scatterQRLocations();
+        }
+    };
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_maps, container, false);
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.getUiSettings().setMapToolbarEnabled(true);
-
-        // Google Official Documentation for Map Styling
-        // Source: https://developers.google.com/maps/documentation/android-sdk/styling
-
-        try {
-            boolean success = mMap.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                            this, R.raw.style_json ));
-            if (!success) {
-                Log.e(TAG, "Failed to parse style.json");
-            }
-        } catch (Resources.NotFoundException e) {
-            Log.e(TAG, "Can't find the style json", e);
-        }
-
-        // Permission Check;
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            // Request Permissions from User.
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
-            return;
-        }
-
-        // Get device location
-        mMap.setMyLocationEnabled(true);
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-        if (currentLocation == null) {
-            Toast.makeText(this, "Navigate to settings to enable location services", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        moveCameraToCurrentLocation();
-        scatterQRLocations();
-    }
-
-    /** @method: handle location permission request. If granted, restart the activity, else warn the user
-     * that features are limited.
-     * */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 200) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission was granted
-                Intent intent = getIntent();
-                finish();
-                startActivity(intent);
-                fine_location_enabled = true;
-                Toast.makeText(this, "Thank you for allowing location", Toast.LENGTH_SHORT).show();
-            } else {
-                // Permission denied
-                Toast.makeText(this, "Location permission is required for some features", Toast.LENGTH_SHORT).show();
-            }
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(callback);
         }
     }
 
     /** @method: update current location.
      * */
-    @Override
     public void onLocationChanged(Location location) {
         currentLocation = location;
     }
