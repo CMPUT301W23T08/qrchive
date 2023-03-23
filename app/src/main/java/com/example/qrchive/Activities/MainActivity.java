@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.menu_item_friends:
                         //todo
-                        transactFragment(new FriendsFragment());
+                        transactFragment(new FriendsFragment(fbw));
                         break;
                     case R.id.menu_item_scan:
                         //todo
