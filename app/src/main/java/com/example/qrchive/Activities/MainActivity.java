@@ -56,7 +56,6 @@ import java.util.concurrent.ExecutionException;
  *  For BottomNavImpl: https://www.geeksforgeeks.org/bottomnavigationview-inandroid/
  * */
 
-
 public class MainActivity extends AppCompatActivity {
 
     FirebaseWrapper fbw;
@@ -152,14 +151,11 @@ public class MainActivity extends AppCompatActivity {
                         transactFragment(new CodesFragment(fbw));
                         break;
                     case R.id.menu_item_friends:
-                        //todo
                         transactFragment(new FriendsFragment());
                         break;
                     case R.id.menu_item_scan:
-                        //todo
                         transactFragment(new ScanFragment(fbw));
                         break;
-
                 }
                 dropdownNavWrapper.setVisibility(View.GONE);
                 return true;
@@ -171,31 +167,13 @@ public class MainActivity extends AppCompatActivity {
         Menu topBarMenu = topBar.getMenu();
         onCreateOptionsMenu(topBarMenu);
 
-        //grab menu items
-        MenuItem itemDropdown = topBarMenu.findItem(R.id.menu_item_dropdown);
+        handleDropdownMenuWrapper(topBarMenu, dropdownNavWrapper);
 
-        //handle dropdown menu clicked
-        itemDropdown.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
-                Log.d("clicked the dropdown icon: ", "onMenuItemClick: ");
-                int viewState = dropdownNavWrapper.getVisibility();
+//        MenuItem geoSearchItem = topBarMenu.getItem(R.id.menu_geo_search);
+//        handleGeoSearchWrapper(topBarMenu);
 
-                if (viewState == View.GONE) {
-                    dropdownNavWrapper.setVisibility(View.VISIBLE);
-                } else if (viewState == View.VISIBLE) {
-                    dropdownNavWrapper.setVisibility(View.GONE);
-                }
-                return false;
-            }
-        });
-
-        // Make app default load the home fragment (we will add a conditional here later to test if the user has already created
-        // an account before, If not then we show the create account fragment by default.)
+        // Make app default load the home fragment
         transactFragment(new HomeFragment());
-//        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment())
-//                .commit();
-
     }
 
     /**
@@ -203,7 +181,14 @@ public class MainActivity extends AppCompatActivity {
      * */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        //load the menu XML into memory.
         getMenuInflater().inflate(R.menu.app_bar_menu, menu);
+
+        //hide the geo_search icon since we are not in maps fragment
+        MenuItem geo_search = menu.findItem(R.id.menu_geo_search);
+        geo_search.setVisible(false);
+
+        //listener for text search.
         MenuItem item = menu.findItem(R.id.menu_search);
         SearchView searchView = (SearchView) item.getActionView();
         searchView.setQueryHint("Search for QR . . .");
@@ -224,6 +209,31 @@ public class MainActivity extends AppCompatActivity {
         });
 
         return true;
+    }
+
+    /** When a menu item on the dropdown is clicked, we like to hide the visibility of
+     * the dropdown when the new fragment is rendered.
+     * */
+    private void handleDropdownMenuWrapper(Menu topBarMenu, LinearLayout dropdownNavWrapper) {
+
+        //grab menu items
+        MenuItem itemDropdown = topBarMenu.findItem(R.id.menu_item_dropdown);
+
+        //handle dropdown menu clicked
+        itemDropdown.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
+                Log.d("clicked the dropdown icon: ", "onMenuItemClick: ");
+                int viewState = dropdownNavWrapper.getVisibility();
+
+                if (viewState == View.GONE) {
+                    dropdownNavWrapper.setVisibility(View.VISIBLE);
+                } else if (viewState == View.VISIBLE) {
+                    dropdownNavWrapper.setVisibility(View.GONE);
+                }
+                return false;
+            }
+        });
     }
 
     private void transactFragment(Fragment fragment) {

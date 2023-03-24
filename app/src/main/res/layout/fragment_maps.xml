@@ -1,8 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.MapsFragment" />
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- The map fragment goes on top of the TextView or LinearLayout -->
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".Fragments.MapsFragment"
+        tools:layout="@layout/fragment_maps" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/maps_geo_search_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Linear layout for the decimal inputs and button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background_grey"
+            android:orientation="horizontal">
+
+            <!-- Decimal input for latitude -->
+            <EditText
+                android:id="@+id/latitude_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Latitude"
+                android:inputType="numberDecimal"/>
+
+            <!-- Decimal input for longitude -->
+            <EditText
+                android:id="@+id/longitude_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Longitude"
+                android:inputType="numberDecimal"/>
+        </LinearLayout>
+
+        <!-- Linear layout for the decimal inputs and button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background_grey"
+            android:orientation="horizontal">
+
+            <!-- Decimal input for latitude -->
+            <EditText
+                android:id="@+id/search_radius_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Search Radius"
+                android:inputType="numberDecimal"/>
+            <!-- Button -->
+            <Button
+                android:id="@+id/button_geo_search_use_current_loc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:textSize="10sp"
+                android:text="Current Location"/>
+
+            <!-- Button -->
+            <Button
+                android:id="@+id/button_geo_search_submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

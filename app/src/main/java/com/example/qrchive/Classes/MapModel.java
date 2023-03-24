@@ -1,4 +1,6 @@
 package com.example.qrchive.Classes;
+import static android.service.controls.ControlsProviderService.TAG;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -124,5 +126,67 @@ public class MapModel {
                 // Document with key moved within the search radius
             }
         });
+    }
+
+    /** Query QR Codes in a specified radius
+     * */
+    public List<ScannedCode> queryQRCodes(double latitude, double longitude, double radius) {
+
+        List<ScannedCode> queriedCodes = new ArrayList<>();
+        geoFirestore = new GeoFirestore(db.collection("ScannedCodes"));
+        GeoPoint currentLocation = new GeoPoint(latitude, longitude);
+
+        // Geo Query requires the fields g: hashed location and l: GeoPoint representing location.
+        // there is a way to rename the fields with settings, so that we could use
+        db.collection("ScannedCodes")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            GeoPoint scannedLocation = document.getGeoPoint("location");
+                            geoFirestore.setLocation(document.getId(), scannedLocation);
+                        }
+                    }
+                });
+
+        // Make a GeoQuery for documents with location within radius of current location.
+        GeoQuery geoQuery = geoFirestore.queryAtLocation(currentLocation, radius);
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+
+            @Override
+            public void onKeyEntered(String key, GeoPoint location) {
+                // Add code to retrieve the document from Firestore
+                db.collection("ScannedCodes")
+                        .document(key)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document != null) {
+                                        Map<String, Object> docData = document.getData();
+                                        if (docData != null) {
+                                            ScannedCode scannedCode = new ScannedCode(
+                                                    document.get("hash").toString(), Integer.parseInt(docData.get("hashVal").toString()),
+                                                    docData.get("date").toString(), (GeoPoint) docData.get("location"),true, "placeholder_img.png",
+                                                    docData.get("userDID").toString(), document.getId());
+                                            queriedCodes.add(scannedCode);
+                                        } else { Log.d(TAG, "document is null"); }
+                                    }
+                                } else { Log.d(TAG, "task not successful"); }
+                            }
+                        });
+            }
+            @Override
+            public void onGeoQueryReady() {}
+            @Override
+            public void onKeyExited(String key) {}
+            @Override
+            public void onGeoQueryError(@NonNull Exception e) {}
+            @Override
+            public void onKeyMoved(String key, GeoPoint location) {}
+        });
+        return queriedCodes;
     }
 }
