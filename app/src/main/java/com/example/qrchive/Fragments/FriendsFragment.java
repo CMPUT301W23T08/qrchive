@@ -1,7 +1,9 @@
 package com.example.qrchive.Fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -11,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.qrchive.Classes.FirebaseWrapper;
@@ -42,6 +45,9 @@ public class FriendsFragment extends Fragment {
     private ArrayList<Player> users;
     private String userId;
     private ArrayList<String> friendsList;
+    private SharedPreferences onStartupPref;
+    Button showFriendsButton;
+    Button showAllButton;
 
 
     public FriendsFragment(FirebaseWrapper fbw) {
@@ -73,8 +79,61 @@ public class FriendsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View friendsView = inflater.inflate(R.layout.fragment_friends, container, false);
 
+        onStartupPref = getActivity().getSharedPreferences("friendsStartupPref", Context.MODE_PRIVATE);
+
+        Boolean showFriendsOnStart = onStartupPref.getBoolean("showFriends", true);
+
+        showFriendsButton = friendsView.findViewById(R.id.show_friends_button);
+        showAllButton = friendsView.findViewById(R.id.show_all_button);
+
+        RecyclerView recyclerView = friendsView.findViewById(R.id.friends_recycler_list);
+
+        if(showFriendsOnStart){
+            displayFriends(recyclerView);
+        }else{
+            displayAllUsers(recyclerView);
+        }
+
+
+
 
         //get list of friends
+
+        showFriendsButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("ResourceAsColor")
+            @Override
+            public void onClick(View v) {
+                displayFriends(recyclerView);
+            }
+        });
+
+        showAllButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("ResourceAsColor")
+            @Override
+            public void onClick(View v) {
+
+                displayAllUsers(recyclerView);
+            }
+        });
+
+
+
+
+
+        // Call the getUsers() method and provide a callback to handle the retrieved list of users
+
+
+
+
+        return friendsView;
+    }
+
+
+    private void displayFriends(RecyclerView recyclerView){
+
+        onStartupPref.edit().putBoolean("showFriends", true).apply();
+        showFriendsButton.setTextColor(Color.rgb(0, 0, 0));
+        showAllButton.setTextColor(Color.rgb(255,255,255));
 
         getFriendsList(new OnFriendsRetrievedListener() {
             @Override
@@ -88,7 +147,6 @@ public class FriendsFragment extends Fragment {
                         System.out.println("User count: " + users.size());
 
 
-                        RecyclerView recyclerView = friendsView.findViewById(R.id.friends_recycler_list);
 
                         FriendsRecyclerViewAdapter friendsAdapter = new FriendsRecyclerViewAdapter(users);
                         recyclerView.setAdapter(friendsAdapter);
@@ -104,28 +162,26 @@ public class FriendsFragment extends Fragment {
             }
         }, userId);
 
-        // Call the getUsers() method and provide a callback to handle the retrieved list of users
-
-
-
-
-
-
-
-
-//        // Find the RecyclerView in your layout
-//        recyclerView = findViewById(R.id.recyclerView);
-//
-//        // Create a new PlayerAdapter and set it as the RecyclerView's adapter
-//        playerAdapter = new PlayerAdapter(playerList);
-//        recyclerView.setAdapter(playerAdapter);
-//
-//        // Set the RecyclerView's layout manager
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-
-        return friendsView;
     }
+
+
+    private void displayAllUsers(RecyclerView recyclerView){
+        onStartupPref.edit().putBoolean("showFriends", false).apply();
+        showFriendsButton.setTextColor(Color.rgb(255,255,255));
+        showAllButton.setTextColor(Color.rgb(0, 0, 0));
+        getAllUsers(new OnUsersRetrievedListener() {
+            @Override
+            public void onUsersRetrieved(ArrayList<Player> users) {
+
+                FriendsRecyclerViewAdapter friendsAdapter = new FriendsRecyclerViewAdapter(users);
+                recyclerView.setAdapter(friendsAdapter);
+
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+            }
+        }, userId);
+    }
+
 
 
     /**
@@ -134,8 +190,8 @@ public class FriendsFragment extends Fragment {
      * @param listener
      */
 
-    private void getAllUsers(final OnUsersRetrievedListener listener) {
-        db.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+    private void getAllUsers(final OnUsersRetrievedListener listener, String userID) {
+        db.collection("Users").whereNotEqualTo("deviceID", userID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {

@@ -26,21 +26,23 @@
 
 
             <Button
+                android:id="@+id/show_friends_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="Show Friends"
-                android:textColor="@color/black"/>
+                android:theme="@style/buttonPressed"/>
 
             <Space
                 android:layout_width="20dp"
                 android:layout_height="match_parent"/>
 
             <Button
+                android:id="@+id/show_all_button"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Show Players"/>
+                android:text="Show Players" />
 
             <Space
                 android:layout_width="20dp"
