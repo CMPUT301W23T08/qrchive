@@ -81,4 +81,26 @@
 
     </LinearLayout>
 
+    <ScrollView
+        android:id="@+id/geo_search_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="100dp"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/geo_search_list_view"
+                android:layout_width="match_parent"
+                android:background="@color/background_grey"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
 </FrameLayout>

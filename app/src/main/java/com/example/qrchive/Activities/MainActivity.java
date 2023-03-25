@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Check for Device ID and then set up the firebase wrapper object
         String android_device_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.d("=========================================================", android_device_id);
         db.collection("Users").whereEqualTo("deviceID", android_device_id).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -169,9 +170,6 @@ public class MainActivity extends AppCompatActivity {
 
         handleDropdownMenuWrapper(topBarMenu, dropdownNavWrapper);
 
-//        MenuItem geoSearchItem = topBarMenu.getItem(R.id.menu_geo_search);
-//        handleGeoSearchWrapper(topBarMenu);
-
         // Make app default load the home fragment
         transactFragment(new HomeFragment());
     }
@@ -241,5 +239,9 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment)
                 .commit();
         return;
+    }
+
+    public FirebaseWrapper getFirebaseWrapper() {
+        return fbw;
     }
 }

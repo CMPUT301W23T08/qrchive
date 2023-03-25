@@ -130,9 +130,8 @@ public class MapModel {
 
     /** Query QR Codes in a specified radius
      * */
-    public List<ScannedCode> queryQRCodes(double latitude, double longitude, double radius) {
+    public void queryQRCodes(double latitude, double longitude, double radius, onCodesGeoQueriedListener callback) {
 
-        List<ScannedCode> queriedCodes = new ArrayList<>();
         geoFirestore = new GeoFirestore(db.collection("ScannedCodes"));
         GeoPoint currentLocation = new GeoPoint(latitude, longitude);
 
@@ -171,7 +170,8 @@ public class MapModel {
                                                     document.get("hash").toString(), Integer.parseInt(docData.get("hashVal").toString()),
                                                     docData.get("date").toString(), (GeoPoint) docData.get("location"),true, "placeholder_img.png",
                                                     docData.get("userDID").toString(), document.getId());
-                                            queriedCodes.add(scannedCode);
+                                            callback.addCodeOnSuccess(scannedCode);
+                                            Log.d(TAG, "added QR code in radius ");
                                         } else { Log.d(TAG, "document is null"); }
                                     }
                                 } else { Log.d(TAG, "task not successful"); }
@@ -187,6 +187,5 @@ public class MapModel {
             @Override
             public void onKeyMoved(String key, GeoPoint location) {}
         });
-        return queriedCodes;
     }
 }
