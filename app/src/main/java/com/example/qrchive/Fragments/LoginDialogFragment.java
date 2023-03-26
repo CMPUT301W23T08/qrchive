@@ -82,6 +82,10 @@ public class LoginDialogFragment extends DialogFragment {
                     userNameField.setError("Username field cannot be empty");
                     return;
                 }
+                if (userNameField.getText().toString().length() >= 20) {
+                    userNameField.setError("Username too big");
+                    return;
+                }
                 if (emailField.getText().toString().trim().length() == 0) {
                     emailField.setError("email field cannot be empty");
                     return;
