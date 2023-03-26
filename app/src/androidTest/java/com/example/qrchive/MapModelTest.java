@@ -25,7 +25,6 @@ public class MapModelTest {
     public void testGetNearbyQRCodes() {
         // Create a new MapModel object with (0,0) coordinates
         MapModel mapModel = new MapModel(0, 0);
-
         // Assert that the list of nearby QR codes is empty
         assertTrue(mapModel.getNearbyQRCodes().isEmpty());
     }
@@ -34,7 +33,6 @@ public class MapModelTest {
     /**
      * This test case tests that the setNearbyQRCodes() method calls the onCodesGeoQueried() callback function when a nearby QR code is found.
      */
-
     @Test
     public void testSetNearbyQRCodes() {
         // Create a new MapModel object with (0,0) coordinates
@@ -46,6 +44,9 @@ public class MapModelTest {
                 // Test that callback is called when a nearby code is found
                 assertFalse(mapModel.getNearbyQRCodes().isEmpty());
             }
+
+            @Override
+            public void addCodeOnSuccess(ScannedCode code) {}
         });
     }
 }

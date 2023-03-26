@@ -11,6 +11,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -41,14 +42,18 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MapsFragment extends Fragment implements onCodesGeoQueriedListener {
 
@@ -62,6 +67,7 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
     private MenuItem geoSearchItem;
     private MenuItem textSearchItem;
 
+    private Map<Marker, ScannedCode> markerCodeMap = new HashMap<>();
     private ArrayList<ScannedCode> geoQueryList;
     private GeoSearchArrayAdapter geoQueryAdapter;
 
@@ -105,8 +111,36 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
                 Toast.makeText(getActivity(), "Navigate to settings to enable location services", Toast.LENGTH_SHORT).show();
                 return;
             }
-            moveCameraToCurrentLocation();
+
+
+            moveCameraToLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), ZOOM_LEVEL);
             scatterQRLocations();
+
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(@NonNull Marker marker) {
+                    Log.d(TAG, "onMarkerClick: ");
+
+                    marker.getTitle();
+
+                    ScannedCode code = markerCodeMap.get(marker);
+
+                    for (Map.Entry<Marker, ScannedCode> entry : markerCodeMap.entrySet()) {
+                        Marker code2 = entry.getKey();
+                        ScannedCode marker2 = entry.getValue();
+                        System.out.println("Code: " + code2 + " Marker: " + marker2);
+                    }
+
+                    if (code != null) {
+                        // Do something with the ScannedCode object
+                        Log.d("Marker Clicked", "Marker was clicked! Code name: " + code.getName());
+                        return true;
+                    } else {
+                        Log.d("Marker Clicked", "Code is null?");
+                    }
+                    return false;
+                }
+            });
         }
     };
 
@@ -203,11 +237,19 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
 
                 try {
                     longitude = Float.parseFloat(longitudeText.getText().toString());
+                    if (latitude < -180 || latitude > 180) {
+                        Toast.makeText(mainActivity, "Invalid latitude value", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 } catch (NumberFormatException e) {
                     Toast.makeText(mainActivity, "Invalid longitude value", Toast.LENGTH_SHORT).show();
                     return;
                 } try {
                     latitude = Float.parseFloat(latitudeText.getText().toString());
+                    if (latitude < -90 || latitude > 90) {
+                        Toast.makeText(mainActivity, "Invalid latitude value", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 } catch (NumberFormatException e) {
                     Toast.makeText(mainActivity, "Invalid latitude value", Toast.LENGTH_SHORT).show();
                     return;
@@ -232,8 +274,11 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
                 ScannedCode code = (ScannedCode) listView.getAdapter().getItem(i);
                 Log.d(TAG, code.getName());
 
-                mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new OnClickCodeFragment(code, mainActivity.getFirebaseWrapper()))
-                        .commit();
+                GeoPoint location = code.getLocation();
+                if (location != null) {
+                   moveCameraToLocation(location.getLatitude(), location.getLongitude(), ZOOM_LEVEL + 3);
+                   scrollView.setVisibility(View.INVISIBLE);
+                }
             }
         });
     }
@@ -246,16 +291,12 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
 
     /** @method: Pan the Camera to the current location of the user.
      * */
-    private void moveCameraToCurrentLocation() {
+    private void moveCameraToLocation(double latitude, double longitude, int zoom) {
 
         // Website: JavaPoint
         // Answer: https://www.javatpoint.com/android-google-map-displaying-current-location
-
-        double latitude = currentLocation.getLatitude();
-        double longitude = currentLocation.getLongitude();
-
         LatLng myLocation = new LatLng(latitude, longitude);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, ZOOM_LEVEL));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, zoom));
     }
 
     /** @method: Draw a code marker on the map with the name of the QR and
@@ -265,20 +306,25 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
         GeoPoint location = code.getLocation();
         String name = code.getName();
         String points = String.valueOf(code.getPoints());
-        Log.d("Location: ", String.valueOf(location.getLatitude()));
-        mMap.addMarker(new MarkerOptions()
+
+        BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(
+                BitmapFactory.decodeResource(getResources(), R.drawable.icon_qr_marker));
+
+        Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(location.getLatitude(), location.getLongitude()))
                 .title(name)
                 .snippet(points + " pts")
                 .flat(true)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                .icon(icon));
+
+        markerCodeMap.put(marker, code);
+        Log.d(TAG, "ADDED CODE TO MAP ");
     }
 
     /**
      * @method: scatter some QR codes around the current location of the user.
      * */
     private void scatterQRLocations() {
-        Log.d("SCATTER QR LOCATIONS ", "HERE");
         double longitude = currentLocation.getLongitude();
         double latitude = currentLocation.getLatitude();
         mapModel = new MapModel(latitude, longitude);
@@ -293,7 +339,7 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
         GeoPoint location = code.getLocation();
         String name = code.getName();
         String points = String.valueOf(code.getPoints());
-        mMap.addMarker(new MarkerOptions()
+        Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(location.getLatitude(), location.getLongitude()))
                 .title(name)
                 .snippet(points + " pts")

@@ -52,7 +52,6 @@
             android:background="@color/background_grey"
             android:orientation="horizontal">
 
-            <!-- Decimal input for latitude -->
             <EditText
                 android:id="@+id/search_radius_input"
                 android:layout_width="0dp"
@@ -60,21 +59,18 @@
                 android:layout_weight="1"
                 android:hint="Search Radius"
                 android:inputType="numberDecimal"/>
-            <!-- Button -->
             <Button
                 android:id="@+id/button_geo_search_use_current_loc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
                 android:textSize="10sp"
-                android:text="Current Location"/>
-
-            <!-- Button -->
+                android:text="My Location"/>
             <Button
                 android:id="@+id/button_geo_search_submit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="12sp"
                 android:text="Search"/>
 
         </LinearLayout>
@@ -84,7 +80,7 @@
     <ScrollView
         android:id="@+id/geo_search_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="400dp"
         android:fillViewport="true">
 
         <LinearLayout
@@ -98,7 +94,6 @@
                 android:layout_width="match_parent"
                 android:background="@color/background_grey"
                 android:layout_height="wrap_content" />
-
         </LinearLayout>
 
     </ScrollView>
