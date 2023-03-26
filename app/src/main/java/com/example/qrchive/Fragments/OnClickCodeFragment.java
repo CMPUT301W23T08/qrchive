@@ -157,7 +157,7 @@ public class OnClickCodeFragment extends Fragment {
                 if (content.trim().length() == 0) {
                     commentTextView.setError("Comment cannot be empty");
                 }
-                if (content.length() == 128) {
+                if (content.length() >= 128) {
                     commentTextView.setError("Comment too big");
                 } else {
                     SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
