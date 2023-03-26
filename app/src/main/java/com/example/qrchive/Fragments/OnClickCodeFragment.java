@@ -1,10 +1,15 @@
 package com.example.qrchive.Fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +18,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.qrchive.Activities.MainActivity;
+import com.example.qrchive.Classes.Comment;
 import com.example.qrchive.Classes.FirebaseWrapper;
+import com.example.qrchive.Classes.MyCommentCardRecyclerViewAdapter;
 import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,12 +48,15 @@ public class OnClickCodeFragment extends Fragment {
 
     ScannedCode scannedCode;
     FirebaseWrapper fbw;
+    ArrayList<Comment> comments = new ArrayList<>();
+    MyCommentCardRecyclerViewAdapter commentsAdapter;
+    RecyclerView recyclerView;
 
     /**
      * The constructor for the fragment.
      *
      * @param scannedCode is the code that has been clicked on.
-     * @param fbw is the FirebaseWrapper to allow for queries of the Firebase DB.
+     * @param fbw         is the FirebaseWrapper to allow for queries of the Firebase DB.
      */
     public OnClickCodeFragment(ScannedCode scannedCode, FirebaseWrapper fbw) {
         this.scannedCode = scannedCode;
@@ -55,7 +78,7 @@ public class OnClickCodeFragment extends Fragment {
      * onCreate is called to do initial creation of a fragment.
      *
      * @param savedInstanceState If the fragment is being re-created from
-     * a previous saved state, this is the state.
+     *                           a previous saved state, this is the state.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,21 +88,26 @@ public class OnClickCodeFragment extends Fragment {
     /**
      * onCreateView is called to have the fragment instantiate its user interface view.
      *
-     * @param inflater The LayoutInflater object that can be used to inflate
-     * any views in the fragment,
-     * @param container If non-null, this is the parent view that the fragment's
-     * UI should be attached to.  The fragment should not add the view itself,
-     * but this can be used to generate the LayoutParams of the view.
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
-     * from a previous saved state as given here.
-     *
+     *                           from a previous saved state as given here.
      * @return Returns the view that was instantiated.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_on_click_code, container, false);
+        recyclerView = view.findViewById(R.id.comments_recycler_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+
+        fetchCommentsFromFirebase(view);
 
         // Setting the fragment elements
         ConstraintLayout rootLayout = view.findViewById(R.id.fragment_on_item_click_code_constraint_layout_view);
@@ -95,6 +123,7 @@ public class OnClickCodeFragment extends Fragment {
         ((TextView) rootLayout.findViewById(R.id.code_points)).setText(String.valueOf(scannedCode.getPoints()));
         ((TextView) rootLayout.findViewById(R.id.code_rank)).setText("TODO");
 
+        // Adding delete button listener
         ((ImageView) rootLayout.findViewById(R.id.delete_button)).setOnClickListener(new View.OnClickListener() {
             /**
              * onClick is called when an object is clicked on.
@@ -119,6 +148,59 @@ public class OnClickCodeFragment extends Fragment {
             }
         });
 
+        // Adding comment send button listener
+        ((ImageView) rootLayout.findViewById(R.id.comment_send_button)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextView commentTextView = ((TextView) rootLayout.findViewById(R.id.code_comment_textbox));
+                String content = commentTextView.getText().toString();
+                if (content.trim().length() == 0) {
+                    commentTextView.setError("Comment cannot be empty");
+                }
+                if (content.length() == 128) {
+                    commentTextView.setError("Comment too big");
+                } else {
+                    SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
+                    String userName = preferences.getString("userName", "");
+                    Map<String, Object> doc = new HashMap<>();
+                    doc.put("userName", userName);
+                    doc.put("codeDID", scannedCode.getScannedCodeDID());
+                    doc.put("content", content);
+                    doc.put("date", (Date) new Date());
+                    fbw.db.collection("Comments").add(doc).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                            comments = new ArrayList<>();
+                            fetchCommentsFromFirebase(view);
+                            Toast.makeText(getContext(), "The comment has been published!", Toast.LENGTH_SHORT).show();
+                            commentsAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+        });
+
         return view;
+    }
+
+    private void fetchCommentsFromFirebase(View view) {
+        // get comments
+        fbw.db.collection("Comments").whereEqualTo("codeDID", scannedCode.getScannedCodeDID())
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documentSnapshotList = task.getResult().getDocuments();
+                        for (DocumentSnapshot doc : documentSnapshotList) {
+                            comments.add(new Comment(doc.get("userName").toString(),
+                                    doc.get("codeDID").toString(),
+                                    doc.get("content").toString(),
+                                    doc.getTimestamp("date").toDate()));
+                        }
+
+                        commentsAdapter = new MyCommentCardRecyclerViewAdapter(comments);
+                        commentsAdapter.notifyDataSetChanged();
+                        recyclerView.setAdapter(commentsAdapter);
+                    }
+                });
     }
 }
