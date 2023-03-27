@@ -13,12 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.FriendsRecyclerViewAdapter;
 import com.example.qrchive.Classes.Player;
+import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,12 +33,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 
 /**
- * create an instance of this fragment.
+ * displays list of fiends or list of all users
+ *
+ * @author Zayd
  */
 public class FriendsFragment extends Fragment {
 
@@ -97,7 +105,7 @@ public class FriendsFragment extends Fragment {
 
 
 
-        //get list of friends
+
 
         showFriendsButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("ResourceAsColor")
@@ -118,17 +126,13 @@ public class FriendsFragment extends Fragment {
 
 
 
-
-
-        // Call the getUsers() method and provide a callback to handle the retrieved list of users
-
-
-
-
         return friendsView;
     }
 
-
+    /**
+     * displays the list of friends to the recycler view
+     * @param recyclerView
+     */
     private void displayFriends(RecyclerView recyclerView){
 
         onStartupPref.edit().putBoolean("showFriends", true).apply();
@@ -144,11 +148,11 @@ public class FriendsFragment extends Fragment {
                     @Override
                     public void onUsersRetrieved(ArrayList<Player> users) {
                         // The list of users is now available, you can update your UI or perform any necessary actions here
-                        System.out.println("User count: " + users.size());
 
 
 
                         FriendsRecyclerViewAdapter friendsAdapter = new FriendsRecyclerViewAdapter(users);
+                        setClickListener(friendsAdapter, users);
                         recyclerView.setAdapter(friendsAdapter);
 
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -164,7 +168,10 @@ public class FriendsFragment extends Fragment {
 
     }
 
-
+    /**
+     * displays the lsit of all users to the recycler view
+     * @param recyclerView
+     */
     private void displayAllUsers(RecyclerView recyclerView){
         onStartupPref.edit().putBoolean("showFriends", false).apply();
         showFriendsButton.setTextColor(Color.rgb(255,255,255));
@@ -174,6 +181,7 @@ public class FriendsFragment extends Fragment {
             public void onUsersRetrieved(ArrayList<Player> users) {
 
                 FriendsRecyclerViewAdapter friendsAdapter = new FriendsRecyclerViewAdapter(users);
+                setClickListener(friendsAdapter, users);
                 recyclerView.setAdapter(friendsAdapter);
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -183,13 +191,11 @@ public class FriendsFragment extends Fragment {
     }
 
 
-
     /**
-     * Funciton will get all users
-     *
+     * gets a list of all users get all users
      * @param listener
+     * @param userID
      */
-
     private void getAllUsers(final OnUsersRetrievedListener listener, String userID) {
         db.collection("Users").whereNotEqualTo("deviceID", userID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -216,9 +222,9 @@ public class FriendsFragment extends Fragment {
     }
 
     /**
-     * function will get all friends
-     *
+     * gets all data of friends of the current user
      * @param listener
+     * @param friendsList
      */
     private void getFriends(final OnUsersRetrievedListener listener, ArrayList<String> friendsList) {
 
@@ -251,7 +257,11 @@ public class FriendsFragment extends Fragment {
         });
     }
 
-
+    /**
+     * gets the list of friends from the current user
+     * @param listener
+     * @param userId
+     */
     private void getFriendsList(final OnFriendsRetrievedListener listener, String userId) {
 
         db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -270,7 +280,27 @@ public class FriendsFragment extends Fragment {
 
     }
 
+    /**
+     * sets the click listener for the recycler view.
+     * makes it so when clicked on the card you are taken to the users profile page
+     * @param friendsAdapter
+     * @param players
+     */
+    public void setClickListener(FriendsRecyclerViewAdapter friendsAdapter, ArrayList<Player> players){
+        friendsAdapter.setOnItemClickListener(new FriendsRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void OnItemClick(View view, int position) {
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(players.get(position)))
+                        .commit();
 
+            }
+        });
+    }
+
+
+    /**
+     * listeners: listen for when we are done retrieving data from firebase
+     */
     public interface OnFriendsRetrievedListener {
         void onFriendsRetrieved(ArrayList<String> friends);
     }

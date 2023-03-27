@@ -1,5 +1,6 @@
 package com.example.qrchive.Classes;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,12 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
 
     private ArrayList<Player> playerList;
 
+    private OnItemClickListener clickListener;
+
+    public void setOnItemClickListener(OnItemClickListener clickListener) {
+        this.clickListener = clickListener;
+    }
+
     public FriendsRecyclerViewAdapter(ArrayList<Player> playerList) {
         this.playerList = playerList;
     }
@@ -28,11 +35,23 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PlayerViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PlayerViewHolder holder, @SuppressLint("RecyclerView") int position) {
+
+
+
         Player player = playerList.get(position);
         holder.playerName.setText(player.getUserName());
         holder.qrCount.setText("QR codes collected: " + Integer.toString(player.getQRCount()));
         holder.playersPoints.setText(Integer.toString(player.getPoints()));
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(clickListener != null){
+                    clickListener.OnItemClick(v, position);
+                }
+            }
+        });
     }
 
     @Override
@@ -45,10 +64,16 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
 
         public PlayerViewHolder(@NonNull View itemView) {
             super(itemView);
+
+
             playerName = itemView.findViewById(R.id.player_name);
             qrCount = itemView.findViewById(R.id.qr_count);
             playersPoints = itemView.findViewById(R.id.players_points);
         }
+    }
+
+    public interface OnItemClickListener {
+        void OnItemClick(View view, int position);
     }
 }
 

@@ -25,6 +25,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.qrchive.BuildConfig;
 import com.example.qrchive.Classes.FirebaseWrapper;
+import com.example.qrchive.Classes.Player;
 import com.example.qrchive.Fragments.CodesFragment;
 import com.example.qrchive.Fragments.FriendsFragment;
 import com.example.qrchive.Fragments.HomeFragment;
@@ -112,7 +113,12 @@ public class MainActivity extends AppCompatActivity {
                 int id = item.getItemId();
                 switch(id){ //check id
                     case R.id.menu_dropdown_profile:
-                        transactFragment(new ProfileFragment());
+                        transactFragment(new ProfileFragment(
+                                new Player(
+                                        preferences.getString("userName", ""),
+                                        preferences.getString("emailID", ""),
+                                        preferences.getString("userDID", "")
+                                )));
                         break;
                     case R.id.menu_dropdown_map:
                         Intent showMap = new Intent(MainActivity.this, MapsActivity.class);
