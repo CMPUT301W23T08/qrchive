@@ -14,4 +14,8 @@
         <item name="cardBackgroundColor">@color/high_contrast_teal</item>
         <item name="cardElevation">8dp</item>
     </style>
+
+    <style name="buttonPressed">
+        <item name="colorAccent">@color/low_contrast_teal</item>
+    </style>
 </resources>
