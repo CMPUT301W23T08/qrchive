@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                             prefEditor.putString("emailID", userDoc.getData().get("emailID").toString());
                             prefEditor.putString("deviceID", android_device_id);
                             prefEditor.putString("userDID", userDoc.getId());
+
                             prefEditor.apply();
                         }
                         String userDID = preferences.getString("userDID", "");
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                                 new Player(
                                         preferences.getString("userName", ""),
                                         preferences.getString("emailID", ""),
-                                        preferences.getString("userDID", "")
+                                        preferences.getString("deviceID", "")
                                 )));
                         break;
                     case R.id.menu_dropdown_map:
@@ -163,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.menu_item_friends:
                         //todo
-                        transactFragment(new FriendsFragment(fbw));
+                        transactFragment(new FriendsFragment());
                         break;
                     case R.id.menu_item_scan:
                         //todo

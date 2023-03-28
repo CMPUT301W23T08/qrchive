@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.qrchive.Classes.OnQRCountQueryListener;
 import com.example.qrchive.Classes.Player;
 import com.example.qrchive.R;
 
@@ -51,16 +52,17 @@ public class ProfileFragment extends Fragment {
         TextView userNameTextView = (TextView)profileView.findViewById(R.id.profile_username);
         TextView emailTextView = (TextView)profileView.findViewById(R.id.profile_email_address);
         TextView userIdTextView = (TextView)profileView.findViewById(R.id.profile_user_id);
+        TextView qrCodeTextView = (TextView)profileView.findViewById(R.id.profile_qr_codes_collected);
 
         SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
 
-        String userId = preferences.getString("userDID", "no user id found");
+        String deviceID = preferences.getString("deviceID", "no user id found");
 
         userNameTextView.setText(user.getUserName());
         emailTextView.setText(user.getEmail());
         userIdTextView.setText(user.getDeviceID());
 
-        if(userId == user.getDeviceID()){
+        if(deviceID == user.getDeviceID()){
             deleteBtn.setVisibility(View.VISIBLE);
             Toast.makeText(getContext(), "wkaaksdf", Toast.LENGTH_SHORT);
 
@@ -70,7 +72,17 @@ public class ProfileFragment extends Fragment {
         }
 
 
-        //TODO: get count of QR codes collected
+        user.getQRCount(new OnQRCountQueryListener() {
+            @Override
+            public void onQRCount(int count) {
+                qrCodeTextView.setText("QR Codes Collected: " + Integer.toString(count));
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                qrCodeTextView.setText("QR codes collected: error");
+            }
+        });
 
         //TODO: get favorite qrcode
 
