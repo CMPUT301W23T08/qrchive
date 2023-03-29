@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -13,8 +12,6 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -24,13 +21,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.Toast;
 import com.example.qrchive.Activities.MainActivity;
@@ -50,11 +45,14 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.GeoPoint;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/** @class: Maps Fragment
+ * Handle the map functionality for the app. Implements the GeoQueryListener to implement
+ * call back functions triggered from the MapModel that provides the GeoQuery capabilities.
+ * */
 public class MapsFragment extends Fragment implements GeoQueryListener {
 
     private String TAG = "=================== HERE ====================";
@@ -83,7 +81,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
-        /**
+        /** @method: onMapReady
          * Manipulates the map once available.
          * This callback is triggered when the map is ready to be used.
          */
@@ -131,6 +129,10 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         }
     };
 
+    /** @method: onCreateView
+     * inflates the base XML fragment, also where we assign some member variables
+     * to the class.
+     * */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -146,6 +148,10 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         return mapsView;
     }
 
+    /** @method: onViewCreated
+     * Once the view has been inflated, we can access views by findById. Assign these for global use inside the class.
+     * We also delegate the responsibility of handling map functions by calling off to difference handlers.
+     **/
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -179,6 +185,9 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         handleGeoSearchListView();
     }
 
+    /** @method: handleMarkerClickDialogue
+     * when the marker is clicked, show a dialogue option for the user to view the QR code in the onCodeClick fragment.
+     * */
     public void handleMarkerClickDialogue() {
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -211,6 +220,9 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         });
     }
 
+    /** @method:  handleGeoSearchCurrentLocationButton
+     * The button offers the ability to parameterize the search with the users current location.
+     * */
     public void handleGeoSearchCurrentLocationButton() {
         Button currentLocationButton = mainActivity.findViewById(R.id.button_geo_search_use_current_loc);
         currentLocationButton.setOnClickListener(new View.OnClickListener() {
@@ -236,6 +248,10 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         });
     }
 
+    /** @method: handleGeoSearchMenuItem
+     * When the geoSearch item is clicked from the top navigation bar, display a layout with the
+     * parameters for the geo-search.
+     * */
     public void handleGeoSearchMenuItem() {
         LinearLayout dropdownNavWrapper = (LinearLayout) mainActivity.findViewById(R.id.dropdown_navigation_wrapper);
         geoSearchItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -254,6 +270,10 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         });
     }
 
+    /** @method: handleGeoSearchSubmit
+     * when the user submits the geoSearch, make some validations on the data.
+     * If the parameters are valid, we can make the call to the mapModel and display the scroll view.
+     * */
     public void handleGeoSearchSubmit() {
 
         Button submitButton = mainActivity.findViewById(R.id.button_geo_search_submit);
@@ -299,6 +319,11 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         });
     }
 
+    /** @method handleGeoSearchListView
+     * When the geoSearch is submitted, we display a list of nearby QR codes in a scrollable list.
+     * When a code is selected from the list, we want to hide the scroll view and pan the camera to the location
+     * of the QR code.
+     * */
     public void handleGeoSearchListView() {
         ListView listView = mainActivity.findViewById(R.id.geo_search_list_view);
         listView.setAdapter(geoQueryAdapter);
@@ -318,7 +343,8 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         });
     }
 
-    /** @method: update current location.
+    /** @method: onLocationChanged
+     * update current location.
      * */
     public void onLocationChanged(Location location) {
         currentLocation = location;
