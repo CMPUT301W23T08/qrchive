@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/map_popup_accept"
+        android:title="View"/>
+    <item
+        android:id="@+id/map_popup_reject"
+        android:title="Do not View"/>
+</menu>

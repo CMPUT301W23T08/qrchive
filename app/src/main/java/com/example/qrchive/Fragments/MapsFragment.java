@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
 import android.content.Context;
@@ -15,8 +14,6 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,19 +21,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.Toast;
 import com.example.qrchive.Activities.MainActivity;
-import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.GeoSearchArrayAdapter;
 import com.example.qrchive.Classes.MapModel;
 import com.example.qrchive.Classes.ScannedCode;
-import com.example.qrchive.Classes.onCodesGeoQueriedListener;
+import com.example.qrchive.Classes.GeoQueryListener;
 import com.example.qrchive.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,10 +48,9 @@ import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class MapsFragment extends Fragment implements onCodesGeoQueriedListener {
+public class MapsFragment extends Fragment implements GeoQueryListener {
 
     private String TAG = "=================== HERE ====================";
     private MapsFragment self;
@@ -66,11 +61,18 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
     private MapModel mapModel;
     private MenuItem geoSearchItem;
     private MenuItem textSearchItem;
-
     private Map<Marker, ScannedCode> markerCodeMap = new HashMap<>();
     private ArrayList<ScannedCode> geoQueryList;
     private GeoSearchArrayAdapter geoQueryAdapter;
-
+    private View mapsView;
+    //GeoSearch views
+    private LinearLayout geoSearchLayout;
+    private ScrollView scrollView;
+    //Geo Search Inputs
+    private EditText latitudeText;
+    private EditText longitudeText;
+    private EditText searchRadiusText;
+    // static
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
     private final static int ZOOM_LEVEL = 16;
 
@@ -82,22 +84,18 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
          */
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            Log.d(TAG, "onMapReady: ");
+
             mMap = googleMap;
             mMap.getUiSettings().setMapToolbarEnabled(true);
+
             try {
-                boolean success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json ));
-                if (!success) {
-                    Log.e(TAG, "Failed to parse style.json");
-                }
+                mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json ));
             } catch (Resources.NotFoundException e) {
                 Log.e(TAG, "Can't find the style json", e);
             }
 
             // Permission Check;
             if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                // Request Permissions from User.
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
                 return;
             }
@@ -112,48 +110,50 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
                 return;
             }
 
-
-            moveCameraToLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), ZOOM_LEVEL);
-            scatterQRLocations();
-
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(@NonNull Marker marker) {
-                    Log.d(TAG, "onMarkerClick: ");
+                    Log.d(TAG, "onMarkerClick");
 
-                    marker.getTitle();
+                    ScannedCode markerCode = markerCodeMap.get(marker);
+                    if (markerCode != null) {
+                        Log.d(TAG, "This works now?");
 
-                    ScannedCode code = markerCodeMap.get(marker);
-
-                    for (Map.Entry<Marker, ScannedCode> entry : markerCodeMap.entrySet()) {
-                        Marker code2 = entry.getKey();
-                        ScannedCode marker2 = entry.getValue();
-                        System.out.println("Code: " + code2 + " Marker: " + marker2);
-                    }
-
-                    if (code != null) {
-                        // Do something with the ScannedCode object
-                        Log.d("Marker Clicked", "Marker was clicked! Code name: " + code.getName());
-                        return true;
-                    } else {
-                        Log.d("Marker Clicked", "Code is null?");
+                        PopupMenu popupMenu = new PopupMenu(mainActivity, mapsView);
+                        popupMenu.getMenuInflater().inflate(R.menu.map_popup_menu, popupMenu.getMenu());
+                        popupMenu.show();
+//                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new OnClickCodeFragment(markerCode, mainActivity.getFirebaseWrapper()))
+//                                .commit();
                     }
                     return false;
                 }
             });
+
+            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(@NonNull LatLng latLng) {
+                    Log.d(TAG, "onMapClick: ");
+                    geoSearchLayout.setVisibility(View.INVISIBLE);
+                    scrollView.setVisibility(View.INVISIBLE);
+                }
+            });
+
+            moveCameraToLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), ZOOM_LEVEL);
+            scatterQRLocations();
         }
     };
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View mapsView = inflater.inflate(R.layout.fragment_maps, container, false);
+        mapsView = inflater.inflate(R.layout.fragment_maps, container, false);
 
         //Set some Fragment class members that don't depend on XML inflation.
         this.mainActivity = (MainActivity) getActivity();
         self = this;
         geoQueryList = new ArrayList<>();
         geoQueryAdapter = new GeoSearchArrayAdapter(mainActivity, R.layout.item_geo_search, geoQueryList);
+        mapModel = new MapModel();
 
         return mapsView;
     }
@@ -161,47 +161,37 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
 
-        //Initialize the XML views we need.
-        LinearLayout geoSearchLayout = mainActivity.findViewById(R.id.maps_geo_search_wrapper);
-        LinearLayout dropdownNavWrapper = (LinearLayout) mainActivity.findViewById(R.id.dropdown_navigation_wrapper);
+        // Set class members
         Toolbar topBar = (Toolbar) mainActivity.findViewById(R.id.app_bar);
         Menu topBarMenu = topBar.getMenu();
-        ListView listView = mainActivity.findViewById(R.id.geo_search_list_view);
-        ScrollView scrollView = mainActivity.findViewById(R.id.geo_search_scroll_view);
+        geoSearchLayout = mainActivity.findViewById(R.id.maps_geo_search_wrapper);
+        scrollView = mainActivity.findViewById(R.id.geo_search_scroll_view);
         scrollView.setVisibility(View.INVISIBLE);
-
-        //show geo-search icon, hide the regular icon since we are in maps fragment
         geoSearchItem = topBarMenu.findItem(R.id.menu_geo_search);
         textSearchItem = topBarMenu.findItem(R.id.menu_search);
+        latitudeText = mainActivity.findViewById(R.id.latitude_input);
+        longitudeText = mainActivity.findViewById(R.id.longitude_input);
+        searchRadiusText = mainActivity.findViewById(R.id.search_radius_input);
+
+        // Set initial visibilities
         geoSearchItem.setVisible(true);
         textSearchItem.setVisible(false);
-
-        // Set initial visibility to hidden
         geoSearchLayout.setVisibility(View.INVISIBLE);
-        geoSearchItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
-                scrollView.setVisibility(View.INVISIBLE);
-                dropdownNavWrapper.setVisibility(View.GONE);
-                int searchVisibility = geoSearchLayout.getVisibility();
-                if (searchVisibility == View.VISIBLE) {
-                    geoSearchLayout.setVisibility(View.INVISIBLE);
-                } else {
-                    geoSearchLayout.setVisibility(View.VISIBLE);
-                }
-                return true;
-            }
-        });
 
-        EditText latitudeText = mainActivity.findViewById(R.id.latitude_input);
-        EditText longitudeText = mainActivity.findViewById(R.id.longitude_input);
-        EditText searchRadiusText = mainActivity.findViewById(R.id.search_radius_input);
+        // Handle requests
+        handleGeoSearchMenuItem();
+        handleGeoSearchCurrentLocationButton();
+        handleGeoSearchSubmit();
+        handleGeoSearchListView();
+    }
 
+    public void handleGeoSearchCurrentLocationButton() {
         Button currentLocationButton = mainActivity.findViewById(R.id.button_geo_search_use_current_loc);
         currentLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -224,6 +214,27 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
                 longitudeText.setText(longitudeStr);
             }
         });
+    }
+
+    public void handleGeoSearchMenuItem() {
+        LinearLayout dropdownNavWrapper = (LinearLayout) mainActivity.findViewById(R.id.dropdown_navigation_wrapper);
+        geoSearchItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
+                scrollView.setVisibility(View.INVISIBLE);
+                dropdownNavWrapper.setVisibility(View.GONE);
+                int searchVisibility = geoSearchLayout.getVisibility();
+                if (searchVisibility == View.VISIBLE) {
+                    geoSearchLayout.setVisibility(View.INVISIBLE);
+                } else {
+                    geoSearchLayout.setVisibility(View.VISIBLE);
+                }
+                return true;
+            }
+        });
+    }
+
+    public void handleGeoSearchSubmit() {
 
         Button submitButton = mainActivity.findViewById(R.id.button_geo_search_submit);
         submitButton.setOnClickListener(new View.OnClickListener() {
@@ -261,12 +272,15 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
                 }
 
                 // flush the previous list
-                mapModel.queryQRCodes(latitude, longitude, radius, self);
+                mapModel.searchGeoQuery(latitude, longitude, radius, self);
                 scrollView.setVisibility(View.VISIBLE);
                 geoSearchLayout.setVisibility(View.INVISIBLE);
             }
         });
+    }
 
+    public void handleGeoSearchListView() {
+        ListView listView = mainActivity.findViewById(R.id.geo_search_list_view);
         listView.setAdapter(geoQueryAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -276,8 +290,9 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
 
                 GeoPoint location = code.getLocation();
                 if (location != null) {
-                   moveCameraToLocation(location.getLatitude(), location.getLongitude(), ZOOM_LEVEL + 3);
-                   scrollView.setVisibility(View.INVISIBLE);
+                    moveCameraToLocation(location.getLatitude(), location.getLongitude(), ZOOM_LEVEL + 3);
+                    scrollView.setVisibility(View.INVISIBLE);
+                    geoSearchLayout.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -325,17 +340,17 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
      * @method: scatter some QR codes around the current location of the user.
      * */
     private void scatterQRLocations() {
-        double longitude = currentLocation.getLongitude();
         double latitude = currentLocation.getLatitude();
-        mapModel = new MapModel(latitude, longitude);
-        mapModel.setNearbyQRCodes(this);
+        double longitude = currentLocation.getLongitude();
+        mapModel.setMapGeoQuery(latitude, longitude, 100, self);
     }
 
     /** @method: Draw a code marker on the map with the name of the QR and
      * the points associated.
      * */
     @Override
-    public void onCodesGeoQueried(ScannedCode code) {
+    public void onCodeGeoQueried(ScannedCode code) {
+        Log.d(TAG, "onCodeGeoQueried: ");
         GeoPoint location = code.getLocation();
         String name = code.getName();
         String points = String.valueOf(code.getPoints());
@@ -345,13 +360,17 @@ public class MapsFragment extends Fragment implements onCodesGeoQueriedListener 
                 .snippet(points + " pts")
                 .flat(true)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+
+        Log.d(TAG, code.getName());
+        markerCodeMap.put(marker, code);
+        Log.d(TAG, String.valueOf(markerCodeMap.size()));
     }
 
     /** @method: Draw a code marker on the map with the name of the QR and
      * the points associated.
      * */
     @Override
-    public void addCodeOnSuccess(ScannedCode code) {
+    public void onCodeGeoSearched(ScannedCode code) {
         // Add queried code to geoQueryList
         if (code != null) {
             Log.d(TAG, code.getName());

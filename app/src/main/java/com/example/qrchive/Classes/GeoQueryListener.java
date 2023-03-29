@@ -1,12 +1,10 @@
 package com.example.qrchive.Classes;
 
-import java.util.List;
-
-public interface onCodesGeoQueriedListener {
+public interface GeoQueryListener {
 
     /** Draw Marker on Map when the QR query hits
     */
-    public void onCodesGeoQueried(ScannedCode code);
+    public void onCodeGeoQueried(ScannedCode code);
 
     /** Add ScannedCode to list when query hits.
      */

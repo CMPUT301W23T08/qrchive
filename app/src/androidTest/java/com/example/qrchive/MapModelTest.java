@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import com.example.qrchive.Classes.MapModel;
 import com.example.qrchive.Classes.ScannedCode;
-import com.example.qrchive.Classes.onCodesGeoQueriedListener;
+import com.example.qrchive.Classes.GeoQueryListener;
 
 
 
@@ -38,7 +38,7 @@ public class MapModelTest {
         // Create a new MapModel object with (0,0) coordinates
         MapModel mapModel = new MapModel(0, 0);
         // Call setNearbyQRCodes() with a new onCodesGeoQueriedListener object
-        mapModel.setNearbyQRCodes(new onCodesGeoQueriedListener() {
+        mapModel.setNearbyQRCodes(new GeoQueryListener() {
             @Override
             public void onCodesGeoQueried(ScannedCode scannedCode) {
                 // Test that callback is called when a nearby code is found
