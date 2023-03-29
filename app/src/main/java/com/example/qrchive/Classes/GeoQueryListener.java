@@ -10,5 +10,5 @@ public interface onCodesGeoQueriedListener {
 
     /** Add ScannedCode to list when query hits.
      */
-    public void addCodeOnSuccess(ScannedCode code);
+    public void onCodeGeoSearched(ScannedCode code);
 }
