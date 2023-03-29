@@ -25,12 +25,15 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.qrchive.BuildConfig;
 import com.example.qrchive.Classes.FirebaseWrapper;
+import com.example.qrchive.Classes.Player;
+import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.Fragments.CodesFragment;
 import com.example.qrchive.Fragments.FriendsFragment;
 import com.example.qrchive.Fragments.HomeFragment;
 import com.example.qrchive.Fragments.LoginDialogFragment;
 import com.example.qrchive.Fragments.MapsFragment;
 import com.example.qrchive.Fragments.ProfileFragment;
+import com.example.qrchive.Fragments.SearchResultFragment;
 import com.example.qrchive.R;
 import com.example.qrchive.Fragments.ScanFragment;
 import com.example.qrchive.Fragments.SettingsFragment;
@@ -41,6 +44,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.rpc.context.AttributeContext;
@@ -48,6 +52,8 @@ import com.google.rpc.context.AttributeContext;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -112,7 +118,12 @@ public class MainActivity extends AppCompatActivity {
                 int id = item.getItemId();
                 switch(id){ //check id
                     case R.id.menu_dropdown_profile:
-                        transactFragment(new ProfileFragment());
+                        transactFragment(new ProfileFragment(
+                                new Player(
+                                        preferences.getString("userName", ""),
+                                        preferences.getString("emailID", ""),
+                                        preferences.getString("userDID", "")
+                                )));
                         break;
                     case R.id.menu_dropdown_map:
                         transactFragment(new MapsFragment());
@@ -151,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                         transactFragment(new CodesFragment(fbw));
                         break;
                     case R.id.menu_item_friends:
-                        transactFragment(new FriendsFragment());
+                        transactFragment(new FriendsFragment(fbw));
                         break;
                     case R.id.menu_item_scan:
                         transactFragment(new ScanFragment(fbw));
@@ -188,11 +199,12 @@ public class MainActivity extends AppCompatActivity {
         //listener for text search.
         MenuItem item = menu.findItem(R.id.menu_search);
         SearchView searchView = (SearchView) item.getActionView();
-        searchView.setQueryHint("Search for QR . . .");
+        searchView.setQueryHint("Search for users . . .");
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // TODO Handle search query submission
+                transactFragment(new SearchResultFragment(query));
                 Log.d("onSumbit", "onQueryTextSubmit: ");
                 return true;
             }
@@ -200,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 // TODO Handle search query text change (offer suggestion for partial input)
+                transactFragment(new SearchResultFragment(newText));
                 Log.d("onChange", "onQueryTextSubmit: ");
                 return true;
             }
