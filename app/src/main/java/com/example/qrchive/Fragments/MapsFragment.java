@@ -7,10 +7,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -20,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -110,24 +115,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
                 return;
             }
 
-            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(@NonNull Marker marker) {
-                    Log.d(TAG, "onMarkerClick");
-
-                    ScannedCode markerCode = markerCodeMap.get(marker);
-                    if (markerCode != null) {
-                        Log.d(TAG, "This works now?");
-
-                        PopupMenu popupMenu = new PopupMenu(mainActivity, mapsView);
-                        popupMenu.getMenuInflater().inflate(R.menu.map_popup_menu, popupMenu.getMenu());
-                        popupMenu.show();
-//                        mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new OnClickCodeFragment(markerCode, mainActivity.getFirebaseWrapper()))
-//                                .commit();
-                    }
-                    return false;
-                }
-            });
+            handleMarkerClickDialogue();
 
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
@@ -189,6 +177,38 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         handleGeoSearchCurrentLocationButton();
         handleGeoSearchSubmit();
         handleGeoSearchListView();
+    }
+
+    public void handleMarkerClickDialogue() {
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull Marker marker) {
+
+                ScannedCode markerCode = markerCodeMap.get(marker);
+                if (markerCode != null) {
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
+                    builder.setTitle(markerCode.getName())
+                            .setMessage("Show the QR code?")
+                            .setPositiveButton("View", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new OnClickCodeFragment(markerCode, mainActivity.getFirebaseWrapper()))
+                                            .commit();
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //do nothing
+                                }
+                            });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                }
+                return false;
+            }
+        });
     }
 
     public void handleGeoSearchCurrentLocationButton() {
