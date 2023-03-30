@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.provider.Settings;
+import android.util.Pair;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -93,7 +94,20 @@ public class MainActivity extends AppCompatActivity {
                         if (resultantDocuments.size() == 0) {
                             // Make a dialog box to take user input
                             // TODO: Make sure unique username
-                            new LoginDialogFragment(db, preferences, android_device_id).show(getSupportFragmentManager(), "Login Dialog");
+                            Pair<ArrayList<String>, ArrayList<String>> usernameAndEmailList = new Pair<>(new ArrayList<>(), new ArrayList<>());
+                            db.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    List<DocumentSnapshot> resultantDocuments = task.getResult().getDocuments();
+                                    for (DocumentSnapshot doc : resultantDocuments) {
+                                        usernameAndEmailList.first.add(doc.get("userName").toString());
+                                        usernameAndEmailList.second.add(doc.get("emailID").toString());
+                                    }
+                                }
+                            });
+                            LoginDialogFragment fragment = new LoginDialogFragment(db, preferences, android_device_id, usernameAndEmailList);
+                            fragment.setCancelable(false); // disables back button
+                            fragment.show(getSupportFragmentManager(), "Login Dialog");
                         }
                         else {
                             DocumentSnapshot userDoc = resultantDocuments.get(0);
