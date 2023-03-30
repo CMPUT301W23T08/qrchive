@@ -52,16 +52,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-/* For BottomNavItemListener: https://stackoverflow.com/questions/68021770/setonnavigationitemselectedlistener-deprecated
- *  For BottomNavImpl: https://www.geeksforgeeks.org/bottomnavigationview-inandroid/
- * */
 
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoginDialogFragment.OnLoginSuccessListener{
 
     FirebaseWrapper fbw;
     SharedPreferences preferences; //IMP: This will work as a 'singleton pattern'/'a global struct' to save all (mostly static) required preferences
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
+
+    @Override
+    public void onLoginSuccess(String userDID) {
+        fbw = new FirebaseWrapper(userDID);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         // User already exists in database
                         List<DocumentSnapshot> resultantDocuments = task.getResult().getDocuments();
+
                         if (resultantDocuments.size() == 0) {
                             // Make a dialog box to take user input
                             // TODO: Make sure unique username
@@ -96,11 +98,10 @@ public class MainActivity extends AppCompatActivity {
                             prefEditor.putString("emailID", userDoc.getData().get("emailID").toString());
                             prefEditor.putString("deviceID", android_device_id);
                             prefEditor.putString("userDID", userDoc.getId());
-
                             prefEditor.apply();
+                            onLoginSuccess(preferences.getString("userDID", ""));
                         }
-                        String userDID = preferences.getString("userDID", "");
-                        fbw = new FirebaseWrapper(userDID);
+
                     }
                 });
 
@@ -119,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                                         preferences.getString("userName", ""),
                                         preferences.getString("emailID", ""),
                                         preferences.getString("deviceID", "")
-                                )));
+                                ), fbw));
                         break;
                     case R.id.menu_dropdown_map:
                         Intent showMap = new Intent(MainActivity.this, MapsActivity.class);
@@ -164,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.menu_item_friends:
                         //todo
-                        transactFragment(new FriendsFragment());
+                        transactFragment(new FriendsFragment(fbw));
                         break;
                     case R.id.menu_item_scan:
                         //todo

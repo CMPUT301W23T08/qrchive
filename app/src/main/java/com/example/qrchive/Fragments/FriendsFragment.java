@@ -53,20 +53,21 @@ public class FriendsFragment extends Fragment {
     private String deviceID;
     private ArrayList<String> friendsList;
     private SharedPreferences onStartupPref;
+    private FirebaseWrapper fbw;
     Button showFriendsButton;
     Button showAllButton;
 
 
-    public FriendsFragment() {}
+    public FriendsFragment(FirebaseWrapper fbw) {this.fbw = fbw;}
 
     /**
      * @return A new instance of fragment FriendsFragment.
      */
-    public static FriendsFragment newInstance() {
-        FriendsFragment fragment = new FriendsFragment();
-
-        return fragment;
-    }
+//    public static FriendsFragment newInstance() {
+//        FriendsFragment fragment = new FriendsFragment();
+//
+//        return fragment;
+//    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -271,7 +272,7 @@ public class FriendsFragment extends Fragment {
         friendsAdapter.setOnItemClickListener(new FriendsRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(View view, int position) {
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(players.get(position)))
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(players.get(position), fbw))
                         .commit();
 
             }

@@ -121,6 +121,16 @@ public class FirebaseWrapper {
 
     }
 
+    public void deleteUser(){
+        System.out.println("user id:  " + myUserDID);
+        db.collection("Users").document(myUserDID)
+                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                    }
+                });
+    }
+
     /**
      * getUsers is a getter function for users.
      * @return Returns private attribute users.

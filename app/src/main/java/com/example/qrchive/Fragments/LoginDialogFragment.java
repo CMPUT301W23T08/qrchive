@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
@@ -82,7 +81,18 @@ public class LoginDialogFragment extends DialogFragment {
                     prefEdit.putString("emailID", emailField.getText().toString());
                     prefEdit.putString("deviceID", android_device_id);
                     prefEdit.putString("userDID", docref.getId());
+                    prefEdit.apply();
+                    OnLoginSuccessListener listener = (OnLoginSuccessListener) getActivity();
+                    listener.onLoginSuccess(preferences.getString("userDID", ""));
                 })
                 .create();
+
+
     }
+
+    public interface OnLoginSuccessListener {
+        void onLoginSuccess(String userDID);
+    }
+
+
 }

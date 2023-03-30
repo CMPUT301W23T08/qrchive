@@ -1,6 +1,7 @@
 package com.example.qrchive.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.content.SharedPreferences;
@@ -14,18 +15,24 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.qrchive.Activities.MainActivity;
+import com.example.qrchive.Activities.MapsActivity;
+import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.OnQRCountQueryListener;
 import com.example.qrchive.Classes.Player;
 import com.example.qrchive.R;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 /** Profile Fragment
  */
 public class ProfileFragment extends Fragment {
 
 
-    public Player user;
-    public ProfileFragment(Player user) {
+    private Player user;
+    private FirebaseWrapper fbw;
+    public ProfileFragment(Player user, FirebaseWrapper fbw) {
         this.user = user;
+        this.fbw = fbw;
     }
 
     /**
@@ -65,6 +72,14 @@ public class ProfileFragment extends Fragment {
         if(deviceID == user.getDeviceID()){
             deleteBtn.setVisibility(View.VISIBLE);
             Toast.makeText(getContext(), "wkaaksdf", Toast.LENGTH_SHORT);
+            deleteBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fbw.deleteUser();
+                    startActivity(new Intent(getContext(), MainActivity.class));
+                }
+            });
+
 
         }else{
             editFollowFBtn.setText("Follow");
