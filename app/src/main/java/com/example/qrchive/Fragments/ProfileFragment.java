@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -15,7 +16,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.qrchive.Classes.Player;
+import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /** Profile Fragment
  */
@@ -23,6 +40,7 @@ public class ProfileFragment extends Fragment {
 
 
     public Player user;
+    public FirebaseFirestore db;
     public ProfileFragment(Player user) {
         this.user = user;
     }
@@ -38,6 +56,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.db = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -56,17 +76,76 @@ public class ProfileFragment extends Fragment {
 
         String userId = preferences.getString("userDID", "no user id found");
 
+
         userNameTextView.setText(user.getUserName());
         emailTextView.setText(user.getEmail());
         userIdTextView.setText(user.getDeviceID());
 
+
+
+
         if(userId == user.getDeviceID()){
             deleteBtn.setVisibility(View.VISIBLE);
             Toast.makeText(getContext(), "wkaaksdf", Toast.LENGTH_SHORT);
-
         }else{
-            editFollowFBtn.setText("Follow");
-            deleteBtn.setVisibility(View.INVISIBLE);
+            db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    boolean followed = false;
+                    ArrayList<String> friends = (ArrayList<String>) task.getResult().getData().get("friends");
+                    for(String friend : friends){
+                        System.out.println(friend);
+                        if(Objects.equals(friend, user.getDeviceID())){
+                            followed = true;
+                            System.out.println("followed");
+                        }
+                    }
+
+                    if(followed){
+                        editFollowFBtn.setText("Unfollow");
+                        deleteBtn.setVisibility(View.INVISIBLE);
+
+                        editFollowFBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                System.out.println("clicking");
+                                db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        ArrayList<String> friends = (ArrayList<String>) task.getResult().getData().get("friends");
+                                        friends.remove(user.getDeviceID());
+                                        HashMap<String, Object> newUser = new HashMap<>();
+                                        newUser.put("friends", friends);
+                                        db.collection("Users").document(userId).set(newUser, SetOptions.merge());
+                                    }
+                                });
+                            }
+                        });
+                    }else{
+                        editFollowFBtn.setText("Follow");
+                        deleteBtn.setVisibility(View.INVISIBLE);
+
+                        editFollowFBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                System.out.println("clicking");
+                                db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        ArrayList<String> friends = (ArrayList<String>) task.getResult().getData().get("friends");
+                                        if(!friends.contains(user.getDeviceID()))
+                                            friends.add(user.getDeviceID());
+                                        HashMap<String, Object> newUser = new HashMap<>();
+                                        newUser.put("friends", friends);
+                                        db.collection("Users").document(userId).set(newUser, SetOptions.merge());
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+
         }
 
 

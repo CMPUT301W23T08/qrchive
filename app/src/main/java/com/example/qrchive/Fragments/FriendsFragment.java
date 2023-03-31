@@ -60,8 +60,6 @@ public class FriendsFragment extends Fragment {
 
     public FriendsFragment(FirebaseWrapper fbw) {
         this.fbw = fbw;
-
-
     }
 
     /**

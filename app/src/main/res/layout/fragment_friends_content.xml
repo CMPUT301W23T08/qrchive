@@ -45,11 +45,6 @@
                 android:textSize="15dp"
                 android:text="QR codes collected: 0"/>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Follow"/>
-
         </LinearLayout>
     </LinearLayout>
 
