@@ -15,6 +15,7 @@
 
     ></ImageView>
     <TextView
+        android:id="@+id/congrat_messasge"
         android:layout_width="220dp"
         android:layout_height="60dp"
         app:layout_constraintTop_toBottomOf="@+id/qr_template"
@@ -29,6 +30,7 @@
         android:layout_width="250dp"
         android:layout_height="50dp"
         android:layout_marginBottom="320dp"
+        app:layout_constraintTop_toBottomOf="@id/congrat_messasge"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
 
@@ -41,6 +43,7 @@
         android:layout_height="50dp"
         android:layout_marginBottom="260dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_display_qr_name"
         app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"></TextView>

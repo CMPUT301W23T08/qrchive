@@ -26,9 +26,11 @@ public class ScanResultPopupFragment extends DialogFragment {
     private List<String> selectedPreferences;
 
     private FirebaseWrapper fbw;
-    ScannedCode scannedCode;
-    public ScanResultPopupFragment(ScannedCode scannedCode, FirebaseWrapper fbw) {
-
+    private ScannedCode scannedCode;
+    private String[] items;
+    private String scannedCodeDID;
+    public ScanResultPopupFragment(String scannedCodeDID,ScannedCode scannedCode, FirebaseWrapper fbw) {
+        this.scannedCodeDID = scannedCodeDID;
         this.fbw = fbw;
         this.scannedCode = scannedCode;
     }
@@ -53,7 +55,7 @@ public class ScanResultPopupFragment extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 
-                String[] items = getActivity().getResources().getStringArray(R.array.popupPrefrences);
+                items = getActivity().getResources().getStringArray(R.array.popupPrefrences);
 
                 if(isChecked){
                     selectedPreferences.add(items[which]);
@@ -61,14 +63,15 @@ public class ScanResultPopupFragment extends DialogFragment {
                     selectedPreferences.remove(items[which]);
                 }
 
+
             }
         });
 
         builder.setPositiveButton("submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new DisplayQrFragment(scannedCode,fbw),null).commit();
-                //sendResult();
+                getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new DisplayQrFragment(scannedCodeDID, scannedCode,fbw, selectedPreferences),null).commit();
+                //sendResult(); ???
             }
         });
 

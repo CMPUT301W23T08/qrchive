@@ -30,6 +30,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.qrchive.Classes.FirebaseWrapper;
+import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
 import com.example.qrchive.databinding.ActivityMainBinding;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -61,9 +62,13 @@ public class CaptureFragment extends Fragment {
     private final int REQUEST_CODE = 10;
 
     private FirebaseWrapper fbw;
-    public CaptureFragment(FirebaseWrapper fbw) {
-        super(R.layout.fragment_capture);
+    String scannedCodeDID;
 
+    ScannedCode scannedCode;
+    public CaptureFragment(String scannedCodeDID, ScannedCode scannedCode, FirebaseWrapper fbw) {
+        super(R.layout.fragment_capture);
+        this.scannedCodeDID = scannedCodeDID;
+        this.scannedCode = scannedCode;
         this.fbw = fbw;
     }
 
@@ -72,6 +77,8 @@ public class CaptureFragment extends Fragment {
         super.onCreate(savedInstanceState);
         cameraExecutor = Executors.newSingleThreadExecutor();
 
+        // add into Firestore database
+        fbw.db.collection("ScannedCode").document(scannedCodeDID).set(scannedCode);
         /**
          * This function responsible for setting up cameraX
          */

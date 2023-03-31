@@ -24,6 +24,7 @@ import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
 
 import java.util.Hashtable;
+import java.util.List;
 
 public class DisplayQrFragment extends Fragment {
 
@@ -36,11 +37,15 @@ public class DisplayQrFragment extends Fragment {
     ScannedCode scannedCode;
     private String name;
     private int score;
-    private Button acceptLocation;
-    private Button acceptImage;
-    FirebaseWrapper fbw;
+    private Button nextButton;
 
-    public DisplayQrFragment(ScannedCode scannedCode, FirebaseWrapper fbw) {
+
+    private String scannedCodeDID;
+    FirebaseWrapper fbw;
+    List<String> selectedPreference;
+    public DisplayQrFragment(String scannedCodeDID,ScannedCode scannedCode, FirebaseWrapper fbw, List<String> selectedPreference) {
+        this.scannedCodeDID = scannedCodeDID;
+        this.selectedPreference = selectedPreference;
         this.scannedCode = scannedCode;
         this.fbw = fbw;
     }
@@ -65,19 +70,51 @@ public class DisplayQrFragment extends Fragment {
         // if save image not accepted -> scanFragment
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-                scannedCode.setLocationNull();
+            scannedCode.setLocationNull();
         } else {
             // Permission already granted, keep the location
-
         }
-//        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new ScanFragment(fbw))
-//                .commit();
-//        // if save image accepted -> CaptureFragment
-//        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new CaptureFragment(fbw))
-//                .commit();
+        //fragment_display_next
+        Button buttonNext = root.findViewById(R.id.fragment_display_next);
+        buttonNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if ( selectedPreference.size() == 2) {
+                    getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new CaptureFragment(scannedCodeDID, scannedCode,fbw))
+                            .commit();
+                }
+                else if (selectedPreference.size() == 1) {
+                    int temp = 0;
+                    for (int i = 0; i < 2; i++) {
+                        if (selectedPreference.get(0).equals("Allow use of geolocation")) {
+                        temp = 1;
+                        } //
+                        if (selectedPreference.get(0).equals("Allow use of photo")) { // upload image to database was accepted
+                            // need to save picture but not geolocation
+                            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new CaptureFragment(scannedCodeDID, scannedCode,fbw))
+                                    .commit();
+                        }
+                    } // not accepted
+                    if ( temp != 1 ) {
+                        scannedCode.setLocationNull();
+                    }
+                    // receive scannedCodeDID through FragmentManager
+                    // Added into firestore database if there is no need to save geo and picture
+                    fbw.db.collection("ScannedCode").document(scannedCodeDID).set(scannedCode);
+                    getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new ScanFragment(fbw))
+                            .commit();
+
+                }
+                else {
+                    fbw.db.collection("ScannedCode").document(scannedCodeDID).set(scannedCode);
+                    getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new ScanFragment(fbw))
+                            .commit();
+                }
+            }
+        });
+
 
         return root;
+
     }
-
-
 }

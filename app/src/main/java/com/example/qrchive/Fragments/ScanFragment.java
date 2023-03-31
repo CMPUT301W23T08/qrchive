@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
@@ -48,6 +49,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -57,6 +59,9 @@ import java.util.UUID;
  * create an instance of this fragment.
  */
 public class ScanFragment extends Fragment {
+
+    public String scannedCodeDID;
+
     private static final int TARGET_FRAGMENT_REQUEST_CODE = 1;
     private static final String EXTRA_GREETING_MESSAGE = "EXTRA_PREFERENCES";
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
@@ -129,7 +134,9 @@ public class ScanFragment extends Fragment {
                             String date = new Date().toString();
                             String locationImg = "placeholder_img";
                             ScannedCode scannedCodeToUpload;
-                            String scannedCodeDID = UUID.randomUUID().toString();
+
+                            scannedCodeDID = UUID.randomUUID().toString(); // pass the ID into another fragment
+
 
 
 //                            if(preferences.contains("Allow use of photo")){
@@ -149,7 +156,8 @@ public class ScanFragment extends Fragment {
                             scannedCodeMap.put("locationImage", scannedCodeToUpload.getLocationImage());
                             scannedCodeMap.put("userDID", scannedCodeToUpload.getUserDID());
                             // put ScannedCode here
-                            DisplayQrFragment displayQrFragment = new DisplayQrFragment(scannedCodeToUpload, fbw);
+                            List<String> something = new ArrayList<>();
+                            DisplayQrFragment displayQrFragment = new DisplayQrFragment(scannedCodeDID ,scannedCodeToUpload, fbw, something); // bad naming
 
 
                             //new DisplayQrFragment(result.getText())
@@ -177,8 +185,7 @@ public class ScanFragment extends Fragment {
                                     }
                                     // !
                                     docsWithinImpermissibleRadius = 0;
-                                    new ScanResultPopupFragment(scannedCodeToUpload, fbw).show(getParentFragmentManager(), "popup");
-
+                                    new ScanResultPopupFragment(scannedCodeDID, scannedCodeToUpload, fbw).show(getParentFragmentManager(), "popup");
 
                                 }
 
