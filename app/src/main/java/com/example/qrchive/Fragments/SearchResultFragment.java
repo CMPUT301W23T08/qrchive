@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.FriendsRecyclerViewAdapter;
 import com.example.qrchive.Classes.Player;
 import com.example.qrchive.R;
@@ -32,19 +33,20 @@ import java.util.Map;
  * @author Grayden
  */
 public class SearchResultFragment extends Fragment {
-    public FirebaseFirestore db;
+    public FirebaseWrapper fbw;
 
     private String query;
     private String userId;
 
-    public SearchResultFragment(String query) {
+    public SearchResultFragment(String query, FirebaseWrapper fbw) {
         this.query = query;
+        this.fbw = fbw;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.db = FirebaseFirestore.getInstance();
+        this.fbw.db = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -82,7 +84,7 @@ public class SearchResultFragment extends Fragment {
      * @param listener
      */
     private void getAllUsers(final OnUsersRetrievedListener listener) {
-        db.collection("Users").orderBy("userName")
+        fbw.db.collection("Users").orderBy("userName")
                 .startAt(query).endAt(query+"\uf8ff").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -118,7 +120,7 @@ public class SearchResultFragment extends Fragment {
         friendsAdapter.setOnItemClickListener(new FriendsRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(View view, int position) {
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(players.get(position)))
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(players.get(position), fbw))
                         .commit();
 
             }

@@ -116,10 +116,19 @@ public class LoginDialogFragment extends DialogFragment {
                 prefEdit.putString("userDID", docref.getId());
                 prefEdit.apply(); // apply instead of commit
 
+                OnLoginSuccessListener listener = (OnLoginSuccessListener) getActivity();
+                listener.onLoginSuccess(preferences.getString("userDID", ""),
+                        preferences.getString("userName", ""));
                 alertDialog.dismiss();
             });
         });
 
         return alertDialog;
     }
+
+    public interface OnLoginSuccessListener {
+        void onLoginSuccess(String userDID, String userName);
+    }
+
+
 }
