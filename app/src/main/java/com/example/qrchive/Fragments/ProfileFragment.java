@@ -69,7 +69,7 @@ public class ProfileFragment extends Fragment {
         emailTextView.setText(user.getEmail());
         userIdTextView.setText(user.getDeviceID());
 
-        if(deviceID == user.getDeviceID()){
+        if(deviceID.equals(user.getDeviceID())){
             deleteBtn.setVisibility(View.VISIBLE);
             Toast.makeText(getContext(), "wkaaksdf", Toast.LENGTH_SHORT);
             deleteBtn.setOnClickListener(new View.OnClickListener() {
