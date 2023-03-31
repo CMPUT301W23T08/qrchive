@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // TODO Handle search query submission
-                transactFragment(new SearchResultFragment(query));
+                transactFragment(new SearchResultFragment(query, fbw));
                 Log.d("onSumbit", "onQueryTextSubmit: ");
                 return true;
             }
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
             @Override
             public boolean onQueryTextChange(String newText) {
                 // TODO Handle search query text change (offer suggestion for partial input)
-                transactFragment(new SearchResultFragment(newText));
+                transactFragment(new SearchResultFragment(newText, fbw));
                 Log.d("onChange", "onQueryTextSubmit: ");
                 return true;
             }
