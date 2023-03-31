@@ -13,6 +13,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.qrchive.Classes.FirebaseWrapper;
+import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -25,7 +26,12 @@ public class ScanResultPopupFragment extends DialogFragment {
     private List<String> selectedPreferences;
 
     private FirebaseWrapper fbw;
+    ScannedCode scannedCode;
+    public ScanResultPopupFragment(ScannedCode scannedCode, FirebaseWrapper fbw) {
 
+        this.fbw = fbw;
+        this.scannedCode = scannedCode;
+    }
     /**
      *
      * @param savedInstanceState The last saved instance state of the Fragment,
@@ -61,7 +67,7 @@ public class ScanResultPopupFragment extends DialogFragment {
         builder.setPositiveButton("submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new CaptureFragment(fbw),null).commit();
+                getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new DisplayQrFragment(scannedCode,fbw),null).commit();
                 //sendResult();
             }
         });
@@ -76,9 +82,7 @@ public class ScanResultPopupFragment extends DialogFragment {
         return builder.create();
     }
 
-    public ScanResultPopupFragment(FirebaseWrapper fbw) {
-        this.fbw = fbw;
-    }
+
 
 
     private void sendResult(){

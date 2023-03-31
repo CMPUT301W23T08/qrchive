@@ -17,6 +17,7 @@ public class ScannedCode {
     private String hash;
     private int hashVal;
     private String date;
+
     private boolean hasLocation;
     private GeoPoint location;
     private String locationImage;
@@ -230,6 +231,9 @@ public class ScannedCode {
      *
      * @return Returns the private attribute hasLocation.
      */
+    public void setLocationNull() {
+        location = null;
+    }
     public boolean getHasLocation() {
         return hasLocation;
     }

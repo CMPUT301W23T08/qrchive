@@ -131,6 +131,7 @@ public class CaptureFragment extends Fragment {
                         Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
                         Log.d(TAG, msg);
                         getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new ScanFragment(fbw),null).commit();
+
                     }
 
                     @Override

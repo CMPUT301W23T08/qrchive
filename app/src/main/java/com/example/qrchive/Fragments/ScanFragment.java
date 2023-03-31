@@ -113,6 +113,7 @@ public class ScanFragment extends Fragment {
                 public void onDecoded(@NonNull final Result result) {
                     activity.runOnUiThread(new Runnable() {
                         @Override
+                        // run() will be able to ...
                         public void run() {
 
                             mResult = result;
@@ -121,6 +122,37 @@ public class ScanFragment extends Fragment {
 
                             Location currentLocation = getCurLocation();
                             currentLocationGeopoint = new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude());
+//
+//                            ArrayList<String> preferences = data.getStringArrayListExtra(EXTRA_GREETING_MESSAGE);
+
+                            String code = mResult.getText();
+                            String date = new Date().toString();
+                            String locationImg = "placeholder_img";
+                            ScannedCode scannedCodeToUpload;
+                            String scannedCodeDID = UUID.randomUUID().toString();
+
+
+//                            if(preferences.contains("Allow use of photo")){
+////                          locationImg = ...
+//                                // TODO: Add photo
+//
+//                            }
+
+                            scannedCodeToUpload = new ScannedCode(code, date, currentLocationGeopoint, locationImg, fbw.getMyUserDID(), scannedCodeDID);
+                            // At this point, scannedCode is ready!
+                            Map<String, Object> scannedCodeMap = new HashMap<>();
+                            scannedCodeMap.put("date", scannedCodeToUpload.getDate());
+                            scannedCodeMap.put("hasLocation", scannedCodeToUpload.getHasLocation());
+                            scannedCodeMap.put("hash", scannedCodeToUpload.getHash());
+                            scannedCodeMap.put("hashVal", scannedCodeToUpload.getHashVal());
+                            scannedCodeMap.put("location", scannedCodeToUpload.getLocation());
+                            scannedCodeMap.put("locationImage", scannedCodeToUpload.getLocationImage());
+                            scannedCodeMap.put("userDID", scannedCodeToUpload.getUserDID());
+                            // put ScannedCode here
+                            DisplayQrFragment displayQrFragment = new DisplayQrFragment(scannedCodeToUpload, fbw);
+
+
+                            //new DisplayQrFragment(result.getText())
 
                             geoFirestore.queryAtLocation(currentLocationGeopoint, IMPERMISSIBLE_RADIUS).addGeoQueryDataEventListener(new GeoQueryDataEventListener() {
                                 @Override
@@ -145,15 +177,14 @@ public class ScanFragment extends Fragment {
                                     }
                                     // !
                                     docsWithinImpermissibleRadius = 0;
-                                    new ScanResultPopupFragment(fbw).show(getParentFragmentManager(), "popup");
+                                    new ScanResultPopupFragment(scannedCodeToUpload, fbw).show(getParentFragmentManager(), "popup");
+
+
                                 }
 
                                 @Override
                                 public void onGeoQueryError(@NonNull Exception e) {}
                             });
-
-
-
 
                         }
                     });
@@ -174,6 +205,8 @@ public class ScanFragment extends Fragment {
         }
 
         // Set a click listener for the flash button to toggle the camera flash.
+
+        // Have to change the button lol
         flashButton = root.findViewById(R.id.flash_button);
         flashButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -243,6 +276,8 @@ public class ScanFragment extends Fragment {
                     // same time, respect the user's decision. Don't link to system
                     // settings in an effort to convince the user to change their
                     // decision.
+
+                    // Toast something
                 }
             });
     @Override
@@ -270,69 +305,6 @@ public class ScanFragment extends Fragment {
         return intent;
     }
 
-
-    /**
-     *
-     * code that executes after submit button is pressed on dialog fragment
-     * - adds data according to chosen preferences
-     *
-     * @param requestCode The integer request code originally supplied to
-     *                    startActivityForResult(), allowing you to identify who this
-     *                    result came from.
-     * @param resultCode The integer result code returned by the child activity
-     *                   through its setResult().
-     * @param data An Intent, which can return result data to the caller
-     *               (various data can be attached to Intent "extras").
-     *
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if( resultCode != Activity.RESULT_OK ) {
-            return;
-        }else {
-
-            ArrayList<String> preferences = data.getStringArrayListExtra(EXTRA_GREETING_MESSAGE);
-
-            String code = mResult.getText();
-            String date = new Date().toString();
-            String locationImg = "placeholder_img";
-            ScannedCode scannedCodeToUpload;
-            String scannedCodeDID = UUID.randomUUID().toString();
-            if(preferences.contains("Allow use of photo")){
-//                locationImg = ...
-                // TODO: Add photo
-
-            }
-
-            if(preferences.contains("Allow use of geolocation")){
-                scannedCodeToUpload = new ScannedCode(code, date, currentLocationGeopoint, locationImg, fbw.getMyUserDID(), scannedCodeDID);
-
-            }
-            else {
-                scannedCodeToUpload = new ScannedCode(code, date, locationImg, fbw.getMyUserDID(), scannedCodeDID);
-            }
-            // At this point, scannedCode is ready!
-            Map<String, Object> scannedCodeMap = new HashMap<>();
-            scannedCodeMap.put("date", scannedCodeToUpload.getDate());
-            scannedCodeMap.put("hasLocation", scannedCodeToUpload.getHasLocation());
-            scannedCodeMap.put("hash", scannedCodeToUpload.getHash());
-            scannedCodeMap.put("hashVal", scannedCodeToUpload.getHashVal());
-            scannedCodeMap.put("location", scannedCodeToUpload.getLocation());
-            scannedCodeMap.put("locationImage", scannedCodeToUpload.getLocationImage());
-            scannedCodeMap.put("userDID", scannedCodeToUpload.getUserDID());
-            fbw.db.collection("ScannedCodes").document(scannedCodeDID).set(scannedCodeMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    fbw.refreshScannedCodesForUser(fbw.getMyUserDID());
-                    // despite the user saying not to make Location public, we still record the `l` location
-                    // this is to prevent the user to keep on scanning the code at the same location
-                    // despite no public location data
-                    geoFirestore.setLocation(scannedCodeDID, currentLocationGeopoint);
-                    Toast.makeText(getContext(), "The code has been submitted!", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
 
     // TODO: (IMPORTANT) MAKE THIS FUNCTION CHOOSE THE BEST LOCATION PROVIDER DURING RUNTIME
 //    public Location getCurLocation(){
