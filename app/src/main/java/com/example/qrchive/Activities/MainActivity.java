@@ -27,11 +27,14 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.qrchive.BuildConfig;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.Player;
+import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.Fragments.CodesFragment;
 import com.example.qrchive.Fragments.FriendsFragment;
 import com.example.qrchive.Fragments.HomeFragment;
 import com.example.qrchive.Fragments.LoginDialogFragment;
+import com.example.qrchive.Fragments.MapsFragment;
 import com.example.qrchive.Fragments.ProfileFragment;
+import com.example.qrchive.Fragments.SearchResultFragment;
 import com.example.qrchive.R;
 import com.example.qrchive.Fragments.ScanFragment;
 import com.example.qrchive.Fragments.SettingsFragment;
@@ -42,6 +45,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.rpc.context.AttributeContext;
@@ -49,6 +53,8 @@ import com.google.rpc.context.AttributeContext;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -91,7 +97,20 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                         if (resultantDocuments.size() == 0) {
                             // Make a dialog box to take user input
                             // TODO: Make sure unique username
-                            new LoginDialogFragment(db, preferences, android_device_id).show(getSupportFragmentManager(), "Login Dialog");
+                            Pair<ArrayList<String>, ArrayList<String>> usernameAndEmailList = new Pair<>(new ArrayList<>(), new ArrayList<>());
+                            db.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    List<DocumentSnapshot> resultantDocuments = task.getResult().getDocuments();
+                                    for (DocumentSnapshot doc : resultantDocuments) {
+                                        usernameAndEmailList.first.add(doc.get("userName").toString());
+                                        usernameAndEmailList.second.add(doc.get("emailID").toString());
+                                    }
+                                }
+                            });
+                            LoginDialogFragment fragment = new LoginDialogFragment(db, preferences, android_device_id, usernameAndEmailList);
+                            fragment.setCancelable(false); // disables back button
+                            fragment.show(getSupportFragmentManager(), "Login Dialog");
                         }
                         else {
                             DocumentSnapshot userDoc = resultantDocuments.get(0);
@@ -125,16 +144,11 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                                 ), fbw));
                         break;
                     case R.id.menu_dropdown_map:
-                        Intent showMap = new Intent(MainActivity.this, MapsActivity.class);
-                        showMap.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        startActivity(showMap);
+                        transactFragment(new MapsFragment());
                         break;
-
                     case R.id.menu_dropdown_settings:
-                        //todo
                         transactFragment(new SettingsFragment());
                         break;
-
                 }
                 dropdownNavWrapper.setVisibility(View.GONE);
                 return true;
@@ -166,14 +180,11 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                         transactFragment(new CodesFragment(fbw));
                         break;
                     case R.id.menu_item_friends:
-                        //todo
                         transactFragment(new FriendsFragment(fbw));
                         break;
                     case R.id.menu_item_scan:
-                        //todo
                         transactFragment(new ScanFragment(fbw));
                         break;
-
                 }
                 dropdownNavWrapper.setVisibility(View.GONE);
                 return true;
@@ -184,6 +195,54 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         Toolbar topBar = (Toolbar) findViewById(R.id.app_bar);
         Menu topBarMenu = topBar.getMenu();
         onCreateOptionsMenu(topBarMenu);
+
+        handleDropdownMenuWrapper(topBarMenu, dropdownNavWrapper);
+
+        // Make app default load the home fragment
+        transactFragment(new HomeFragment());
+    }
+
+    /**
+     * Inflate the XML for the Toolbar in order to define search bar functionality.
+     * */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //load the menu XML into memory.
+        getMenuInflater().inflate(R.menu.app_bar_menu, menu);
+
+        //hide the geo_search icon since we are not in maps fragment
+        MenuItem geo_search = menu.findItem(R.id.menu_geo_search);
+        geo_search.setVisible(false);
+
+        //listener for text search.
+        MenuItem item = menu.findItem(R.id.menu_search);
+        SearchView searchView = (SearchView) item.getActionView();
+        searchView.setQueryHint("Search for users . . .");
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // TODO Handle search query submission
+                transactFragment(new SearchResultFragment(query));
+                Log.d("onSumbit", "onQueryTextSubmit: ");
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // TODO Handle search query text change (offer suggestion for partial input)
+                transactFragment(new SearchResultFragment(newText));
+                Log.d("onChange", "onQueryTextSubmit: ");
+                return true;
+            }
+        });
+
+        return true;
+    }
+
+    /** When a menu item on the dropdown is clicked, we like to hide the visibility of
+     * the dropdown when the new fragment is rendered.
+     * */
+    private void handleDropdownMenuWrapper(Menu topBarMenu, LinearLayout dropdownNavWrapper) {
 
         //grab menu items
         MenuItem itemDropdown = topBarMenu.findItem(R.id.menu_item_dropdown);
@@ -203,41 +262,6 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                 return false;
             }
         });
-
-        // Make app default load the home fragment (we will add a conditional here later to test if the user has already created
-        // an account before, If not then we show the create account fragment by default.)
-        transactFragment(new HomeFragment());
-//        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment())
-//                .commit();
-
-    }
-
-    /**
-     * Inflate the XML for the Toolbar in order to define search bar functionality.
-     * */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.app_bar_menu, menu);
-        MenuItem item = menu.findItem(R.id.menu_search);
-        SearchView searchView = (SearchView) item.getActionView();
-        searchView.setQueryHint("Search for QR . . .");
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                // TODO Handle search query submission
-                Log.d("onSumbit", "onQueryTextSubmit: ");
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                // TODO Handle search query text change (offer suggestion for partial input)
-                Log.d("onChange", "onQueryTextSubmit: ");
-                return true;
-            }
-        });
-
-        return true;
     }
 
     private void transactFragment(Fragment fragment) {
@@ -245,5 +269,9 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment)
                 .commit();
         return;
+    }
+
+    public FirebaseWrapper getFirebaseWrapper() {
+        return fbw;
     }
 }

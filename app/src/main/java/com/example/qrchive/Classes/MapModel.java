@@ -1,62 +1,70 @@
 package com.example.qrchive.Classes;
-import android.content.Context;
-import android.content.SharedPreferences;
+import static android.service.controls.ControlsProviderService.TAG;
+
 import android.util.Log;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import org.imperiumlabs.geofirestore.GeoFirestore;
 import org.imperiumlabs.geofirestore.GeoQuery;
 import org.imperiumlabs.geofirestore.listeners.GeoQueryEventListener;
-import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import kotlin.Triple;
-
+/** Class: Map Model:
+ *  Author: Justin Meimar
+ *
+ *  Provides support to the MapsFragment through a GeoQuery interface.
+ *  GeoQueries are used in two instances: 1) draw markers on the map, 2) retrieve a list of codes within a specifies radius.
+ *  The base query provides the abstracted query for both. The MapsFragment implements the callback functions from
+ *  the GeoQueryListener interface to response any time a code has been queried.
+ * */
 public class MapModel {
 
-    private final double radius = 200;
-    private GeoPoint center;
     private FirebaseFirestore db;
-    private List<ScannedCode> nearByCodes;
     private GeoFirestore geoFirestore;
-    private double latitude;
-    private double longitude;
 
-    public MapModel(double latitude, double longitude) {
-
-        // initialize members
-        this.longitude = longitude;
-        this.latitude = latitude;
-        nearByCodes = new ArrayList<>();
+    public MapModel() {
         db = FirebaseFirestore.getInstance();
     }
 
-    public List<ScannedCode> getNearbyQRCodes() {
-        return nearByCodes;
+    /** @Method: setMapGeoQuery
+     *  @Param: latitude, longitude, radius: Configure the parameters of the query
+     *  @Param: callback: Instance of MapFragment which implements the callback for drawing a map marker.
+     *    called when the map is loaded and triggers the call back to draw a map marker at a particular location
+     * */
+    public void setMapGeoQuery(double latitude, double longitude, double radius, GeoQueryListener callback ) {
+        GeoPoint currentLocation = new GeoPoint(latitude, longitude);
+        baseGeoQuery(currentLocation, radius, callback, GeoQueryType.MAP_QUERY);
     }
 
-    public void setNearbyQRCodes(onCodesGeoQueriedListener callback) {
+    /** @Method: searchGeoQuery
+     *  @Param: latitude, longitude, radius: Configure the parameters of the query
+     *  @Param: callback: Instance of MapsFragment which implements the callback for adding the queried code
+     *    to a scrollable listAdapter which displays the codes in the given radius.
+     * */
+    public void searchGeoQuery(double latitude, double longitude, double radius, GeoQueryListener callback) {
+        GeoPoint currentLocation = new GeoPoint(latitude, longitude);
+        baseGeoQuery(currentLocation, radius, callback, GeoQueryType.SEARCH_QUERY);
+    }
+
+    /** @Method: baseGeoQuery
+     * @Param: All parameters are passed trivially by @setMapGeoQuery or @searchGeoQuery
+     * @Param: queryType passed to direct the callback used.
+     * Provides a general geoQuery for which specific functionality is determined by the queryType Enum paramter
+     * */
+    public void baseGeoQuery(GeoPoint currentLocation, double radius, GeoQueryListener callback, GeoQueryType queryType) {
 
         geoFirestore = new GeoFirestore(db.collection("ScannedCodes"));
-        GeoPoint currentLocation = new GeoPoint(this.latitude, this.longitude);
-
-        // Geo Query requires the fields g: hashed location and l: GeoPoint representing location.
-        // there is a way to rename the fields with settings, so that we could use
         db.collection("ScannedCodes")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -69,17 +77,8 @@ public class MapModel {
                 });
 
         // Make a GeoQuery for documents with location within radius of current location.
-        GeoQuery geoQuery = geoFirestore.queryAtLocation(currentLocation, this.radius);
+        GeoQuery geoQuery = geoFirestore.queryAtLocation(currentLocation, radius);
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-            @Override
-            public void onGeoQueryReady() {
-                // All documents within the search radius have been loaded
-            }
-
-            @Override
-            public void onGeoQueryError(@NonNull Exception e) {
-                // Handle error
-            }
 
             @Override
             public void onKeyEntered(String key, GeoPoint location) {
@@ -104,25 +103,30 @@ public class MapModel {
                                                     "placeholder_img.png",
                                                     docData.get("userDID").toString(),
                                                     document.getId());
-                                            nearByCodes.add(scannedCode);
-                                            callback.onCodesGeoQueried(scannedCode);
-                                        } else { Log.d("================= Code is NUILL", ":("); }
+
+                                            // Trigger the appropriate callback.
+                                            switch (queryType) {
+                                                case SEARCH_QUERY:
+                                                    callback.onCodeGeoSearched(scannedCode);
+                                                    break;
+                                                case MAP_QUERY:
+                                                    callback.onCodeGeoQueried(scannedCode);
+                                                    break;
+                                            }
+                                        } else { Log.d(TAG, "document is null"); }
                                     }
-                                } else { Log.d("================= Task Unsuccessful?", ":("); }
+                                } else { Log.d(TAG, "task not successful"); }
                             }
                         });
             }
-
             @Override
-            public void onKeyExited(String key) {
-                // Document with key exited the search radius
-                Log.d("CODE NO MATCH HERE", "==================");
-            }
-
+            public void onGeoQueryReady() {}
             @Override
-            public void onKeyMoved(String key, GeoPoint location) {
-                // Document with key moved within the search radius
-            }
+            public void onKeyExited(String key) {}
+            @Override
+            public void onGeoQueryError(@NonNull Exception e) {}
+            @Override
+            public void onKeyMoved(String key, GeoPoint location) {}
         });
     }
 }

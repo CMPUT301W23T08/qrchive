@@ -119,12 +119,10 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
 
         /**
          * onClick allows the program to catch when a view is clicked on.
-         *
          * @param v the view that is being clicked on.
          */
         @Override
         public void onClick(View v) {
-
         }
     }
 
