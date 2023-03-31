@@ -122,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
                                 new Player(
                                         preferences.getString("userName", ""),
                                         preferences.getString("emailID", ""),
-                                        preferences.getString("userDID", "")
-                                )));
+                                        preferences.getString("deviceID", "")
+                                ), fbw));
                         break;
                     case R.id.menu_dropdown_map:
                         Intent showMap = new Intent(MainActivity.this, MapsActivity.class);
@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // TODO Handle search query submission
-                transactFragment(new SearchResultFragment(query));
+                transactFragment(new SearchResultFragment(query, fbw));
                 Log.d("onSumbit", "onQueryTextSubmit: ");
                 return true;
             }
@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 // TODO Handle search query text change (offer suggestion for partial input)
-                transactFragment(new SearchResultFragment(newText));
+                transactFragment(new SearchResultFragment(newText, fbw));
                 Log.d("onChange", "onQueryTextSubmit: ");
                 return true;
             }
