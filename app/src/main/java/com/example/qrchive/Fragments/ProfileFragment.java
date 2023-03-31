@@ -75,7 +75,19 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     fbw.deleteUser();
-                    startActivity(new Intent(getContext(), MainActivity.class));
+                    // sleep for 2 second
+                    Toast.makeText(getContext(),
+                            "Deleted user account and associated data, restarting...",  Toast.LENGTH_SHORT).show();
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    getActivity().finish();
+//                    startActivity(new Intent(getContext(), MainActivity.class));
                 }
             });
 
