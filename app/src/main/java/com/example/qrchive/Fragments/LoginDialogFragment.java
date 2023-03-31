@@ -83,7 +83,8 @@ public class LoginDialogFragment extends DialogFragment {
                     prefEdit.putString("userDID", docref.getId());
                     prefEdit.apply();
                     OnLoginSuccessListener listener = (OnLoginSuccessListener) getActivity();
-                    listener.onLoginSuccess(preferences.getString("userDID", ""));
+                    listener.onLoginSuccess(preferences.getString("userDID", ""),
+                            preferences.getString("userName", ""));
                 })
                 .create();
 
@@ -91,7 +92,7 @@ public class LoginDialogFragment extends DialogFragment {
     }
 
     public interface OnLoginSuccessListener {
-        void onLoginSuccess(String userDID);
+        void onLoginSuccess(String userDID, String userName);
     }
 
 

@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.provider.Settings;
+import android.util.Pair;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -60,8 +61,8 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
 
     @Override
-    public void onLoginSuccess(String userDID) {
-        fbw = new FirebaseWrapper(userDID);
+    public void onLoginSuccess(String userDID, String userName) {
+        fbw = new FirebaseWrapper(userDID, userName);
     }
 
     @Override
@@ -99,7 +100,8 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                             prefEditor.putString("deviceID", android_device_id);
                             prefEditor.putString("userDID", userDoc.getId());
                             prefEditor.apply();
-                            onLoginSuccess(preferences.getString("userDID", ""));
+                            onLoginSuccess(preferences.getString("userDID", ""),
+                                    preferences.getString("userName", ""));
                         }
 
                     }
