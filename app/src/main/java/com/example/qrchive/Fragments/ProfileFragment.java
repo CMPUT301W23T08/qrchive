@@ -59,6 +59,7 @@ public class ProfileFragment extends Fragment {
         SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
 
         String userId = preferences.getString("userDID", "no user id found");
+        String userDeviceID = preferences.getString("deviceID", "no device id found");
 
         userNameTextView.setText(user.getUserName());
         emailTextView.setText(user.getEmail());
@@ -71,7 +72,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        if(userId == user.getDeviceID()){
+        if(userDeviceID == user.getDeviceID()){
             deleteBtn.setVisibility(View.VISIBLE);
             Toast.makeText(getContext(), "wkaaksdf", Toast.LENGTH_SHORT);
 
