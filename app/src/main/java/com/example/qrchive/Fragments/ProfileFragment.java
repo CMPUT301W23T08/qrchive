@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.OnQRCountQueryListener;
@@ -27,11 +28,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class ProfileFragment extends Fragment {
 
 
-    private Player user;
+    public Player user;
     private FirebaseWrapper fbw;
     public ProfileFragment(Player user, FirebaseWrapper fbw) {
-        this.user = user;
         this.fbw = fbw;
+        this.user = user;
     }
 
     /**
@@ -58,15 +59,24 @@ public class ProfileFragment extends Fragment {
         TextView userNameTextView = (TextView)profileView.findViewById(R.id.profile_username);
         TextView emailTextView = (TextView)profileView.findViewById(R.id.profile_email_address);
         TextView userIdTextView = (TextView)profileView.findViewById(R.id.profile_user_id);
+        TextView userRankTextView = (TextView)profileView.findViewById(R.id.profile_user_rank);
         TextView qrCodeTextView = (TextView)profileView.findViewById(R.id.profile_qr_codes_collected);
 
         SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
 
+        String userId = preferences.getString("userDID", "no user id found");
         String deviceID = preferences.getString("deviceID", "no user id found");
 
         userNameTextView.setText(user.getUserName());
         emailTextView.setText(user.getEmail());
         userIdTextView.setText(user.getDeviceID());
+        System.out.println(user.getDeviceID());
+        fbw.getUserRank(user.getDeviceID(), new FirebaseWrapper.OnRankRetrievedListener() {
+            @Override
+            public void OnRankRetrieved(int rank) {
+                userRankTextView.setText("Rank: #" + Integer.toString(rank));
+            }
+        }, false);
 
         if(deviceID.equals(user.getDeviceID())){
             deleteBtn.setVisibility(View.VISIBLE);

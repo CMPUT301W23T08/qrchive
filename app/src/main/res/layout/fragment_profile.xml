@@ -58,12 +58,21 @@
         android:layout_below="@id/profile_qr_codes_collected"
         android:layout_toEndOf="@id/profile_picture"/>
 
+    <TextView
+        android:id="@+id/profile_user_rank"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/profile_favourite_qr_code"
+        android:layout_toEndOf="@+id/profile_picture"
+        android:text="Rank:"
+        android:textSize="16sp" />
+
     <Button
         android:id="@+id/profile_edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Edit"
-        android:layout_below="@id/profile_favourite_qr_code"
+        android:layout_below="@id/profile_user_rank"
         android:layout_toEndOf="@id/profile_picture"/>
 
     <Button

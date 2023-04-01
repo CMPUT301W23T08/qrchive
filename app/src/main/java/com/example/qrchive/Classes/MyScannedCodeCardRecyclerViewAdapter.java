@@ -11,6 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.databinding.FragmentCodesContentBinding;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -69,9 +74,15 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
         ScannedCode scannedCode = scannedCodes.get(position);
         holder.codeCardName.setText(scannedCode.getName());
         holder.codeCardLocation.setText(scannedCode.getLocationString());
-        holder.codeCardDate.setText(scannedCode.getDate());
         holder.codeCardPts.setText(String.valueOf(scannedCode.getPoints()));
         holder.codeCardImage.setImageResource(mainActivity.getDrawableResourceIdFromString(scannedCode.getMonsterResourceName()));
+        Date date = scannedCode.getDateObject();
+        if (date == null) {
+            holder.codeCardDate.setText(scannedCode.getDate());
+        }
+        else {
+            holder.codeCardDate.setText((new SimpleDateFormat("MM/dd/yy hh:mm a")).format(date));
+        }
     }
 
     /**

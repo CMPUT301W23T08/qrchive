@@ -11,7 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.qrchive.R;
 
+import java.net.CookieManager;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 
 public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecyclerViewAdapter.PlayerViewHolder> {
@@ -25,6 +28,7 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
     }
 
     public FriendsRecyclerViewAdapter(ArrayList<Player> playerList) {
+        Collections.sort(playerList, Comparator.comparing(p -> -p.getNumericalRank()));
         this.playerList = playerList;
     }
 
@@ -56,6 +60,7 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
             }
         });
         holder.playersPoints.setText(Integer.toString(player.getPoints()));
+        holder.playerRank.setText(player.getRank());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,7 +78,7 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
     }
 
     public static class PlayerViewHolder extends RecyclerView.ViewHolder {
-        TextView playerName, qrCount, playersPoints;
+        TextView playerName, qrCount, playersPoints, playerRank;
 
         public PlayerViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -82,6 +87,7 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
             playerName = itemView.findViewById(R.id.player_name);
             qrCount = itemView.findViewById(R.id.qr_count);
             playersPoints = itemView.findViewById(R.id.players_points);
+            playerRank = itemView.findViewById(R.id.player_rank);
         }
     }
 
