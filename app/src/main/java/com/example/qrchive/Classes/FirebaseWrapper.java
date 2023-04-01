@@ -165,14 +165,14 @@ public class FirebaseWrapper {
                             }
                         }
 
-                        listener.OnRanklistRetrieved(userRank);
+                        listener.OnRanklistRetrieved(userRank, topCodeForUser);
                     }
                 });
             }
         });
     }
 
-    public void getUserRank(String userDeviceID, final OnRankRetrievedListener listener){
+    public void getUserRank(String userDeviceID, final OnRankRetrievedListener listener, boolean rawVal){
         String docID = deviceToDoc.get(userDeviceID);
 
         if(docID == null){
@@ -186,14 +186,32 @@ public class FirebaseWrapper {
                     if(userRank.get(docID) == null){
                         createRanklist(new OnRanklistRetrievedListener() {
                             @Override
-                            public void OnRanklistRetrieved(HashMap<String, Integer> userRank) {
+                            public void OnRanklistRetrieved(HashMap<String, Integer> userRank, HashMap<String, ScannedCode> topCodeForUser) {
                                 System.out.println(userRank);
                                 System.out.println(userRank.get(docID));
-                                listener.OnRankRetrieved(userRank.get(docID));
+                                if(!rawVal){
+                                    listener.OnRankRetrieved(userRank.get(docID));
+                                }else{
+                                    ScannedCode top = topCodeForUser.get(docID);
+                                    if(top == null){
+                                        listener.OnRankRetrieved(0);
+                                    }else{
+                                        listener.OnRankRetrieved(topCodeForUser.get(docID).getPoints());
+                                    }
+                                }
                             }
                         });
                     }else{
-                        listener.OnRankRetrieved(userRank.get(docID));
+                        if(!rawVal){
+                            listener.OnRankRetrieved(userRank.get(docID));
+                        }else{
+                            ScannedCode top = topCodeForUser.get(docID);
+                            if(top == null){
+                                listener.OnRankRetrieved(0);
+                            }else{
+                                listener.OnRankRetrieved(topCodeForUser.get(docID).getPoints());
+                            }
+                        }
                     }
                 }
             });
@@ -201,14 +219,32 @@ public class FirebaseWrapper {
             if(userRank.get(docID) == null){
                 createRanklist(new OnRanklistRetrievedListener() {
                     @Override
-                    public void OnRanklistRetrieved(HashMap<String, Integer> userRank) {
+                    public void OnRanklistRetrieved(HashMap<String, Integer> userRank, HashMap<String, ScannedCode> topCodeForUser) {
                         System.out.println(userRank);
                         System.out.println(docID);
-                        listener.OnRankRetrieved(userRank.get(docID));
+                        if(!rawVal){
+                            listener.OnRankRetrieved(userRank.get(docID));
+                        }else{
+                            ScannedCode top = topCodeForUser.get(docID);
+                            if(top == null){
+                                listener.OnRankRetrieved(0);
+                            }else{
+                                listener.OnRankRetrieved(topCodeForUser.get(docID).getPoints());
+                            }
+                        }
                     }
                 });
             }else{
-                listener.OnRankRetrieved(userRank.get(docID));
+                if(!rawVal){
+                    listener.OnRankRetrieved(userRank.get(docID));
+                }else{
+                    ScannedCode top = topCodeForUser.get(docID);
+                    if(top == null){
+                        listener.OnRankRetrieved(0);
+                    }else{
+                        listener.OnRankRetrieved(topCodeForUser.get(docID).getPoints());
+                    }
+                }
             }
 
         }
@@ -314,7 +350,7 @@ public class FirebaseWrapper {
     }
 
     public interface OnRanklistRetrievedListener {
-        void OnRanklistRetrieved(HashMap<String, Integer> userRank);
+        void OnRanklistRetrieved(HashMap<String, Integer> userRank, HashMap<String, ScannedCode> topCodeForUser);
     }
 
     public interface OnRankRetrievedListener {

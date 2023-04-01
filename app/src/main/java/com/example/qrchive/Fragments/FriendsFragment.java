@@ -194,7 +194,7 @@ public class FriendsFragment extends Fragment {
                                 );
                                 users.add(player);
                             }
-                        });
+                        }, true);
                     }
                     // Invoke the callback method with the list of users as a parameter
                     listener.onUsersRetrieved(users);

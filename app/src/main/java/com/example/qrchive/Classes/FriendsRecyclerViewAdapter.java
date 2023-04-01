@@ -28,7 +28,7 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
     }
 
     public FriendsRecyclerViewAdapter(ArrayList<Player> playerList) {
-        Collections.sort(playerList, Comparator.comparing(p -> p.getNumericalRank()));
+        Collections.sort(playerList, Comparator.comparing(p -> -p.getNumericalRank()));
         this.playerList = playerList;
     }
 

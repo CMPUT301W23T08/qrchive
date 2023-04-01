@@ -76,7 +76,7 @@ public class ProfileFragment extends Fragment {
             public void OnRankRetrieved(int rank) {
                 userRankTextView.setText("Rank: #" + Integer.toString(rank));
             }
-        });
+        }, false);
 
         if(deviceID.equals(user.getDeviceID())){
             deleteBtn.setVisibility(View.VISIBLE);
