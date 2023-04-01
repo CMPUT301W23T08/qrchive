@@ -27,10 +27,13 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.GeoSearchArrayAdapter;
 import com.example.qrchive.Classes.MapModel;
+import com.example.qrchive.Classes.MapsCardPopup;
 import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.Classes.GeoQueryListener;
 import com.example.qrchive.R;
@@ -55,7 +58,11 @@ import java.util.Map;
  * */
 public class MapsFragment extends Fragment implements GeoQueryListener {
 
+    // static
     private String TAG = "=================== HERE ====================";
+    private static final int REQUEST_CODE_FINE_LOCATION = 200;
+    private static final int ZOOM_LEVEL = 16;
+    private static final int DEFAULT_SEARCH_RADIUS = 200;
     private MapsFragment self;
     private GoogleMap mMap;
     private MainActivity mainActivity;
@@ -68,16 +75,11 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
     private ArrayList<ScannedCode> geoQueryList;
     private GeoSearchArrayAdapter geoQueryAdapter;
     private View mapsView;
-    //GeoSearch views
     private LinearLayout geoSearchLayout;
     private ScrollView scrollView;
-    //Geo Search Inputs
     private EditText latitudeText;
     private EditText longitudeText;
-    private EditText searchRadiusText;
-    // static
-    private static final int REQUEST_CODE_FINE_LOCATION = 200;
-    private final static int ZOOM_LEVEL = 16;
+    private int seekbarRadius = DEFAULT_SEARCH_RADIUS;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -171,7 +173,6 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         textSearchItem = topBarMenu.findItem(R.id.menu_search);
         latitudeText = mainActivity.findViewById(R.id.latitude_input);
         longitudeText = mainActivity.findViewById(R.id.longitude_input);
-        searchRadiusText = mainActivity.findViewById(R.id.search_radius_input);
 
         // Set initial visibilities
         geoSearchItem.setVisible(true);
@@ -182,7 +183,26 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         handleGeoSearchMenuItem();
         handleGeoSearchCurrentLocationButton();
         handleGeoSearchSubmit();
+        handleSeekBar();
         handleGeoSearchListView();
+    }
+
+    public void handleSeekBar() {
+        SeekBar seekBar = mainActivity.findViewById(R.id.search_radius_slider);
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int progress = seekBar.getProgress();
+                Log.d(TAG, String.valueOf(progress));
+                seekbarRadius = progress;
+                // Do something with the integer value here
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {}
+        });
     }
 
     /** @method: handleMarkerClickDialogue
@@ -195,25 +215,8 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
 
                 ScannedCode markerCode = markerCodeMap.get(marker);
                 if (markerCode != null) {
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
-                    builder.setTitle(markerCode.getName())
-                            .setMessage("Show the QR code?")
-                            .setPositiveButton("View", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    mainActivity.getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new OnClickCodeFragment(markerCode, mainActivity.getFirebaseWrapper()))
-                                            .commit();
-                                }
-                            })
-                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    //do nothing
-                                }
-                            });
-                    AlertDialog alertDialog = builder.create();
-                    alertDialog.show();
+                    MapsCardPopup popup = new MapsCardPopup(markerCode, mainActivity);
+                    popup.show(mainActivity.getFragmentManager(), "tag");
                 }
                 return false;
             }
@@ -304,12 +307,8 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
                 } catch (NumberFormatException e) {
                     Toast.makeText(mainActivity, "Invalid latitude value", Toast.LENGTH_SHORT).show();
                     return;
-                } try {
-                    radius = Float.parseFloat(searchRadiusText.getText().toString());
-                } catch (NumberFormatException e) {
-                    Toast.makeText(mainActivity, "Invalid radius value", Toast.LENGTH_SHORT).show();
-                    return;
                 }
+                radius = seekbarRadius;
 
                 // flush the previous list
                 mapModel.searchGeoQuery(latitude, longitude, radius, self);
@@ -377,9 +376,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
                 .snippet(points + " pts")
                 .flat(true)
                 .icon(icon));
-
         markerCodeMap.put(marker, code);
-        Log.d(TAG, "ADDED CODE TO MAP ");
     }
 
     /**
@@ -408,6 +405,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
 
         Log.d(TAG, code.getName());
+        code.setDistance(getMarkerDistance(code));
         markerCodeMap.put(marker, code);
         Log.d(TAG, String.valueOf(markerCodeMap.size()));
     }
@@ -420,8 +418,31 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         // Add queried code to geoQueryList
         if (code != null) {
             Log.d(TAG, code.getName());
+            code.setDistance(getMarkerDistance(code));
             geoQueryAdapter.add(code);
         }
+    }
+
+    /** @method: Calculate the Euclidean marker distance.
+    **/
+    public double getMarkerDistance(ScannedCode code) {
+        GeoPoint location = code.getLocation();
+
+        if (location == null || currentLocation == null) {
+            Toast.makeText(getContext(), "Invalid Current or Marker Location", Toast.LENGTH_SHORT);
+            return 0.0;
+        }
+        // marker code location
+        double codeLatitude = location.getLatitude();
+        double codeLongitude = location.getLongitude();
+        // current location
+        double curLatitude = currentLocation.getLatitude();
+        double curLongitude = currentLocation.getLongitude();
+        // distance = sqrt( (x1 - x2)^2 + (y1 - y2)^2 )
+        double x_diff = Math.pow(Math.abs(codeLatitude - curLatitude), 2);
+        double y_diff = Math.pow(Math.abs(codeLongitude - curLongitude), 2);
+        Log.d(TAG, "getMarkerDistance: ");
+        return Math.sqrt(x_diff + y_diff);
     }
 
     /** @method: Swap the search menu item back to the basic text search.

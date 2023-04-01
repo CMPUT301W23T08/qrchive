@@ -3,11 +3,13 @@ package com.example.qrchive.Classes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.databinding.FragmentCodesContentBinding;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import java.util.List;
 public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<MyScannedCodeCardRecyclerViewAdapter.ViewHolder> {
     private final List<ScannedCode> scannedCodes;
     private OnItemClickListener mListener;
+    private MainActivity mainActivity;
 
     /**
      * setOnItemClickListener sets up a click listener for the view adapter.
@@ -35,10 +38,10 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
      *
      * @param items is the list of scanned codes we want to store in the view adapter.
      */
-    public MyScannedCodeCardRecyclerViewAdapter(List<ScannedCode> items) {
+    public MyScannedCodeCardRecyclerViewAdapter(List<ScannedCode> items, MainActivity mainActivity) {
         scannedCodes = items;
+        this.mainActivity = mainActivity;
     }
-
     /**
      * onCreateViewHolder is called when RecyclerView needs a new RecyclerView.ViewHolder
      * of type ScannedCode to represent an item.
@@ -68,7 +71,7 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
         holder.codeCardLocation.setText(scannedCode.getLocationString());
         holder.codeCardDate.setText(scannedCode.getDate());
         holder.codeCardPts.setText(String.valueOf(scannedCode.getPoints()));
-        holder.codeCardAscii.setText(scannedCode.getAscii());
+        holder.codeCardImage.setImageResource(mainActivity.getDrawableResourceIdFromString(scannedCode.getMonsterResourceName()));
     }
 
     /**
@@ -88,7 +91,7 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
      * @version 1.0
      */
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public final TextView codeCardAscii;
+        public final ImageView codeCardImage;
         public final TextView codeCardName;
         public final TextView codeCardLocation;
         public final TextView codeCardDate;
@@ -110,7 +113,7 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
                     }
                 }
             });
-            codeCardAscii = binding.codeCardAscii;
+            codeCardImage = binding.codeCardMonsterImg;
             codeCardName = binding.codeCardName;
             codeCardLocation = binding.codeCardLocation;
             codeCardDate = binding.codeCardDate;

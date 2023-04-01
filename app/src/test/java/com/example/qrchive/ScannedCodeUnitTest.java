@@ -37,19 +37,7 @@ public class ScannedCodeUnitTest {
         ScannedCode code = getMockCode();
 
         // Eyebrows, closed eyes, ears, nose, smile, round face
-        String expected =
-                "          , - ~ ~ ~ - ,\n" +
-                "      , '               ' ,\n" +
-                "    ,      ~        ~       ,\n" +
-                "   ,       _        _        ,\n" +
-                " \\,                           ,/\n" +
-                " /,                           ,\\\n" +
-                "  ,           /,,\\            ,\n" +
-                "   ,                         ,\n" +
-                "    ,     '~,_____,~'       ,\n" +
-                "      ,                  , '\n" +
-                "        ' - , _ _ _ ,  '\n";
-
-        assertEquals(expected, code.getAscii());
+        String expected = "monster000010";
+        assertEquals(expected, code.getMonsterResourceName());
     }
 }

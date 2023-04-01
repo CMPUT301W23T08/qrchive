@@ -6,6 +6,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,8 +85,9 @@ public class OnClickCodeFragment extends Fragment {
         // Setting the fragment elements
         ConstraintLayout rootLayout = view.findViewById(R.id.fragment_on_item_click_code_constraint_layout_view);
         ((TextView) rootLayout.findViewById(R.id.code_name)).setText(scannedCode.getName());
-        ((TextView) rootLayout.findViewById(R.id.code_ascii)).setText(scannedCode.getAscii());
 
+        String imageFileName = scannedCode.getMonsterResourceName();
+        ((ImageView) rootLayout.findViewById(R.id.code_image)).setImageResource(getResources().getIdentifier(imageFileName, "drawable", getActivity().getPackageName()));
 
         ((TextView) rootLayout.findViewById(R.id.code_location)).setText(scannedCode.getLocationString());
         ((TextView) rootLayout.findViewById(R.id.code_date)).setText(scannedCode.getDate());

@@ -22,7 +22,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/code_ascii"
+            app:layout_constraintBottom_toTopOf="@id/code_image"
             style="@style/myCardStyleOnItemClick">
                 <TextView
                     android:id="@+id/code_name"
@@ -41,19 +41,23 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/code_card_name"
-            app:layout_constraintBottom_toTopOf="@id/code_ascii"
+            app:layout_constraintBottom_toTopOf="@id/code_image"
             android:src="@android:drawable/ic_menu_delete"/>
-        <TextView
-            android:id="@+id/code_ascii"
-            app:layout_constraintTop_toBottomOf="@+id/code_card_name"
-            app:layout_constraintBottom_toTopOf="@id/code_stats_1_card"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+
+        <ImageView
+            android:id="@+id/code_image"
             android:layout_width="200dp"
+            android:layout_height="200dp"
             android:text="Loading..."
             android:textStyle="bold"
             android:typeface="monospace"
-            android:layout_height="200dp"/>
+            android:src="@drawable/monster000000"
+            app:layout_constraintBottom_toTopOf="@id/code_stats_1_card"
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/code_card_name" />
+
         <androidx.cardview.widget.CardView
             android:id="@+id/code_stats_1_card"
             android:layout_width="match_parent"
@@ -61,7 +65,7 @@
             style="@style/myCardStyleOnItemClick"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/code_ascii"
+            app:layout_constraintTop_toBottomOf="@id/code_image"
             app:layout_constraintBottom_toTopOf="@id/code_stats_2_card">
             <LinearLayout
                 android:layout_width="match_parent"

@@ -18,15 +18,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-        <!-- Linear layout for the decimal inputs and button -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/background_grey"
             android:orientation="horizontal">
-
-            <!-- Decimal input for latitude -->
             <EditText
                 android:id="@+id/latitude_input"
                 android:layout_width="0dp"
@@ -34,8 +30,6 @@
                 android:layout_weight="1"
                 android:hint="Latitude"
                 android:inputType="numberDecimal"/>
-
-            <!-- Decimal input for longitude -->
             <EditText
                 android:id="@+id/longitude_input"
                 android:layout_width="0dp"
@@ -45,25 +39,41 @@
                 android:inputType="numberDecimal"/>
         </LinearLayout>
 
-        <!-- Linear layout for the decimal inputs and button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background_grey"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/seekBarLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search Radius"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:padding="16dp" />
+            <SeekBar
+                android:id="@+id/search_radius_slider"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:max="1000"
+                android:min="1"
+                android:progress="100" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/background_grey"
             android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/search_radius_input"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Search Radius"
-                android:inputType="numberDecimal"/>
             <Button
                 android:id="@+id/button_geo_search_use_current_loc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
+                android:layout_marginRight="20dp"
+                android:paddingRight="10dp"
                 android:textSize="10sp"
                 android:text="My Location"/>
             <Button
@@ -72,7 +82,6 @@
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
                 android:text="Search"/>
-
         </LinearLayout>
 
     </LinearLayout>
@@ -97,5 +106,6 @@
         </LinearLayout>
 
     </ScrollView>
+
 
 </FrameLayout>
