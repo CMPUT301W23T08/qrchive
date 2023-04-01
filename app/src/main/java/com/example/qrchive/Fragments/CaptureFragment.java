@@ -19,6 +19,8 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LifecycleOwner;
 
 import android.provider.MediaStore;
@@ -130,7 +132,11 @@ public class CaptureFragment extends Fragment {
                                 outputFileResults.getSavedUri();
                         Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
                         Log.d(TAG, msg);
-                        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new ScanFragment(fbw),null).commit();
+                        FragmentManager fragmentManager = getParentFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentManager.popBackStack(); // Remove the fragment from the back stack
+                        fragmentTransaction.commit(); // Commit the transaction
+//                        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new ScanFragment(fbw),null).commit();
                     }
 
                     @Override
