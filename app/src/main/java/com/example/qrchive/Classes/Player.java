@@ -3,12 +3,16 @@ package com.example.qrchive.Classes;
 import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class Player {
 
     private String email;
     private String playerName;
     private String deviceID;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private int rank = -1;
 
 
@@ -53,13 +57,20 @@ public class Player {
         return 0;
     }
 
-    public ArrayList<String> getPlayerFriends(){
-        //TODO: get players Friends
-        ArrayList<String> friends = new ArrayList<>();
-
-        return friends;
+    public void getQRCount(final OnQRCountQueryListener listener) {
+        db.collection("ScannedCodes")
+                .whereEqualTo("userDID", deviceID)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int count = task.getResult().size();
+                            listener.onQRCount(count);
+                        } else {
+                            listener.onError(task.getException().getMessage());
+                        }
+                    }
+                });
     }
-
-
-
 }

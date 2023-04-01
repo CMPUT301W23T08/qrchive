@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    android:id="@+id/comments_cardview"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    style="@style/myCardStyleOnItemClick"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/comment_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="italic"
+            android:text="comment header"
+            />
+        <TextView
+            android:id="@+id/comment_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="comment content"/>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

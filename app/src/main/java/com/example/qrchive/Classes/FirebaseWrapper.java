@@ -39,6 +39,7 @@ public class FirebaseWrapper {
     private String myDeviceID;
 
     private String myUserDID;
+    private String myUserName;
     private HashMap<String, ArrayList<ScannedCode>> scannedCodesDict = new HashMap<>();
     private ArrayList<String> users = new ArrayList<>(); //part 4
     private HashMap<String, ScannedCode> topCodeForUser = new HashMap<>();
@@ -51,9 +52,10 @@ public class FirebaseWrapper {
      *
      * @param myUserDID is the device ID of the user we want to operate on.
      */
-    public FirebaseWrapper(String myUserDID) {
+    public FirebaseWrapper(String myUserDID, String myUserName) {
         this.db = FirebaseFirestore.getInstance();
         this.myUserDID = myUserDID;
+        this.myUserName = myUserName;
         this.refreshScannedCodesForUser(myUserDID);
     }
 
@@ -245,6 +247,55 @@ public class FirebaseWrapper {
                     }
                 });
 
+    }
+
+    public void deleteUser(){
+        System.out.println("user id:  " + myUserDID);
+        db.collection("Users").document(myUserDID)
+                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // Delete all user's associated data
+                        // Deleting comments
+                        db.collection("Comments")
+                                .whereEqualTo("userName", myUserName)
+                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                                        for (DocumentSnapshot doc : docs) {
+                                            doc.getReference().delete();
+                                        }
+                                    }
+                                });
+
+                        // Deleting pending friend requests
+                        db.collection("FriendRequest")
+                                .whereEqualTo("userName", myUserName)
+                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                                        for (DocumentSnapshot doc : docs) {
+                                            doc.getReference().delete();
+                                        }
+                                    }
+                                });
+
+                        // Deleting scanned codes
+                        db.collection("ScannedCodes")
+                                .whereEqualTo("userDID", myUserDID)
+                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                                        for (DocumentSnapshot doc : docs) {
+                                            doc.getReference().delete();
+                                        }
+                                    }
+                                });
+                    }
+                });
     }
 
     /**

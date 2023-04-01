@@ -14,42 +14,36 @@
 
         <ImageView
             android:id="@+id/profile_picture"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_marginEnd="16dp"
-            android:src="@drawable/icon_profile"
-            android:scaleType="centerCrop"
-            android:layout_alignParentStart="true"/>
-        <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="83dp"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_marginLeft="10dp">
+            android:layout_alignParentStart="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/icon_profile" />
+
+        <LinearLayout
+            android:layout_width="204dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/player_name"
                 android:layout_width="match_parent"
-                android:textSize="20dp"
                 android:layout_height="wrap_content"
-                android:text="Player Name"/>
-
-<!--            <TextView-->
-<!--                android:id="@+id/player_id"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:textSize="15dp"-->
-<!--                android:text="Player ID"/>-->
+                android:text="12345678901234567890"
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/qr_count"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="15dp"
-                android:text="QR codes collected: 0"/>
+                android:text="QR codes collected: 0"
+                android:textSize="15dp" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Follow"/>
+                android:text="Follow"
+                android:layout_marginStart="5dp"/>
 
         </LinearLayout>
     </LinearLayout>

@@ -15,6 +15,7 @@ import java.net.CookieManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.concurrent.ExecutionException;
 
 public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecyclerViewAdapter.PlayerViewHolder> {
 
@@ -45,7 +46,19 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
 
         Player player = playerList.get(position);
         holder.playerName.setText(player.getUserName());
-        holder.qrCount.setText("QR codes collected: " + Integer.toString(player.getQRCount()));
+
+        // Call the getQRCount method with an instance of the OnQRCountListener interface
+        player.getQRCount(new OnQRCountQueryListener() {
+            @Override
+            public void onQRCount(int count) {
+                holder.qrCount.setText("QR codes collected: " + Integer.toString(count));
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                holder.qrCount.setText("QR codes collected: error");
+            }
+        });
         holder.playersPoints.setText(Integer.toString(player.getPoints()));
         holder.playerRank.setText(player.getRank());
 

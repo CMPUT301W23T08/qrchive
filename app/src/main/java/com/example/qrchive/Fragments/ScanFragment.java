@@ -1,19 +1,10 @@
 package com.example.qrchive.Fragments;
 
 
-import static android.content.Context.LOCATION_SERVICE;
-import static android.content.Context.MODE_PRIVATE;
-import static android.content.Intent.getIntent;
-
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -21,10 +12,7 @@ import android.location.Location;
 
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,64 +23,34 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.Preview;
-import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
-import com.example.qrchive.Activities.MainActivity;
-import com.example.qrchive.Activities.MapsActivity;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.hash.Hashing;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.Result;
 
 import org.imperiumlabs.geofirestore.GeoFirestore;
 import org.imperiumlabs.geofirestore.listeners.GeoQueryDataEventListener;
-import org.imperiumlabs.geofirestore.listeners.GeoQueryEventListener;
 
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
-
-import android.Manifest;
-import android.app.AlertDialog;
-import android.content.ContentValues;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
 
 
 /**
