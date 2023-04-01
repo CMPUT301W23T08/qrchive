@@ -136,7 +136,6 @@ public class CaptureFragment extends Fragment {
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                         fragmentManager.popBackStack(); // Remove the fragment from the back stack
                         fragmentTransaction.commit(); // Commit the transaction
-//                        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new ScanFragment(fbw),null).commit();
                     }
 
                     @Override
