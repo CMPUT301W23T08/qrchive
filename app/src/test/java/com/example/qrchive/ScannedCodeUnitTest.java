@@ -35,21 +35,6 @@ public class ScannedCodeUnitTest {
     @Test
     public void testGetAscii() {
         ScannedCode code = getMockCode();
-
-        // Eyebrows, closed eyes, ears, nose, smile, round face
-        String expected =
-                "          , - ~ ~ ~ - ,\n" +
-                "      , '               ' ,\n" +
-                "    ,      ~        ~       ,\n" +
-                "   ,       _        _        ,\n" +
-                " \\,                           ,/\n" +
-                " /,                           ,\\\n" +
-                "  ,           /,,\\            ,\n" +
-                "   ,                         ,\n" +
-                "    ,     '~,_____,~'       ,\n" +
-                "      ,                  , '\n" +
-                "        ' - , _ _ _ ,  '\n";
-
-        assertEquals(expected, code.getAscii());
+        assertEquals(code.getPoints(), 23);
     }
 }

@@ -122,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                             onLoginSuccess(preferences.getString("userDID", ""),
                                     preferences.getString("userName", ""));
                         }
-
                     }
                 });
 
@@ -271,7 +270,20 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         return;
     }
 
+    /**@method:
+     * Utility method so we don't have to pass instance of firebase to every new Fragment
+     * through the constructor
+     * */
     public FirebaseWrapper getFirebaseWrapper() {
         return fbw;
+    }
+
+    /** @method: Utility class to convert Filename to Resource ID
+     * Non-android classes which don't have access to activity context, such as ScannedCode or MyScannedCodeCardRecyclerViewAdapter
+     * need to retrieve the Resource ID from the monster filename at runtime. This method will return the resource id using the
+     * getResource method on Activity given the filename as a parameter.
+     */
+    public int getDrawableResourceIdFromString(String filename) {
+        return getResources().getIdentifier(filename, "drawable", getPackageName());
     }
 }

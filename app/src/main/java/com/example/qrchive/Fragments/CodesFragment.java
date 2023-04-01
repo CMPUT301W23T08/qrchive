@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.MyScannedCodeCardRecyclerViewAdapter;
 import com.example.qrchive.R;
@@ -86,7 +87,7 @@ public class CodesFragment extends Fragment {
 
 
         scannedCodes = fbw.getScannedCodesDict().get(fbw.getMyUserDID());
-        scannedCodesAdapter = new MyScannedCodeCardRecyclerViewAdapter(scannedCodes);
+        scannedCodesAdapter = new MyScannedCodeCardRecyclerViewAdapter(scannedCodes, (MainActivity) getActivity());
         scannedCodesAdapter.setOnItemClickListener(new MyScannedCodeCardRecyclerViewAdapter.OnItemClickListener() {
             /**
              * OnItemClick is a click listener for the view adapter.
@@ -142,7 +143,7 @@ public class CodesFragment extends Fragment {
                         scannedCodes.sort(Comparator.comparing(ScannedCode::getLocation));
                         break;
                     case "Date":
-                        scannedCodes.sort(Collections.reverseOrder(Comparator.comparing(ScannedCode::getDateObject)));
+                        scannedCodes.sort(Collections.reverseOrder(Comparator.comparing(ScannedCode::getDate)));
                         break;
                     case "Name":
                         scannedCodes.sort(Comparator.comparing(ScannedCode::getName));
