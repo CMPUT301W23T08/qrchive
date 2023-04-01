@@ -1,10 +1,12 @@
 package com.example.qrchive.Classes;
 
+import android.util.Pair;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.example.qrchive.Fragments.FriendsFragment;
 import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
 
 // In the ScannedCodes collection on firebase, the userDID, location, hasLocation, hash can ...
 // ... uniquely identify a QR code
@@ -38,7 +41,11 @@ public class FirebaseWrapper {
     private String myUserDID;
     private String myUserName;
     private HashMap<String, ArrayList<ScannedCode>> scannedCodesDict = new HashMap<>();
-    private ArrayList<String> users; //part 4
+    private ArrayList<String> users = new ArrayList<>(); //part 4
+    private HashMap<String, ScannedCode> topCodeForUser = new HashMap<>();
+    private HashMap<String, Integer> userRank = new HashMap<>();
+    private HashMap<String, String> deviceToDoc = new HashMap<>();
+    private Semaphore semaphore = new Semaphore(1);
 
     /**
      * FirebaseWrapper constructor, instantiates a single instance of the FirebaseWrapper class.
@@ -87,6 +94,161 @@ public class FirebaseWrapper {
                 });
     }
 
+    public void getAllUsers(final OnUsersRetrievedListener listener){
+        db.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                for (DocumentSnapshot document : docs) {
+                    Map<String, Object> docData = document.getData();
+                    users.add(document.getId());
+                    deviceToDoc.put((String) docData.get("deviceID"), document.getId());
+                }
+
+                listener.onUsersRetrieved(users, deviceToDoc);
+            }
+        });
+    }
+
+    public void getTopScoreForUsers(final OnScoresRetrievedListener listener){
+        db.collection("ScannedCodes").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : docs) {
+                            Map<String, Object> docData = document.getData();
+                            ScannedCode scannedCode = new ScannedCode
+                                    (docData.get("hash").toString(),
+                                            Integer.parseInt(docData.get("hashVal").toString()),
+                                            docData.get("date").toString(),
+                                            (GeoPoint) docData.get("location"),
+                                            (boolean) docData.get("hasLocation"),
+                                            docData.get("locationImage").toString(),
+                                            docData.get("userDID").toString(),
+                                            document.getId());
+
+                            if(!topCodeForUser.containsKey((String) docData.get("userDID")) || scannedCode.getPoints() > topCodeForUser.get((String) docData.get("userDID")).getPoints()){
+                                topCodeForUser.put((String) docData.get("userDID"), scannedCode);
+                            }
+                        }
+
+                        listener.onScoresRetrieved(topCodeForUser);
+                    }
+                });
+    }
+
+    public void createRanklist(final OnRanklistRetrievedListener listener){
+        getAllUsers(new OnUsersRetrievedListener() {
+            @Override
+            public void onUsersRetrieved(ArrayList<String> users, HashMap<String, String> deviceToDoc) {
+                getTopScoreForUsers(new OnScoresRetrievedListener() {
+                    @Override
+                    public void onScoresRetrieved(HashMap<String, ScannedCode> topCodeForUser) {
+                        ArrayList<Pair<Integer, String>> rankList = new ArrayList<>();
+
+                        for(String key : topCodeForUser.keySet()){
+                            Pair<Integer, String> keyPair = new Pair<Integer, String>(topCodeForUser.get(key).getPoints(), key);
+                            rankList.add(keyPair);
+                        }
+
+                        // Sort in descending order of score
+                        Collections.sort(rankList, Comparator.comparing(p -> -p.first));
+
+                        int i = 0;
+                        for(; i < rankList.size(); ++i){
+                            userRank.put(rankList.get(i).second, i+1);
+                        }
+                        for(String user : users){
+                            if(!userRank.containsKey(user)){
+                                userRank.put(user, i++);
+                            }
+                        }
+
+                        listener.OnRanklistRetrieved(userRank, topCodeForUser);
+                    }
+                });
+            }
+        });
+    }
+
+    public void getUserRank(String userDeviceID, final OnRankRetrievedListener listener, boolean rawVal){
+        String docID = deviceToDoc.get(userDeviceID);
+
+        if(docID == null){
+            getAllUsers(new OnUsersRetrievedListener() {
+                @Override
+                public void onUsersRetrieved(ArrayList<String> users, HashMap<String, String> deviceToDoc) {
+                    System.out.println(userDeviceID);
+                    String docID = deviceToDoc.get(userDeviceID);
+                    System.out.println(deviceToDoc);
+                    System.out.println(docID);
+                    if(userRank.get(docID) == null){
+                        createRanklist(new OnRanklistRetrievedListener() {
+                            @Override
+                            public void OnRanklistRetrieved(HashMap<String, Integer> userRank, HashMap<String, ScannedCode> topCodeForUser) {
+                                System.out.println(userRank);
+                                System.out.println(userRank.get(docID));
+                                if(!rawVal){
+                                    listener.OnRankRetrieved(userRank.get(docID));
+                                }else{
+                                    ScannedCode top = topCodeForUser.get(docID);
+                                    if(top == null){
+                                        listener.OnRankRetrieved(0);
+                                    }else{
+                                        listener.OnRankRetrieved(topCodeForUser.get(docID).getPoints());
+                                    }
+                                }
+                            }
+                        });
+                    }else{
+                        if(!rawVal){
+                            listener.OnRankRetrieved(userRank.get(docID));
+                        }else{
+                            ScannedCode top = topCodeForUser.get(docID);
+                            if(top == null){
+                                listener.OnRankRetrieved(0);
+                            }else{
+                                listener.OnRankRetrieved(topCodeForUser.get(docID).getPoints());
+                            }
+                        }
+                    }
+                }
+            });
+        }else{
+            if(userRank.get(docID) == null){
+                createRanklist(new OnRanklistRetrievedListener() {
+                    @Override
+                    public void OnRanklistRetrieved(HashMap<String, Integer> userRank, HashMap<String, ScannedCode> topCodeForUser) {
+                        System.out.println(userRank);
+                        System.out.println(docID);
+                        if(!rawVal){
+                            listener.OnRankRetrieved(userRank.get(docID));
+                        }else{
+                            ScannedCode top = topCodeForUser.get(docID);
+                            if(top == null){
+                                listener.OnRankRetrieved(0);
+                            }else{
+                                listener.OnRankRetrieved(topCodeForUser.get(docID).getPoints());
+                            }
+                        }
+                    }
+                });
+            }else{
+                if(!rawVal){
+                    listener.OnRankRetrieved(userRank.get(docID));
+                }else{
+                    ScannedCode top = topCodeForUser.get(docID);
+                    if(top == null){
+                        listener.OnRankRetrieved(0);
+                    }else{
+                        listener.OnRankRetrieved(topCodeForUser.get(docID).getPoints());
+                    }
+                }
+            }
+
+        }
+    }
 
     /**
      * getMyUserDID is a getter function for myUserDID.
@@ -178,5 +340,20 @@ public class FirebaseWrapper {
      */
     public ArrayList<String> getUsers() {
         return users;
+    }
+
+    public interface OnUsersRetrievedListener {
+        void onUsersRetrieved(ArrayList<String> users, HashMap<String, String> deviceToDoc);
+    }
+    public interface OnScoresRetrievedListener {
+        void onScoresRetrieved(HashMap<String, ScannedCode> topCodeForUser);
+    }
+
+    public interface OnRanklistRetrievedListener {
+        void OnRanklistRetrieved(HashMap<String, Integer> userRank, HashMap<String, ScannedCode> topCodeForUser);
+    }
+
+    public interface OnRankRetrievedListener {
+        void OnRankRetrieved(int rank);
     }
 }

@@ -13,10 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.qrchive.Classes.FirebaseWrapper;
@@ -28,11 +25,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -46,6 +42,8 @@ import java.util.Map;
  */
 public class FriendsFragment extends Fragment {
 
+    private FirebaseWrapper fbw;
+
     public FirebaseFirestore db;
 
     private ArrayList<Player> users;
@@ -53,9 +51,8 @@ public class FriendsFragment extends Fragment {
     private String deviceID;
     private ArrayList<String> friendsList;
     private SharedPreferences onStartupPref;
-    private FirebaseWrapper fbw;
     Button showFriendsButton;
-    Button showAllButton;
+    Button showRanklistButton;
 
 
     public FriendsFragment(FirebaseWrapper fbw) {this.fbw = fbw;}
@@ -90,7 +87,7 @@ public class FriendsFragment extends Fragment {
         Boolean showFriendsOnStart = onStartupPref.getBoolean("showFriends", true);
 
         showFriendsButton = friendsView.findViewById(R.id.show_friends_button);
-        showAllButton = friendsView.findViewById(R.id.show_all_button);
+        showRanklistButton = friendsView.findViewById(R.id.show_all_button);
 
         RecyclerView recyclerView = friendsView.findViewById(R.id.friends_recycler_list);
 
@@ -100,21 +97,19 @@ public class FriendsFragment extends Fragment {
             displayAllUsers(recyclerView);
         }
 
+
         showFriendsButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("ResourceAsColor")
             @Override
             public void onClick(View v) {
                 displayFriends(recyclerView);
-                System.out.println("jlkhdflkoejukldwaf waka wka anigg ");
-
             }
         });
 
-        showAllButton.setOnClickListener(new View.OnClickListener() {
+        showRanklistButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("ResourceAsColor")
             @Override
             public void onClick(View v) {
-
 
                 displayAllUsers(recyclerView);
             }
@@ -130,7 +125,7 @@ public class FriendsFragment extends Fragment {
 
         onStartupPref.edit().putBoolean("showFriends", true).apply();
         showFriendsButton.setTextColor(Color.rgb(0, 0, 0));
-        showAllButton.setTextColor(Color.rgb(255,255,255));
+        showRanklistButton.setTextColor(Color.rgb(255,255,255));
 
         getFriendsList(new OnFriendsRetrievedListener() {
             @Override
@@ -163,7 +158,7 @@ public class FriendsFragment extends Fragment {
     private void displayAllUsers(RecyclerView recyclerView){
         onStartupPref.edit().putBoolean("showFriends", false).apply();
         showFriendsButton.setTextColor(Color.rgb(255,255,255));
-        showAllButton.setTextColor(Color.rgb(0, 0, 0));
+        showRanklistButton.setTextColor(Color.rgb(0, 0, 0));
         getAllUsers(new OnUsersRetrievedListener() {
             @Override
             public void onUsersRetrieved(ArrayList<Player> users) {
@@ -188,12 +183,18 @@ public class FriendsFragment extends Fragment {
                     ArrayList<Player> users = new ArrayList<>();
                     for (DocumentSnapshot document : docs) {
                         Map<String, Object> docData = document.getData();
-                        Player player = new Player(
-                                (String) docData.get("userName"),
-                                (String) docData.get("emailID"),
-                                (String) docData.get("deviceID")
-                        );
-                        users.add(player);
+                        fbw.getUserRank((String) docData.get("deviceID"), new FirebaseWrapper.OnRankRetrievedListener() {
+                            @Override
+                            public void OnRankRetrieved(int rank) {
+                                Player player = new Player(
+                                        (String) docData.get("userName"),
+                                        (String) docData.get("emailID"),
+                                        (String) docData.get("deviceID"),
+                                        rank
+                                );
+                                users.add(player);
+                            }
+                        }, true);
                     }
                     // Invoke the callback method with the list of users as a parameter
                     listener.onUsersRetrieved(users);

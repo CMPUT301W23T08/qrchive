@@ -33,20 +33,21 @@ import java.util.Map;
  * @author Grayden
  */
 public class SearchResultFragment extends Fragment {
-    public FirebaseWrapper fbw;
+    public FirebaseFirestore db;
+    private FirebaseWrapper fbw;
 
     private String query;
     private String userId;
 
     public SearchResultFragment(String query, FirebaseWrapper fbw) {
-        this.query = query;
         this.fbw = fbw;
+        this.query = query;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.fbw.db = FirebaseFirestore.getInstance();
+        this.db = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -84,7 +85,7 @@ public class SearchResultFragment extends Fragment {
      * @param listener
      */
     private void getAllUsers(final OnUsersRetrievedListener listener) {
-        fbw.db.collection("Users").orderBy("userName")
+        db.collection("Users").orderBy("userName")
                 .startAt(query).endAt(query+"\uf8ff").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
