@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.provider.Settings;
+import android.util.Pair;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                         if (resultantDocuments.size() == 0) {
                             // Make a dialog box to take user input
                             // TODO: Make sure unique username
-                            new LoginDialogFragment(db, preferences, android_device_id, null).show(getSupportFragmentManager(), "Login Dialog");
+                            new LoginDialogFragment(db, preferences, android_device_id, new Pair<>(new ArrayList<>(), new ArrayList<>())).show(getSupportFragmentManager(), "Login Dialog");
                         }
                         else {
                             DocumentSnapshot userDoc = resultantDocuments.get(0);
