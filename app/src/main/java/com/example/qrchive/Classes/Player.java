@@ -1,14 +1,32 @@
 package com.example.qrchive.Classes;
 
+import static java.security.AccessController.getContext;
+
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+
+import com.example.qrchive.Fragments.FriendsFragment;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class Player {
 
     private String email;
     private String playerName;
     private String deviceID;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
 
@@ -24,22 +42,27 @@ public class Player {
     public String getEmail(){return this.email;}
     public String getUserName(){return this.playerName;}
     public String getDeviceID(){return this.deviceID;}
-    public int getQRCount(){
-        //TODO: get player qr count
-        return 0;
-    }
+
+
     public int getPoints(){
         //TODO: get player points
         return 0;
     }
 
-    public ArrayList<String> getPlayerFriends(){
-        //TODO: get players Friends
-        ArrayList<String> friends = new ArrayList<>();
-
-        return friends;
+    public void getQRCount(final OnQRCountQueryListener listener) {
+        db.collection("ScannedCodes")
+                .whereEqualTo("userDID", deviceID)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int count = task.getResult().size();
+                            listener.onQRCount(count);
+                        } else {
+                            listener.onError(task.getException().getMessage());
+                        }
+                    }
+                });
     }
-
-
-
 }

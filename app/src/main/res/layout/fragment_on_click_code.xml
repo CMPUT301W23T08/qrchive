@@ -11,197 +11,283 @@
     <!--        android:layout_width="match_parent"-->
     <!--        android:layout_height="match_parent"-->
     <!--        android:text="@string/hello_blank_fragment" />-->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/fragment_on_item_click_code_constraint_layout_view"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <androidx.cardview.widget.CardView
-            android:id="@+id/code_card_name"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_on_item_click_code_constraint_layout_view"
+            style="@style/myCardStyleOnItemClick"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/code_image"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/code_image"
-            style="@style/myCardStyleOnItemClick">
+            app:layout_constraintTop_toTopOf="parent"
+            >
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/code_card_name"
+                style="@style/myCardStyleOnItemClick"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/code_image"
+                app:layout_constraintHorizontal_bias="0.444"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
                 <TextView
                     android:id="@+id/code_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="25dp"
+                    android:text="Loading..."
                     android:textAlignment="center"
-                    android:text="Loading..."/>
+                    android:textSize="25dp" />
 
-        </androidx.cardview.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-        <ImageView
-            android:id="@+id/delete_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/code_card_name"
-            app:layout_constraintBottom_toTopOf="@id/code_image"
-            android:src="@android:drawable/ic_menu_delete"/>
+            <ImageView
+                android:id="@+id/delete_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_delete"
+                app:layout_constraintBottom_toTopOf="@id/code_image"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/code_card_name" />
 
-        <ImageView
-            android:id="@+id/code_image"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:text="Loading..."
-            android:textStyle="bold"
-            android:typeface="monospace"
-            android:src="@drawable/monster000000"
-            app:layout_constraintBottom_toTopOf="@id/code_stats_1_card"
-            app:layout_constraintHorizontal_bias="0.497"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/code_card_name" />
+            <ImageView
+                android:id="@+id/code_image"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:src="@drawable/monster000000"
+                android:text="Loading..."
+                android:textStyle="bold"
+                android:typeface="monospace"
+                app:layout_constraintBottom_toTopOf="@id/code_stats_1_card"
+                app:layout_constraintHorizontal_bias="0.497"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/code_card_name" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/code_stats_1_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/myCardStyleOnItemClick"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/code_image"
-            app:layout_constraintBottom_toTopOf="@id/code_stats_2_card">
-            <LinearLayout
+            <androidx.cardview.widget.CardView
+                android:id="@+id/code_stats_1_card"
+                style="@style/myCardStyleOnItemClick"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:orientation="vertical">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
-                        android:layout_height="wrap_content"
-                        android:gravity="start"
-                        android:text="Location: "/>
-
-                    <TextView
-                        android:id="@+id/code_location"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:text="Loading... "/>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
-                        android:layout_height="wrap_content"
-                        android:gravity="start"
-                        android:text="Date Archived: "/>
-
-                    <TextView
-                        android:id="@+id/code_date"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:text="Loading... "/>
-                </LinearLayout>
+                app:layout_constraintBottom_toTopOf="@id/code_stats_2_card"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/code_image">
 
                 <LinearLayout
+                    style="@style/myCardStyleOnItemClick"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
-                        android:layout_height="wrap_content"
-                        android:gravity="start"
-                        android:text="QR Hash Value: "/>
+                    app:layout_constraintBottom_toTopOf="@id/code_stats_2_card"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/code_image">
 
-                    <TextView
-                        android:id="@+id/code_hash_val"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:text="Loading... "/>
+                        android:layout_margin="10dp"
+                        android:orientation="vertical">
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="start"
+                                android:text="Location: "
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/code_location"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:text="Loading... "
+                                android:textSize="16sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="start"
+                                android:text="Date Archived: "
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/code_date"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:text="Loading... "
+                                android:textSize="16sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="start"
+                                android:text="QR Hash Value: "
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/code_hash_val"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:text="Loading... "
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/code_stats_2_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/myCardStyleOnItemClick"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/code_stats_1_card"
-            app:layout_constraintBottom_toBottomOf="parent">
-            <LinearLayout
+            <androidx.cardview.widget.CardView
+                android:id="@+id/code_stats_2_card"
+                style="@style/myCardStyleOnItemClick"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:orientation="vertical">
+                app:layout_constraintBottom_toBottomOf="@id/code_comment_textbox_card"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/code_stats_1_card">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
-                    <TextView
-                        android:id="@+id/code_points"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="start"
-                        android:textSize="40sp"
-                        android:text="XYZ"/>
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/code_rank"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="end"
-                        android:textSize="40sp"
-                        android:text="XYZ"/>
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/code_points"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="start"
+                            android:text="XYZ"
+                            android:textSize="40sp" />
+
+                        <TextView
+                            android:id="@+id/code_rank"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="XYZ"
+                            android:textSize="40sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="start"
+                            android:text="pts" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="rank" />
+                    </LinearLayout>
                 </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/code_comment_textbox_card"
+                style="@style/myCardStyleOnItemClick"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@id/comments_title"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/code_stats_2_card">
+
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
-                    <TextView
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/code_comment_textbox"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_weight="3"
                         android:gravity="start"
-                        android:text="pts"/>
+                        android:hint="Write a comment here..."
+                        android:textColorHint="@android:color/darker_gray" />
 
-                    <TextView
-                        android:layout_width="0dp"
+                    <ImageView
+                        android:id="@+id/comment_send_button"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_gravity="center_vertical"
                         android:gravity="end"
-                        android:text="rank"/>
+                        android:src="@drawable/send" />
+                    <!-- Icon from https://github.com/feathericons/feather licensed under MIT -->
                 </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/comments_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:text="Comments:"
+                android:textSize="20dp"
+                app:layout_constraintBottom_toTopOf="@id/comments_recycler_list"
+                app:layout_constraintTop_toBottomOf="@id/code_comment_textbox_card" />
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/comments_recycler_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/comments_title"
+                tools:context=".Fragments.OnClickCodeFragment"
+                tools:listitem="@layout/fragment_comments" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 </FrameLayout>

@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                         if (resultantDocuments.size() == 0) {
                             // Make a dialog box to take user input
                             // TODO: Make sure unique username
-                            new LoginDialogFragment(db, preferences, android_device_id).show(getSupportFragmentManager(), "Login Dialog");
+                            new LoginDialogFragment(db, preferences, android_device_id, null).show(getSupportFragmentManager(), "Login Dialog");
                         }
                         else {
                             DocumentSnapshot userDoc = resultantDocuments.get(0);
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                             prefEditor.apply();
                         }
                         String userDID = preferences.getString("userDID", "");
-                        fbw = new FirebaseWrapper(userDID);
+                        fbw = new FirebaseWrapper(userDID, "");
                     }
                 });
 
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                                         preferences.getString("userName", ""),
                                         preferences.getString("emailID", ""),
                                         preferences.getString("userDID", "")
-                                )));
+                                ), fbw));
                         break;
                     case R.id.menu_dropdown_map:
                         transactFragment(new MapsFragment());
@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // TODO Handle search query submission
-                transactFragment(new SearchResultFragment(query));
+                transactFragment(new SearchResultFragment(query, fbw));
                 Log.d("onSumbit", "onQueryTextSubmit: ");
                 return true;
             }
@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 // TODO Handle search query text change (offer suggestion for partial input)
-                transactFragment(new SearchResultFragment(newText));
+                transactFragment(new SearchResultFragment(newText, fbw));
                 Log.d("onChange", "onQueryTextSubmit: ");
                 return true;
             }
