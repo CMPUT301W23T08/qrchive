@@ -142,7 +142,7 @@ public class CodesFragment extends Fragment {
                         scannedCodes.sort(Comparator.comparing(ScannedCode::getLocation));
                         break;
                     case "Date":
-                        scannedCodes.sort(Collections.reverseOrder(Comparator.comparing(ScannedCode::getDate)));
+                        scannedCodes.sort(Collections.reverseOrder(Comparator.comparing(ScannedCode::getDateObject)));
                         break;
                     case "Name":
                         scannedCodes.sort(Comparator.comparing(ScannedCode::getName));

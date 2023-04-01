@@ -1,10 +1,17 @@
 package com.example.qrchive.Classes;
 import com.google.common.hash.Hashing;
+import com.google.firebase.DataCollectionDefaultChange;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 /**
  * ScannedCode represents a code that has been captured and stores all the required metadata to operate
@@ -214,6 +221,17 @@ public class ScannedCode {
      */
     public String getDate() {
         return date;
+    }
+
+    @Nullable
+    @CheckForNull
+    public Date getDateObject() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+        try {
+            return dateFormat.parse(this.getDate());
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     /**

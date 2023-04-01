@@ -73,22 +73,12 @@ public class MyScannedCodeCardRecyclerViewAdapter extends RecyclerView.Adapter<M
         holder.codeCardLocation.setText(scannedCode.getLocationString());
         holder.codeCardPts.setText(String.valueOf(scannedCode.getPoints()));
         holder.codeCardAscii.setText(scannedCode.getAscii());
-        {
-            String complicatedDateString = scannedCode.getDate();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-            Date date = null;
-            boolean success = true;
-            try {
-                date = dateFormat.parse(complicatedDateString);
-            } catch (ParseException e) {
-                success = false;
-                holder.codeCardDate.setText(complicatedDateString);
-            }
-
-            if (success) {
-                SimpleDateFormat betterFormat = new SimpleDateFormat("MM/dd/yy hh:mm a");
-                holder.codeCardDate.setText(betterFormat.format(date));
-            }
+        Date date = scannedCode.getDateObject();
+        if (date == null) {
+            holder.codeCardDate.setText(scannedCode.getDate());
+        }
+        else {
+            holder.codeCardDate.setText((new SimpleDateFormat("MM/dd/yy hh:mm a")).format(date));
         }
     }
 
