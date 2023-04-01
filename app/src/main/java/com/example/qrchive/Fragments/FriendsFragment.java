@@ -51,7 +51,6 @@ public class FriendsFragment extends Fragment {
     private String deviceID;
     private ArrayList<String> friendsList;
     private SharedPreferences onStartupPref;
-    private FirebaseWrapper fbw;
     Button showFriendsButton;
     Button showRanklistButton;
 

@@ -1,5 +1,12 @@
 package com.example.qrchive.Classes;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
