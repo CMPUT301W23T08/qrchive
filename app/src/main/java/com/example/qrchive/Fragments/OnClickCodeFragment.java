@@ -31,6 +31,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -117,12 +118,20 @@ public class OnClickCodeFragment extends Fragment {
         ((ImageView) rootLayout.findViewById(R.id.code_image)).setImageResource(getResources().getIdentifier(imageFileName, "drawable", getActivity().getPackageName()));
 
         ((TextView) rootLayout.findViewById(R.id.code_location)).setText(scannedCode.getLocationString());
-        ((TextView) rootLayout.findViewById(R.id.code_date)).setText(scannedCode.getDate());
+
+        Date date = scannedCode.getDateObject();
+        TextView dateTextView = rootLayout.findViewById(R.id.code_date);
+        if (date == null) {
+            dateTextView.setText(scannedCode.getDate());
+        }
+        else {
+            dateTextView.setText((new SimpleDateFormat("MM/dd/yy hh:mm a")).format(date));
+        }
+
         ((TextView) rootLayout.findViewById(R.id.code_hash_val)).setText(String.valueOf(scannedCode.getHashVal()));
 
 
         ((TextView) rootLayout.findViewById(R.id.code_points)).setText(String.valueOf(scannedCode.getPoints()));
-        ((TextView) rootLayout.findViewById(R.id.code_rank)).setText("TODO");
 
 
         // recorded photo code (get max 1MB)
