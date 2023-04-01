@@ -1,7 +1,5 @@
 package com.example.qrchive.Fragments;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -22,10 +20,7 @@ import com.example.qrchive.Classes.MyScannedCodeCardRecyclerViewAdapter;
 import com.example.qrchive.R;
 
 import com.example.qrchive.Classes.ScannedCode;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -91,8 +86,6 @@ public class CodesFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.recycler_list);
 
 
-        SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         scannedCodes = fbw.getScannedCodesDict().get(fbw.getMyUserDID());
         scannedCodesAdapter = new MyScannedCodeCardRecyclerViewAdapter(scannedCodes, (MainActivity) getActivity());
         scannedCodesAdapter.setOnItemClickListener(new MyScannedCodeCardRecyclerViewAdapter.OnItemClickListener() {
