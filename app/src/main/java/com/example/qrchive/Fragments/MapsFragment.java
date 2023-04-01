@@ -144,7 +144,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         this.mainActivity = (MainActivity) getActivity();
         self = this;
         geoQueryList = new ArrayList<>();
-        geoQueryAdapter = new GeoSearchArrayAdapter(mainActivity, R.layout.item_geo_search, geoQueryList);
+        geoQueryAdapter = new GeoSearchArrayAdapter(mainActivity, R.layout.item_geo_search, geoQueryList, mainActivity);
         mapModel = new MapModel();
 
         return mapsView;
@@ -424,7 +424,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
     }
 
     /** @method: Calculate the Euclidean marker distance.
-    **/
+    * */
     public double getMarkerDistance(ScannedCode code) {
         GeoPoint location = code.getLocation();
 
@@ -446,7 +446,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
     }
 
     /** @method: Swap the search menu item back to the basic text search.
-     * */
+     **/
     @Override
     public void onDestroyView() {
         super.onDestroyView();
