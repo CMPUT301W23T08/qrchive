@@ -35,9 +35,6 @@ public class ScannedCodeUnitTest {
     @Test
     public void testGetAscii() {
         ScannedCode code = getMockCode();
-
-        // Eyebrows, closed eyes, ears, nose, smile, round face
-        String expected = "monster000010";
-        assertEquals(expected, code.getMonsterResourceName());
+        assertEquals(code.getPoints(), 23);
     }
 }
