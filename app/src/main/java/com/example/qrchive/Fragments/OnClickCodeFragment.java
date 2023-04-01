@@ -2,7 +2,15 @@ package com.example.qrchive.Fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -11,28 +19,19 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.Comment;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.MyCommentCardRecyclerViewAdapter;
 import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -124,6 +123,20 @@ public class OnClickCodeFragment extends Fragment {
 
         ((TextView) rootLayout.findViewById(R.id.code_points)).setText(String.valueOf(scannedCode.getPoints()));
         ((TextView) rootLayout.findViewById(R.id.code_rank)).setText("TODO");
+
+
+        // recorded photo code (get max 1MB)
+        fbw.getStorage().getReference(scannedCode.getScannedCodeDID() + ".jpg")
+                .getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        ImageView imageView = rootLayout.findViewById(R.id.code_recorded_photo);
+//                        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+//                        imageView.setLayoutParams(new ViewGroup.LayoutParams(640, 480));
+                        imageView.setImageBitmap(bitmap);
+                    }
+                });
 
         // Adding delete button listener
         ((ImageView) rootLayout.findViewById(R.id.delete_button)).setOnClickListener(new View.OnClickListener() {

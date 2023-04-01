@@ -20,7 +20,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 // In the ScannedCodes collection on firebase, the userDID, location, hasLocation, hash can ...
 // ... uniquely identify a QR code
@@ -42,7 +41,8 @@ public class FirebaseWrapper {
     private HashMap<String, ScannedCode> topCodeForUser = new HashMap<>();
     private HashMap<String, Integer> userRank = new HashMap<>();
     private HashMap<String, String> deviceToDoc = new HashMap<>();
-    private Semaphore semaphore = new Semaphore(1);
+    private final FirebaseStorage storage = FirebaseStorage.getInstance("gs://qrchive-images");
+
 
     /**
      * FirebaseWrapper constructor, instantiates a single instance of the FirebaseWrapper class.
@@ -340,7 +340,6 @@ public class FirebaseWrapper {
     }
 
     public void uploadImage(byte[] bytes, String scannedCodeDID) {
-        FirebaseStorage storage = FirebaseStorage.getInstance("gs://qrchive-images");
         StorageReference storageRef = storage.getReference(scannedCodeDID + ".jpg");
         UploadTask uploadTask = storageRef.putBytes(bytes);
         uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -349,6 +348,10 @@ public class FirebaseWrapper {
 
             }
         });
+    }
+
+    public FirebaseStorage getStorage() {
+        return storage;
     }
 
     public interface OnUsersRetrievedListener {
