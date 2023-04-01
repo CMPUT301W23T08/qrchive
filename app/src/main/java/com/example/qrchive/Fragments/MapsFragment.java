@@ -201,7 +201,10 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {}
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                TextView seekBarRadius = mainActivity.findViewById(R.id.seek_bar_value);
+                seekBarRadius.setText(String.valueOf(progress) + " Km");
+            }
         });
     }
 
