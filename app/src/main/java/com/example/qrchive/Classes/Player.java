@@ -26,15 +26,17 @@ public class Player {
     private String email;
     private String playerName;
     private String deviceID;
+    private String userDID;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
 
 
-    public Player(String playerName, String email, String deviceID){
+    public Player(String playerName, String email, String deviceID, String userDID){
         this.playerName = playerName;
         this.email = email;
         this.deviceID = deviceID;
+        this.userDID = userDID;
 
     }
 
@@ -51,7 +53,7 @@ public class Player {
 
     public void getQRCount(final OnQRCountQueryListener listener) {
         db.collection("ScannedCodes")
-                .whereEqualTo("userDID", deviceID)
+                .whereEqualTo("userDID", userDID)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

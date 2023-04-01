@@ -97,7 +97,8 @@ public class SearchResultFragment extends Fragment {
                         Player player = new Player(
                                 (String) docData.get("userName"),
                                 (String) docData.get("emailID"),
-                                (String) docData.get("deviceID")
+                                (String) docData.get("deviceID"),
+                                (String) document.getId()
                         );
                         users.add(player);
                     }
