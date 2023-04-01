@@ -57,6 +57,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.firebase:firebase-storage:20.0.1'
 
     //JUnit Testing
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.2'

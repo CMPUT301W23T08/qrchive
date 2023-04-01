@@ -1,20 +1,18 @@
 package com.example.qrchive.Classes;
 
 import android.util.Pair;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.example.qrchive.Fragments.FriendsFragment;
-import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +20,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 
 // In the ScannedCodes collection on firebase, the userDID, location, hasLocation, hash can ...
@@ -340,6 +337,18 @@ public class FirebaseWrapper {
      */
     public ArrayList<String> getUsers() {
         return users;
+    }
+
+    public void uploadImage(byte[] bytes, String scannedCodeDID) {
+        FirebaseStorage storage = FirebaseStorage.getInstance("gs://qrchive-images");
+        StorageReference storageRef = storage.getReference(scannedCodeDID + ".jpg");
+        UploadTask uploadTask = storageRef.putBytes(bytes);
+        uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+            }
+        });
     }
 
     public interface OnUsersRetrievedListener {
