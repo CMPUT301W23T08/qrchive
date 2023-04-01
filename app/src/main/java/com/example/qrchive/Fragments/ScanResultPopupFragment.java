@@ -1,6 +1,5 @@
 package com.example.qrchive.Fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -22,6 +21,7 @@ import java.util.List;
 
 public class ScanResultPopupFragment extends DialogFragment {
 
+    private final String scannedCodeDID;
     private List<String> selectedPreferences;
 
     private FirebaseWrapper fbw;
@@ -64,7 +64,7 @@ public class ScanResultPopupFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 if (selectedPreferences.contains("Allow use of photo")) {
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, new CaptureFragment(fbw))
+                            .replace(R.id.fragment_container, new CaptureFragment(fbw, scannedCodeDID))
                             .addToBackStack(null)
                             .commit();
 //                    getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new CaptureFragment(fbw),null).commit();
@@ -83,9 +83,10 @@ public class ScanResultPopupFragment extends DialogFragment {
         return builder.create();
     }
 
-    public ScanResultPopupFragment(FirebaseWrapper fbw, Fragment scanFrag) {
+    public ScanResultPopupFragment(FirebaseWrapper fbw, Fragment scanFrag, String scannedCodeDID) {
         this.fbw = fbw;
         this.scanFrag = scanFrag;
+        this.scannedCodeDID = scannedCodeDID;
     }
 
 
