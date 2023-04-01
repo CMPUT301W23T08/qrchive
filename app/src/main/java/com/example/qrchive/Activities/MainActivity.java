@@ -122,8 +122,6 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                             onLoginSuccess(preferences.getString("userDID", ""),
                                     preferences.getString("userName", ""));
                         }
-                        String userDID = preferences.getString("userDID", "");
-                        fbw = new FirebaseWrapper(userDID, "");
                     }
                 });
 
