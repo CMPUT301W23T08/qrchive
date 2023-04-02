@@ -10,12 +10,10 @@ import android.os.Bundle;
 import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.qrchive.Classes.Player;
 import com.example.qrchive.R;
@@ -104,7 +102,7 @@ public class EditDialogFragment extends DialogFragment {
                 .setView(view)
                 .setTitle("Edit!")
                 .setPositiveButton("Done", null) // Set to null first
-                .setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Exit the dialog fragment
@@ -130,11 +128,11 @@ public class EditDialogFragment extends DialogFragment {
                     return;
                 }
                 // checking if fields are already taken
-                if (usernameAndEmailList.first.contains(userNameField.getText().toString()) && userNameField.getText().toString() == user.getUserName()) {
+                if (usernameAndEmailList.first.contains(userNameField.getText().toString())) {
                     userNameField.setError("Username is already taken");
                     return;
                 }
-                if (usernameAndEmailList.second.contains(emailField.getText().toString()) && emailField.getText().toString() == user.getEmail()) {
+                if (usernameAndEmailList.second.contains(emailField.getText().toString())) {
                     emailField.setError("email is already taken");
                     return;
                 }
