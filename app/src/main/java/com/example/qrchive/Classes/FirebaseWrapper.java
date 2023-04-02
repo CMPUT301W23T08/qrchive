@@ -5,6 +5,7 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -268,11 +269,11 @@ public class FirebaseWrapper {
     /**
      * deleteCode will delete a ScannedCode from the firebase DB and maintain the scannedCodesDict.
      *
-     * @param scannedCode is the code we wish to delete from the DB.
+     * @param scannedCodeDID is the codeDID we wish to delete from the DB.
      */
-    public void deleteCode(ScannedCode scannedCode) {
-//        Tasks.await()
-        db.collection("ScannedCodes").document(scannedCode.getScannedCodeDID())
+    public void deleteCode(String scannedCodeDID) {
+        // Delete the code
+        db.collection("ScannedCodes").document(scannedCodeDID)
                 .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -280,6 +281,14 @@ public class FirebaseWrapper {
                     }
                 });
 
+        // Delete the image
+        storage.getReference(scannedCodeDID + ".jpg")
+                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+
+            }
+        });
     }
 
     public void deleteUser(){
@@ -323,7 +332,7 @@ public class FirebaseWrapper {
                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                         List<DocumentSnapshot> docs = task.getResult().getDocuments();
                                         for (DocumentSnapshot doc : docs) {
-                                            doc.getReference().delete();
+                                            deleteCode(doc.getId());
                                         }
                                     }
                                 });

@@ -156,7 +156,7 @@ public class OnClickCodeFragment extends Fragment {
              */
             @Override
             public void onClick(View v) {
-                fbw.deleteCode(scannedCode);
+                fbw.deleteCode(scannedCode.getScannedCodeDID());
                 Toast.makeText(getContext(), "\"" + scannedCode.getName() + "\"" + " has been deleted!", Toast.LENGTH_SHORT).show();
                 fbw.refreshScannedCodesForUser(scannedCode.getUserDID());
                 try {
