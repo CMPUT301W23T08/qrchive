@@ -49,7 +49,7 @@ public class Player {
         if(this.rank == -1){
             return "";
         }else{
-            return "Best: " + Integer.toString(rank);
+            return "Best Code: " + Integer.toString(rank) + "pts";
         }
     }
     public int getNumericalRank(){
