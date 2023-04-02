@@ -188,7 +188,7 @@ public class OnClickCodeFragment extends Fragment {
                     String userName = preferences.getString("userName", "");
                     Map<String, Object> doc = new HashMap<>();
                     doc.put("userName", userName);
-                    doc.put("codeDID", scannedCode.getScannedCodeDID());
+                    doc.put("hash", scannedCode.getHash());
                     doc.put("content", content);
                     doc.put("date", (Date) new Date());
                     fbw.db.collection("Comments").add(doc).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -209,14 +209,14 @@ public class OnClickCodeFragment extends Fragment {
 
     private void fetchCommentsFromFirebase(View view) {
         // get comments
-        fbw.db.collection("Comments").whereEqualTo("codeDID", scannedCode.getScannedCodeDID())
+        fbw.db.collection("Comments").whereEqualTo("hash", scannedCode.getHash())
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         List<DocumentSnapshot> documentSnapshotList = task.getResult().getDocuments();
                         for (DocumentSnapshot doc : documentSnapshotList) {
                             comments.add(new Comment(doc.get("userName").toString(),
-                                    doc.get("codeDID").toString(),
+                                    doc.get("hash").toString(),
                                     doc.get("content").toString(),
                                     doc.getTimestamp("date").toDate()));
                         }
