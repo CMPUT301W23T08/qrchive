@@ -1,12 +1,15 @@
 package com.example.qrchive.Fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.content.SharedPreferences;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +18,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.OnQRCountQueryListener;
@@ -27,11 +31,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class ProfileFragment extends Fragment {
 
 
-    private Player user;
+    public Player user;
     private FirebaseWrapper fbw;
     public ProfileFragment(Player user, FirebaseWrapper fbw) {
-        this.user = user;
         this.fbw = fbw;
+        this.user = user;
     }
 
     /**
@@ -47,6 +51,18 @@ public class ProfileFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * Creates the view for the Profile Fragment
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -58,19 +74,26 @@ public class ProfileFragment extends Fragment {
         TextView userNameTextView = (TextView)profileView.findViewById(R.id.profile_username);
         TextView emailTextView = (TextView)profileView.findViewById(R.id.profile_email_address);
         TextView userIdTextView = (TextView)profileView.findViewById(R.id.profile_user_id);
+        TextView userRankTextView = (TextView)profileView.findViewById(R.id.profile_user_rank);
         TextView qrCodeTextView = (TextView)profileView.findViewById(R.id.profile_qr_codes_collected);
 
         SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
 
+        String userId = preferences.getString("userDID", "no user id found");
         String deviceID = preferences.getString("deviceID", "no user id found");
 
         userNameTextView.setText(user.getUserName());
         emailTextView.setText(user.getEmail());
-        userIdTextView.setText(user.getDeviceID());
+        userIdTextView.setText(user.getUserDID());
+        fbw.getUserRank(user.getDeviceID(), new FirebaseWrapper.OnRankRetrievedListener() {
+            @Override
+            public void OnRankRetrieved(int rank) {
+                userRankTextView.setText("Rank: #" + Integer.toString(rank));
+            }
+        }, false);
 
         if(deviceID.equals(user.getDeviceID())){
             deleteBtn.setVisibility(View.VISIBLE);
-            Toast.makeText(getContext(), "wkaaksdf", Toast.LENGTH_SHORT);
             deleteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -91,12 +114,26 @@ public class ProfileFragment extends Fragment {
                 }
             });
 
+            editFollowFBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EditDialogFragment fragment = new EditDialogFragment(user);
+                    fragment.setOnDismissListener(new EditDialogFragment.OnDismissListener() {
+                        @Override
+                        public void onDismiss() {
+                            userNameTextView.setText(user.getUserName());
+                            emailTextView.setText(user.getEmail());
+                        }
+                    });
+                    fragment.show(getParentFragmentManager(), "Edit Dialog");
+
+                }
+            });
 
         }else{
             editFollowFBtn.setText("Follow");
             deleteBtn.setVisibility(View.INVISIBLE);
         }
-
 
         user.getQRCount(new OnQRCountQueryListener() {
             @Override
@@ -110,7 +147,6 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        //TODO: get favorite qrcode
 
         return profileView;
     }

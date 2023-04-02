@@ -1,10 +1,23 @@
 package com.example.qrchive.Classes;
+
+
+import android.util.Log;
+
+import com.example.qrchive.R;
 import com.google.common.hash.Hashing;
+import com.google.firebase.DataCollectionDefaultChange;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 
 /**
  * ScannedCode represents a code that has been captured and stores all the required metadata to operate
@@ -23,9 +36,9 @@ public class ScannedCode {
     private String userDID;
     private int points;
     private String name;
-    private String ascii;
+    private String monsterResourceName;
     private String scannedCodeDID; // Document ID on firestore corresponding to this scannedCode
-
+    private double distance = 0; //Distance from the Users current location (init to prevent null ref on non-geo-loc codes)
 
     /**
      * This is a constructor for ScannedCode which uses code and assumes location should not be used.
@@ -140,71 +153,8 @@ public class ScannedCode {
             this.name = name.toString();
         }
 
-        // Calculating ASCII
-        {
-            StringBuilder asciiRound = new StringBuilder();
-            StringBuilder asciiSquare = new StringBuilder();
-            asciiRound.append("          , - ~ ~ ~ - ,\n" +      // forehead
-                    "      , '               ' ,\n");   // forehead
-            asciiSquare.append("      , - ~ ~ ~ - ,\n" +          // forehead
-                    "  , '               ' ,\n");       // forehead
-
-            Hashtable<Integer, String> bitToRound = new Hashtable<Integer, String>() {{
-                put(0, "    ,      ~        ~       ,\n"); // eyebrows
-                put(1, "    ,                       ,\n"); // no eyebrows
-                put(2, "   ,       @        @        ,\n"); // open eyes
-                put(3, "   ,       _        _        ,\n"); // closed eyes
-                put(4, " \\,                           ,/\n" +
-                        " /,                           ,\\\n"); // ears
-                put(5, "  ,                           ,\n" +
-                        "  ,                           ,\n"); // no ears
-                put(6, "  ,           /,,\\            ,\n" +
-                        "   ,                         ,\n"); // nose
-                put(7, "  ,                           ,\n" +
-                        "   ,                         ,\n"); // no nose
-                put(8, "    ,     '~,_____,~'       ,\n"); // smile
-                put(9, "    ,       ,-~**~-,        ,\n"); // frown
-            }};
-
-            Hashtable<Integer, String> bitToSqaure = new Hashtable<Integer, String>() {{
-                put(0, "  ,     ~        ~    ,\n"); // eyebrows
-                put(1, "  ,                   ,\n"); // no eyebrows
-                put(2, "  ,     @        @    ,\n"); // open eyes
-                put(3, "  ,     _        _    ,\n"); // closed eyes
-                put(4, " \\,                   ,/\n" +
-                        " /,                   ,\\\n"); // ears
-                put(5, "  ,                   ,\n" +
-                        "  ,                   ,\n"); // no ears
-                put(6, "  ,        /,,\\       ,\n" +
-                        "  ,                   ,\n"); // nose
-                put(7, "  ,                   ,\n" +
-                        "  ,                   ,\n"); // no nose
-                put(8, "  ,    '~,_____,~'    ,\n"); // smile
-                put(9, "  ,      ,-~**~-,     ,\n"); // frown
-            }};
-
-            for(int i = 0; i < 5; ++i){
-                if((hashVal & (1 << i)) != 0){
-                    asciiRound.append(bitToRound.get(i*2 + 1));
-                    asciiSquare.append(bitToSqaure.get(i*2 + 1));
-                }else{
-                    asciiRound.append(bitToRound.get(i*2));
-                    asciiSquare.append(bitToSqaure.get(i*2));
-                }
-            }
-
-
-            asciiRound.append("      ,                  , '\n" +
-                    "        ' - , _ _ _ ,  '\n");
-            asciiSquare.append("  ,                   , \n" +
-                    "    ' - , _ _ _ , - ' \n");
-
-            if((hashVal & (1 << 5)) != 0){
-                this.ascii = asciiSquare.toString();
-            }else{
-                this.ascii = asciiRound.toString();
-            }
-        }
+        // Assign the fileName
+        this.monsterResourceName = getMonsterResourceName();
     }
 
     /**
@@ -214,6 +164,17 @@ public class ScannedCode {
      */
     public String getDate() {
         return date;
+    }
+
+    @Nullable
+    @CheckForNull
+    public Date getDateObject() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+        try {
+            return dateFormat.parse(this.getDate());
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     /**
@@ -301,20 +262,41 @@ public class ScannedCode {
     }
 
     /**
-     * A getter function for ascii.
-     *
-     * @return Returns the private attribute ascii.
-     */
-    public String getAscii() {
-        return this.ascii;
-    }
-
-    /**
      * A getter function for scannedCodeDID.
      *
      * @return Returns the private attribute scannedCodeDID.
      */
     public String getScannedCodeDID() {
         return this.scannedCodeDID;
+    }
+
+    /**
+     * A getter function for monster image resource.
+     * @return returns the filename of the corresponding monster resource
+     * */
+    public String getMonsterResourceName() {
+
+        String fileName = "monster";
+        for(int i = 0; i < 6; ++i){
+            if((hashVal & (1 << i)) != 0){
+                fileName += "1";
+            } else{
+                fileName += "0";
+            }
+        }
+        return fileName;
+    }
+
+    /** Getter for distance;
+     * */
+    public double getDistance() {
+        return this.distance;
+    }
+
+    /**
+     * Setter for distance
+     */
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 }

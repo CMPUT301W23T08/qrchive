@@ -18,15 +18,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-        <!-- Linear layout for the decimal inputs and button -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/background_grey"
             android:orientation="horizontal">
-
-            <!-- Decimal input for latitude -->
+            <TextView
+                android:id="@+id/latitude_input_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search Latitude   "
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:padding="16dp" />
             <EditText
                 android:id="@+id/latitude_input"
                 android:layout_width="0dp"
@@ -34,8 +38,21 @@
                 android:layout_weight="1"
                 android:hint="Latitude"
                 android:inputType="numberDecimal"/>
+        </LinearLayout>
 
-            <!-- Decimal input for longitude -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background_grey"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/longitude_input_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search Longitude"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:padding="16dp" />
             <EditText
                 android:id="@+id/longitude_input"
                 android:layout_width="0dp"
@@ -45,34 +62,72 @@
                 android:inputType="numberDecimal"/>
         </LinearLayout>
 
-        <!-- Linear layout for the decimal inputs and button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background_grey"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/seek_bar_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search Radius (Km)"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:padding="16dp" />
+
+            <TextView
+                android:id="@+id/seek_bar_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="150 km"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:textStyle="bold"
+                android:padding="16dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:background="@color/background_grey"
+            android:layout_width="match_parent">
+            <SeekBar
+                android:id="@+id/search_radius_slider"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:max="1000"
+                android:min="1"
+                android:progress="100" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/background_grey"
             android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/search_radius_input"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Search Radius"
-                android:inputType="numberDecimal"/>
             <Button
                 android:id="@+id/button_geo_search_use_current_loc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
+                android:layout_marginRight="20dp"
+                android:paddingRight="10dp"
                 android:textSize="10sp"
-                android:text="My Location"/>
+                android:text="Use My Location"
+                android:layout_gravity="start"/>
+            <Space 
+                android:layout_height="match_parent"
+                 android:layout_width="10dp"/>
             <Button
                 android:id="@+id/button_geo_search_submit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:text="Search"/>
-
+                android:text="Search"
+                android:layout_gravity="end"/>
         </LinearLayout>
 
     </LinearLayout>
@@ -97,5 +152,6 @@
         </LinearLayout>
 
     </ScrollView>
+
 
 </FrameLayout>

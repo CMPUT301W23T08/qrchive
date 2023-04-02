@@ -1,16 +1,9 @@
 package com.example.qrchive.Classes;
 
-import static java.security.AccessController.getContext;
-
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 
-import com.example.qrchive.Fragments.FriendsFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -28,6 +21,7 @@ public class Player {
     private String deviceID;
     private String userDID;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private int rank = -1;
 
 
 
@@ -37,21 +31,49 @@ public class Player {
         this.email = email;
         this.deviceID = deviceID;
         this.userDID = userDID;
-
     }
 
 
+    public Player(String playerName, String email, String deviceID, int rank, String userDID){
+        this.playerName = playerName;
+        this.email = email;
+        this.deviceID = deviceID;
+        this.rank = rank;
+        this.userDID = userDID;
+    }
+
+
+    public void setEmail(String email){ this.email = email; }
+    public void setPlayerName(String name){ this.playerName = name;}
+    public void setRank(int rank){
+        this.rank = rank;
+    }
     public String getEmail(){return this.email;}
     public String getUserName(){return this.playerName;}
     public String getDeviceID(){return this.deviceID;}
-
-
+    public String getUserDID(){ return this.userDID; }
+    public String getRank(){
+        if(this.rank == -1){
+            return "";
+        }else{
+            return "Best: " + Integer.toString(rank);
+        }
+    }
+    public int getNumericalRank(){
+        return this.rank;
+    }
+    public int getQRCount(){
+        //TODO: get player qr count
+        return 0;
+    }
     public int getPoints(){
         //TODO: get player points
         return 0;
     }
 
     public void getQRCount(final OnQRCountQueryListener listener) {
+        System.out.println("wakakw aka:  " + userDID);
+
         db.collection("ScannedCodes")
                 .whereEqualTo("userDID", userDID)
                 .get()
