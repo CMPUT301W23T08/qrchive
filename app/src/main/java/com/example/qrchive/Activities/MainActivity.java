@@ -1,13 +1,9 @@
 package com.example.qrchive.Activities;
 
 import androidx.annotation.NonNull;
-
 import android.Manifest;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.content.res.XmlResourceParser;
 import android.provider.Settings;
 import android.util.Pair;
 import android.view.View;
@@ -17,19 +13,14 @@ import android.widget.SearchView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import androidx.appcompat.widget.Toolbar;
-
-import com.example.qrchive.BuildConfig;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.Player;
-import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.Fragments.CodesFragment;
 import com.example.qrchive.Fragments.FriendsFragment;
 import com.example.qrchive.Fragments.HomeFragment;
@@ -42,24 +33,13 @@ import com.example.qrchive.Fragments.ScanFragment;
 import com.example.qrchive.Fragments.SettingsFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.rpc.context.AttributeContext;
-
-import org.xmlpull.v1.XmlPullParser;
-
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 
 public class MainActivity extends AppCompatActivity implements LoginDialogFragment.OnLoginSuccessListener{
