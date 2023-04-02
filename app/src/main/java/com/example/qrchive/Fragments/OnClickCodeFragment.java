@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +33,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -133,6 +137,33 @@ public class OnClickCodeFragment extends Fragment {
                     @Override
                     public void onSuccess(byte[] bytes) {
                         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        // Read the orientation metadata using ExifInterface
+                        try {
+                            ExifInterface exif = new ExifInterface(new ByteArrayInputStream(bytes));
+                            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+                            // Rotate the bitmap according to the orientation metadata
+                            Matrix matrix = new Matrix();
+                            switch (orientation) {
+                                case ExifInterface.ORIENTATION_ROTATE_90:
+                                    matrix.setRotate(90);
+                                    break;
+                                case ExifInterface.ORIENTATION_ROTATE_180:
+                                    matrix.setRotate(180);
+                                    break;
+                                case ExifInterface.ORIENTATION_ROTATE_270:
+                                    matrix.setRotate(270);
+                                    break;
+                                default:
+                                    // Do nothing
+                            }
+                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
                         ImageView imageView = rootLayout.findViewById(R.id.code_recorded_photo);
 //                        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 //                        imageView.setLayoutParams(new ViewGroup.LayoutParams(640, 480));
