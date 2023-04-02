@@ -78,6 +78,8 @@ public class ScanFragment extends Fragment {
     // The flash button toggles the camera flash when clicked.
     private Button flashButton;
     boolean withinImpermissibleRadius;
+
+    private final String scannedCodeDID = UUID.randomUUID().toString();
     int docsWithinImpermissibleRadius = 0;
 
     public ScanFragment(FirebaseWrapper fbw) {
@@ -111,6 +113,7 @@ public class ScanFragment extends Fragment {
                         @Override
                         public void run() {
                             mResult = result;
+                            docsWithinImpermissibleRadius = 0;
                             Toast.makeText(activity, mResult.getText(), Toast.LENGTH_SHORT).show();
                             scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
 
@@ -126,7 +129,9 @@ public class ScanFragment extends Fragment {
                                     }
                                 }
                                 @Override
-                                public void onDocumentExited(@NonNull DocumentSnapshot documentSnapshot) {}
+                                public void onDocumentExited(@NonNull DocumentSnapshot documentSnapshot) {
+                                    docsWithinImpermissibleRadius--;
+                                }
                                 @Override
                                 public void onDocumentMoved(@NonNull DocumentSnapshot documentSnapshot, @NonNull GeoPoint geoPoint) {}
                                 @Override
@@ -140,7 +145,7 @@ public class ScanFragment extends Fragment {
                                     }
                                     // !
                                     docsWithinImpermissibleRadius = 0;
-                                    new ScanResultPopupFragment(fbw, scanFrag).show(getParentFragmentManager(), "popup");
+                                    new ScanResultPopupFragment(fbw, scanFrag, scannedCodeDID).show(getParentFragmentManager(), "popup");
                                     int i = 1+1;
                                 }
 
@@ -231,7 +236,7 @@ public class ScanFragment extends Fragment {
 
                 } else {
                     // Explain to the user that the feature is unavailable because the
-                    // feature requires a permission that the user has denied. At the
+
                     // same time, respect the user's decision. Don't link to system
                     // settings in an effort to convince the user to change their
                     // decision.
@@ -289,7 +294,7 @@ public class ScanFragment extends Fragment {
             String date = new Date().toString();
             String locationImg = "placeholder_img";
             ScannedCode scannedCodeToUpload;
-            String scannedCodeDID = UUID.randomUUID().toString();
+//            String scannedCodeDID = UUID.randomUUID().toString();
             if(preferences.contains("Allow use of photo")){
 //                locationImg = ...
                 // TODO: Add photo
