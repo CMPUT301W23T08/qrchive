@@ -60,7 +60,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
 
     // static
     private String TAG = "=================== HERE ====================";
-    private static final int REQUEST_CODE_FINE_LOCATION = 200;
+    private boolean LOCATION_ENABLED;
     private static final int ZOOM_LEVEL = 16;
     private static final int DEFAULT_SEARCH_RADIUS = 200;
     private MapsFragment self;
@@ -99,10 +99,12 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
                 Log.e(TAG, "Can't find the style json", e);
             }
 
-            // Permission Check;
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
+            if (ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // Dont use current location
+                LOCATION_ENABLED = false;
                 return;
+            } else {
+                LOCATION_ENABLED = true;
             }
 
             // Get device location
@@ -187,6 +189,9 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         handleGeoSearchListView();
     }
 
+    /** @method:
+     * handle the seek bar and update the text view to the current value.
+     * */
     public void handleSeekBar() {
         SeekBar seekBar = mainActivity.findViewById(R.id.search_radius_slider);
 
@@ -235,7 +240,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
             @Override
             public void onClick(View view) {
 
-                if (currentLocation == null) {
+                if (currentLocation == null || !LOCATION_ENABLED) {
                     Toast.makeText(mainActivity, "Current Location Unavailable", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -286,6 +291,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 float longitude = 0.0f;
                 float latitude = 0.0f;
                 float radius = 0.0f;
@@ -301,7 +307,8 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
                 } catch (NumberFormatException e) {
                     Toast.makeText(mainActivity, "Invalid longitude value", Toast.LENGTH_SHORT).show();
                     return;
-                } try {
+                }
+                try {
                     latitude = Float.parseFloat(latitudeText.getText().toString());
                     if (latitude < -90 || latitude > 90) {
                         Toast.makeText(mainActivity, "Invalid latitude value", Toast.LENGTH_SHORT).show();
@@ -315,8 +322,14 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
 
                 // flush the previous list
                 mapModel.searchGeoQuery(latitude, longitude, radius, self);
-                scrollView.setVisibility(View.VISIBLE);
                 geoSearchLayout.setVisibility(View.INVISIBLE);
+
+                if (geoQueryAdapter.getCount() == 0) {
+                    Toast.makeText(mainActivity, "No Codes near this location", Toast.LENGTH_SHORT).show();
+                    scrollView.setVisibility(View.INVISIBLE);
+                } else {
+                    scrollView.setVisibility(View.VISIBLE);
+                }
             }
         });
     }

@@ -22,6 +22,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.qrchive.BuildConfig;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     FirebaseWrapper fbw;
     SharedPreferences preferences; //IMP: This will work as a 'singleton pattern'/'a global struct' to save all (mostly static) required preferences
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
+    private MainActivity mainActivity = this;
 
     @Override
     public void onLoginSuccess(String userDID, String userName) {
@@ -143,7 +146,13 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                                 ), fbw));
                         break;
                     case R.id.menu_dropdown_map:
-                        transactFragment(new MapsFragment());
+                        if (ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            // Request permission before launching fragment.
+                            ActivityCompat.requestPermissions(mainActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
+                        } else {
+                            // Permission already granted
+                            transactFragment(new MapsFragment());
+                        }
                         break;
                     case R.id.menu_dropdown_settings:
                         transactFragment(new SettingsFragment());
@@ -194,7 +203,6 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         Toolbar topBar = (Toolbar) findViewById(R.id.app_bar);
         Menu topBarMenu = topBar.getMenu();
         onCreateOptionsMenu(topBarMenu);
-
         handleDropdownMenuWrapper(topBarMenu, dropdownNavWrapper);
 
         // Make app default load the home fragment
@@ -202,10 +210,30 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     }
 
     /**
+     * @method:
+     * render the maps fragment based on whether the user allows or denys the
+     * current location.
+     * */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_CODE_FINE_LOCATION && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // permission granted, launch fragment
+            transactFragment(new MapsFragment());
+        } else {
+            // permission not granted, show error message or take appropriate action
+            Toast.makeText(this, "Without location permissions maps features are limited.", Toast.LENGTH_SHORT).show();
+            transactFragment(new MapsFragment());
+        }
+    }
+
+    /** @method:
      * Inflate the XML for the Toolbar in order to define search bar functionality.
      * */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d("========================== HER==============", "onCreateOptionsMenu: ");
         //load the menu XML into memory.
         getMenuInflater().inflate(R.menu.app_bar_menu, menu);
 
