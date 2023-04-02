@@ -37,6 +37,7 @@ public class ProfileFragment extends Fragment {
     public ProfileFragment(Player user, FirebaseWrapper fbw) {
         this.fbw = fbw;
         this.user = user;
+        fbw.refreshScannedCodesForUser(user.getDeviceID());
         this.scannedCodes = fbw.getScannedCodesDict().get(user.getDeviceID());
     }
 
