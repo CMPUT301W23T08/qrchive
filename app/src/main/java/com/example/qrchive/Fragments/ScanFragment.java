@@ -291,7 +291,7 @@ public class ScanFragment extends Fragment {
             ArrayList<String> preferences = data.getStringArrayListExtra(EXTRA_GREETING_MESSAGE);
 
             String code = mResult.getText();
-            String date = new Date().toString();
+            Date date = new Date();
             String locationImg = "placeholder_img";
             ScannedCode scannedCodeToUpload;
 //            String scannedCodeDID = UUID.randomUUID().toString();
@@ -310,7 +310,7 @@ public class ScanFragment extends Fragment {
             }
             // At this point, scannedCode is ready!
             Map<String, Object> scannedCodeMap = new HashMap<>();
-            scannedCodeMap.put("date", scannedCodeToUpload.getDate());
+            scannedCodeMap.put("date", (Date) scannedCodeToUpload.getDate());
             scannedCodeMap.put("hasLocation", scannedCodeToUpload.getHasLocation());
             scannedCodeMap.put("hash", scannedCodeToUpload.getHash());
             scannedCodeMap.put("hashVal", scannedCodeToUpload.getHashVal());
