@@ -1,10 +1,15 @@
 package com.example.qrchive.Classes;
+
+
 import com.google.common.hash.Hashing;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
+
 
 /**
  * ScannedCode represents a code that has been captured and stores all the required metadata to operate
@@ -16,16 +21,16 @@ import java.util.Hashtable;
 public class ScannedCode {
     private String hash;
     private int hashVal;
-    private String date;
+    private Date date;
     private boolean hasLocation;
     private GeoPoint location;
     private String locationImage;
     private String userDID;
     private int points;
     private String name;
-    private String ascii;
+    private String monsterResourceName;
     private String scannedCodeDID; // Document ID on firestore corresponding to this scannedCode
-
+    private double distance = 0; //Distance from the Users current location (init to prevent null ref on non-geo-loc codes)
 
     /**
      * This is a constructor for ScannedCode which uses code and assumes location should not be used.
@@ -36,7 +41,7 @@ public class ScannedCode {
      * @param userDID is the users ID.
      * @param scannedCodeDID is the scanned codes ID.
      */
-    public ScannedCode(String code, String date, String locationImage, String userDID, String scannedCodeDID) {
+    public ScannedCode(String code, Date date, String locationImage, String userDID, String scannedCodeDID) {
         this(Hashing.sha256().hashString(code, StandardCharsets.UTF_8).toString(),
                 Hashing.sha256().hashString(code, StandardCharsets.UTF_8).asInt(),
                 date, new GeoPoint(0,0), false, locationImage, userDID, scannedCodeDID);
@@ -53,7 +58,7 @@ public class ScannedCode {
      * @param userDID is the users ID.
      * @param scannedCodeDID is the scanned codes ID.
      */
-    public ScannedCode(String code, String date, GeoPoint location, String locationImage, String userDID, String scannedCodeDID) {
+    public ScannedCode(String code, Date date, GeoPoint location, String locationImage, String userDID, String scannedCodeDID) {
         this(Hashing.sha256().hashString(code, StandardCharsets.UTF_8).toString(),
                 Hashing.sha256().hashString(code, StandardCharsets.UTF_8).asInt(),
                 date, location, true, locationImage, userDID, scannedCodeDID);
@@ -72,7 +77,7 @@ public class ScannedCode {
      * @param scannedCodeDID is the scanned codes ID.
      */
     // Base Constructor
-    public ScannedCode(String hash, int hashVal, String date, GeoPoint location, boolean hasLocation, String locationImage, String userDID, String scannedCodeDID) {
+    public ScannedCode(String hash, int hashVal, Date date, GeoPoint location, boolean hasLocation, String locationImage, String userDID, String scannedCodeDID) {
         this.hash = hash;
         this.hashVal = hashVal;
         this.date = date;
@@ -140,71 +145,8 @@ public class ScannedCode {
             this.name = name.toString();
         }
 
-        // Calculating ASCII
-        {
-            StringBuilder asciiRound = new StringBuilder();
-            StringBuilder asciiSquare = new StringBuilder();
-            asciiRound.append("          , - ~ ~ ~ - ,\n" +      // forehead
-                    "      , '               ' ,\n");   // forehead
-            asciiSquare.append("      , - ~ ~ ~ - ,\n" +          // forehead
-                    "  , '               ' ,\n");       // forehead
-
-            Hashtable<Integer, String> bitToRound = new Hashtable<Integer, String>() {{
-                put(0, "    ,      ~        ~       ,\n"); // eyebrows
-                put(1, "    ,                       ,\n"); // no eyebrows
-                put(2, "   ,       @        @        ,\n"); // open eyes
-                put(3, "   ,       _        _        ,\n"); // closed eyes
-                put(4, " \\,                           ,/\n" +
-                        " /,                           ,\\\n"); // ears
-                put(5, "  ,                           ,\n" +
-                        "  ,                           ,\n"); // no ears
-                put(6, "  ,           /,,\\            ,\n" +
-                        "   ,                         ,\n"); // nose
-                put(7, "  ,                           ,\n" +
-                        "   ,                         ,\n"); // no nose
-                put(8, "    ,     '~,_____,~'       ,\n"); // smile
-                put(9, "    ,       ,-~**~-,        ,\n"); // frown
-            }};
-
-            Hashtable<Integer, String> bitToSqaure = new Hashtable<Integer, String>() {{
-                put(0, "  ,     ~        ~    ,\n"); // eyebrows
-                put(1, "  ,                   ,\n"); // no eyebrows
-                put(2, "  ,     @        @    ,\n"); // open eyes
-                put(3, "  ,     _        _    ,\n"); // closed eyes
-                put(4, " \\,                   ,/\n" +
-                        " /,                   ,\\\n"); // ears
-                put(5, "  ,                   ,\n" +
-                        "  ,                   ,\n"); // no ears
-                put(6, "  ,        /,,\\       ,\n" +
-                        "  ,                   ,\n"); // nose
-                put(7, "  ,                   ,\n" +
-                        "  ,                   ,\n"); // no nose
-                put(8, "  ,    '~,_____,~'    ,\n"); // smile
-                put(9, "  ,      ,-~**~-,     ,\n"); // frown
-            }};
-
-            for(int i = 0; i < 5; ++i){
-                if((hashVal & (1 << i)) != 0){
-                    asciiRound.append(bitToRound.get(i*2 + 1));
-                    asciiSquare.append(bitToSqaure.get(i*2 + 1));
-                }else{
-                    asciiRound.append(bitToRound.get(i*2));
-                    asciiSquare.append(bitToSqaure.get(i*2));
-                }
-            }
-
-
-            asciiRound.append("      ,                  , '\n" +
-                    "        ' - , _ _ _ ,  '\n");
-            asciiSquare.append("  ,                   , \n" +
-                    "    ' - , _ _ _ , - ' \n");
-
-            if((hashVal & (1 << 5)) != 0){
-                this.ascii = asciiSquare.toString();
-            }else{
-                this.ascii = asciiRound.toString();
-            }
-        }
+        // Assign the fileName
+        this.monsterResourceName = getMonsterResourceName();
     }
 
     /**
@@ -212,10 +154,15 @@ public class ScannedCode {
      *
      * @return Returns the private attribute date.
      */
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
+
+    public String getDateString() {
+
+        return ((new SimpleDateFormat("MM/dd/yy hh:mm a")).format(date));
+    }
     /**
      * A getter function for location as a GeoPoint.
      *
@@ -301,20 +248,41 @@ public class ScannedCode {
     }
 
     /**
-     * A getter function for ascii.
-     *
-     * @return Returns the private attribute ascii.
-     */
-    public String getAscii() {
-        return this.ascii;
-    }
-
-    /**
      * A getter function for scannedCodeDID.
      *
      * @return Returns the private attribute scannedCodeDID.
      */
     public String getScannedCodeDID() {
         return this.scannedCodeDID;
+    }
+
+    /**
+     * A getter function for monster image resource.
+     * @return returns the filename of the corresponding monster resource
+     * */
+    public String getMonsterResourceName() {
+
+        String fileName = "monster";
+        for(int i = 0; i < 6; ++i){
+            if((hashVal & (1 << i)) != 0){
+                fileName += "1";
+            } else{
+                fileName += "0";
+            }
+        }
+        return fileName;
+    }
+
+    /** Getter for distance;
+     * */
+    public double getDistance() {
+        return this.distance;
+    }
+
+    /**
+     * Setter for distance
+     */
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 }

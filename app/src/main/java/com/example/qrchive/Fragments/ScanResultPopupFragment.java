@@ -1,6 +1,5 @@
 package com.example.qrchive.Fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -22,9 +21,11 @@ import java.util.List;
 
 public class ScanResultPopupFragment extends DialogFragment {
 
+    private final String scannedCodeDID;
     private List<String> selectedPreferences;
 
     private FirebaseWrapper fbw;
+    private Fragment scanFrag;
 
     /**
      *
@@ -61,8 +62,13 @@ public class ScanResultPopupFragment extends DialogFragment {
         builder.setPositiveButton("submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new CaptureFragment(fbw),null).commit();
-                //sendResult();
+                if (selectedPreferences.contains("Allow use of photo")) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, new CaptureFragment(fbw, scannedCodeDID))
+                            .addToBackStack(null)
+                            .commit();
+                }
+                sendResult();
             }
         });
 
@@ -76,14 +82,14 @@ public class ScanResultPopupFragment extends DialogFragment {
         return builder.create();
     }
 
-    public ScanResultPopupFragment(FirebaseWrapper fbw) {
+    public ScanResultPopupFragment(FirebaseWrapper fbw, Fragment scanFrag, String scannedCodeDID) {
         this.fbw = fbw;
+        this.scanFrag = scanFrag;
+        this.scannedCodeDID = scannedCodeDID;
     }
 
 
     private void sendResult(){
-
-        Fragment scanFrag = getParentFragment();
 
         if(scanFrag == null){
             return;

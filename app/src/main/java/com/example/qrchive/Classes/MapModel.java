@@ -1,4 +1,5 @@
 package com.example.qrchive.Classes;
+
 import static android.service.controls.ControlsProviderService.TAG;
 
 import android.util.Log;
@@ -16,8 +17,6 @@ import org.imperiumlabs.geofirestore.GeoFirestore;
 import org.imperiumlabs.geofirestore.GeoQuery;
 import org.imperiumlabs.geofirestore.listeners.GeoQueryEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /** Class: Map Model:
@@ -97,7 +96,7 @@ public class MapModel {
                                             ScannedCode scannedCode = new ScannedCode(
                                                     document.get("hash").toString(),
                                                     Integer.parseInt(docData.get("hashVal").toString()),
-                                                    docData.get("date").toString(),
+                                                    document.getTimestamp("date").toDate(),
                                                     (GeoPoint) docData.get("location"),
                                                     true,
                                                     "placeholder_img.png",

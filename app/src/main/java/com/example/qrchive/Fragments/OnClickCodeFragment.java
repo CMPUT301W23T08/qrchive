@@ -2,7 +2,17 @@ package com.example.qrchive.Fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -11,27 +21,21 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.Comment;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.MyCommentCardRecyclerViewAdapter;
 import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -112,16 +116,60 @@ public class OnClickCodeFragment extends Fragment {
         // Setting the fragment elements
         ConstraintLayout rootLayout = view.findViewById(R.id.fragment_on_item_click_code_constraint_layout_view);
         ((TextView) rootLayout.findViewById(R.id.code_name)).setText(scannedCode.getName());
-        ((TextView) rootLayout.findViewById(R.id.code_ascii)).setText(scannedCode.getAscii());
 
+        String imageFileName = scannedCode.getMonsterResourceName();
+        ((ImageView) rootLayout.findViewById(R.id.code_image)).setImageResource(getResources().getIdentifier(imageFileName, "drawable", getActivity().getPackageName()));
 
         ((TextView) rootLayout.findViewById(R.id.code_location)).setText(scannedCode.getLocationString());
-        ((TextView) rootLayout.findViewById(R.id.code_date)).setText(scannedCode.getDate());
+
+        TextView dateTextView = rootLayout.findViewById(R.id.code_date);
+        dateTextView.setText(scannedCode.getDateString());
+
         ((TextView) rootLayout.findViewById(R.id.code_hash_val)).setText(String.valueOf(scannedCode.getHashVal()));
 
 
         ((TextView) rootLayout.findViewById(R.id.code_points)).setText(String.valueOf(scannedCode.getPoints()));
-        ((TextView) rootLayout.findViewById(R.id.code_rank)).setText("TODO");
+
+
+        // recorded photo code (get max 1MB)
+        fbw.getStorage().getReference(scannedCode.getScannedCodeDID() + ".jpg")
+                .getBytes(1024 * 1024).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        // Read the orientation metadata using ExifInterface
+                        try {
+                            ExifInterface exif = new ExifInterface(new ByteArrayInputStream(bytes));
+                            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+                            // Rotate the bitmap according to the orientation metadata
+                            Matrix matrix = new Matrix();
+                            switch (orientation) {
+                                case ExifInterface.ORIENTATION_ROTATE_90:
+                                    matrix.setRotate(90);
+                                    break;
+                                case ExifInterface.ORIENTATION_ROTATE_180:
+                                    matrix.setRotate(180);
+                                    break;
+                                case ExifInterface.ORIENTATION_ROTATE_270:
+                                    matrix.setRotate(270);
+                                    break;
+                                default:
+                                    // Do nothing
+                            }
+                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        ImageView imageView = rootLayout.findViewById(R.id.code_recorded_photo);
+//                        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+//                        imageView.setLayoutParams(new ViewGroup.LayoutParams(640, 480));
+                        imageView.setImageBitmap(bitmap);
+                    }
+                });
 
         // Adding delete button listener
         ((ImageView) rootLayout.findViewById(R.id.delete_button)).setOnClickListener(new View.OnClickListener() {
@@ -132,7 +180,7 @@ public class OnClickCodeFragment extends Fragment {
              */
             @Override
             public void onClick(View v) {
-                fbw.deleteCode(scannedCode);
+                fbw.deleteCode(scannedCode.getScannedCodeDID());
                 Toast.makeText(getContext(), "\"" + scannedCode.getName() + "\"" + " has been deleted!", Toast.LENGTH_SHORT).show();
                 fbw.refreshScannedCodesForUser(scannedCode.getUserDID());
                 try {
@@ -164,7 +212,7 @@ public class OnClickCodeFragment extends Fragment {
                     String userName = preferences.getString("userName", "");
                     Map<String, Object> doc = new HashMap<>();
                     doc.put("userName", userName);
-                    doc.put("codeDID", scannedCode.getScannedCodeDID());
+                    doc.put("hash", scannedCode.getHash());
                     doc.put("content", content);
                     doc.put("date", (Date) new Date());
                     fbw.db.collection("Comments").add(doc).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
@@ -185,14 +233,14 @@ public class OnClickCodeFragment extends Fragment {
 
     private void fetchCommentsFromFirebase(View view) {
         // get comments
-        fbw.db.collection("Comments").whereEqualTo("codeDID", scannedCode.getScannedCodeDID())
+        fbw.db.collection("Comments").whereEqualTo("hash", scannedCode.getHash())
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         List<DocumentSnapshot> documentSnapshotList = task.getResult().getDocuments();
                         for (DocumentSnapshot doc : documentSnapshotList) {
                             comments.add(new Comment(doc.get("userName").toString(),
-                                    doc.get("codeDID").toString(),
+                                    doc.get("hash").toString(),
                                     doc.get("content").toString(),
                                     doc.getTimestamp("date").toDate()));
                         }

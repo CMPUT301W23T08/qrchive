@@ -13,10 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.qrchive.Classes.FirebaseWrapper;
@@ -28,11 +25,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -52,15 +48,14 @@ public class FriendsFragment extends Fragment {
 
     private ArrayList<Player> users;
     private String userId;
+    private String deviceID;
     private ArrayList<String> friendsList;
     private SharedPreferences onStartupPref;
     Button showFriendsButton;
-    Button showAllButton;
+    Button showRanklistButton;
 
 
-    public FriendsFragment(FirebaseWrapper fbw) {
-        this.fbw = fbw;
-    }
+    public FriendsFragment(FirebaseWrapper fbw) {this.fbw = fbw;}
 
     /**
      * @return A new instance of fragment FriendsFragment.
@@ -78,6 +73,8 @@ public class FriendsFragment extends Fragment {
 
         SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
         this.userId = preferences.getString("userDID", "no user id found");
+        this.deviceID = preferences.getString("deviceID", "no device id found");
+
 
     }
 
@@ -90,7 +87,7 @@ public class FriendsFragment extends Fragment {
         Boolean showFriendsOnStart = onStartupPref.getBoolean("showFriends", true);
 
         showFriendsButton = friendsView.findViewById(R.id.show_friends_button);
-        showAllButton = friendsView.findViewById(R.id.show_all_button);
+        showRanklistButton = friendsView.findViewById(R.id.show_all_button);
 
         RecyclerView recyclerView = friendsView.findViewById(R.id.friends_recycler_list);
 
@@ -101,10 +98,6 @@ public class FriendsFragment extends Fragment {
         }
 
 
-
-
-
-
         showFriendsButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("ResourceAsColor")
             @Override
@@ -113,7 +106,7 @@ public class FriendsFragment extends Fragment {
             }
         });
 
-        showAllButton.setOnClickListener(new View.OnClickListener() {
+        showRanklistButton.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("ResourceAsColor")
             @Override
             public void onClick(View v) {
@@ -121,9 +114,6 @@ public class FriendsFragment extends Fragment {
                 displayAllUsers(recyclerView);
             }
         });
-
-
-
         return friendsView;
     }
 
@@ -135,7 +125,7 @@ public class FriendsFragment extends Fragment {
 
         onStartupPref.edit().putBoolean("showFriends", true).apply();
         showFriendsButton.setTextColor(Color.rgb(0, 0, 0));
-        showAllButton.setTextColor(Color.rgb(255,255,255));
+        showRanklistButton.setTextColor(Color.rgb(255,255,255));
 
         getFriendsList(new OnFriendsRetrievedListener() {
             @Override
@@ -156,13 +146,8 @@ public class FriendsFragment extends Fragment {
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                     }
                 }, friends);
-
-
-
-
-
             }
-        }, userId);
+        });
 
     }
 
@@ -173,29 +158,24 @@ public class FriendsFragment extends Fragment {
     private void displayAllUsers(RecyclerView recyclerView){
         onStartupPref.edit().putBoolean("showFriends", false).apply();
         showFriendsButton.setTextColor(Color.rgb(255,255,255));
-        showAllButton.setTextColor(Color.rgb(0, 0, 0));
+        showRanklistButton.setTextColor(Color.rgb(0, 0, 0));
         getAllUsers(new OnUsersRetrievedListener() {
             @Override
             public void onUsersRetrieved(ArrayList<Player> users) {
-
                 FriendsRecyclerViewAdapter friendsAdapter = new FriendsRecyclerViewAdapter(users);
                 setClickListener(friendsAdapter, users);
                 recyclerView.setAdapter(friendsAdapter);
-
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
             }
-        }, userId);
+        });
     }
-
 
     /**
      * gets a list of all users get all users
      * @param listener
-     * @param userID
      */
-    private void getAllUsers(final OnUsersRetrievedListener listener, String userID) {
-        db.collection("Users").whereNotEqualTo("deviceID", userID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+    private void getAllUsers(final OnUsersRetrievedListener listener) {
+        db.collection("Users").whereNotEqualTo("deviceID", this.deviceID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -203,12 +183,18 @@ public class FriendsFragment extends Fragment {
                     ArrayList<Player> users = new ArrayList<>();
                     for (DocumentSnapshot document : docs) {
                         Map<String, Object> docData = document.getData();
-                        Player player = new Player(
-                                (String) docData.get("userName"),
-                                (String) docData.get("emailID"),
-                                (String) docData.get("deviceID")
-                        );
-                        users.add(player);
+                        fbw.getUserRank((String) docData.get("deviceID"), new FirebaseWrapper.OnRankRetrievedListener() {
+                            @Override
+                            public void OnRankRetrieved(int rank) {
+                                Player player = new Player(
+                                        (String) docData.get("userName"),
+                                        (String) docData.get("emailID"),
+                                        (String) docData.get("deviceID"),
+                                        rank
+                                );
+                                users.add(player);
+                            }
+                        }, true);
                     }
                     // Invoke the callback method with the list of users as a parameter
                     listener.onUsersRetrieved(users);
@@ -226,49 +212,48 @@ public class FriendsFragment extends Fragment {
      */
     private void getFriends(final OnUsersRetrievedListener listener, ArrayList<String> friendsList) {
 
+        if(friendsList.size() > 0){
+            db.collection("Users").whereIn("deviceID", (friendsList)).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
 
-        db.collection("Users").whereIn("deviceID", (friendsList)).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-
-                    List<DocumentSnapshot> docs = task.getResult().getDocuments();
-                    ArrayList<Player> users = new ArrayList<>();
-                    for (DocumentSnapshot document : docs) {
-                        Map<String, Object> docData = document.getData();
-                        Player player = new Player(
-                                (String) docData.get("userName"),
-                                (String) docData.get("emailID"),
-                                (String) docData.get("deviceID")
-                        );
-                        users.add(player);
-
+                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                        ArrayList<Player> users = new ArrayList<>();
+                        for (DocumentSnapshot document : docs) {
+                            Map<String, Object> docData = document.getData();
+                            Player player = new Player(
+                                    (String) docData.get("userName"),
+                                    (String) docData.get("emailID"),
+                                    (String) docData.get("deviceID")
+                            );
+                            users.add(player);
+                        }
+                        // Invoke the callback method with the list of users as a parameter
+                        listener.onUsersRetrieved(users);
+                    } else {
+                        Toast.makeText(getContext(), "no users", Toast.LENGTH_SHORT);
                     }
-
-
-                    // Invoke the callback method with the list of users as a parameter
-                    listener.onUsersRetrieved(users);
-                } else {
-                    Toast.makeText(getContext(), "no users", Toast.LENGTH_SHORT);
                 }
-            }
-        });
+            });
+        }else{
+            ArrayList<Player> users = new ArrayList<>();
+            listener.onUsersRetrieved(users);
+        }
+
     }
 
     /**
      * gets the list of friends from the current user
      * @param listener
-     * @param userId
      */
-    private void getFriendsList(final OnFriendsRetrievedListener listener, String userId) {
-
-        db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+    private void getFriendsList(final OnFriendsRetrievedListener listener) {
+        db.collection("Users").document(this.userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot doc = task.getResult();
                     ArrayList<String> friends = (ArrayList<String>) doc.get("friends");
-
                     listener.onFriendsRetrieved(friends);
                 } else {
                     Toast.makeText(getContext(), "no users", Toast.LENGTH_SHORT);
@@ -288,7 +273,7 @@ public class FriendsFragment extends Fragment {
         friendsAdapter.setOnItemClickListener(new FriendsRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(View view, int position) {
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(players.get(position)))
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(players.get(position), fbw))
                         .commit();
 
             }

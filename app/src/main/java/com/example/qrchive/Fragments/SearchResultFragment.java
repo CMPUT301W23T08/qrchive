@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.FriendsRecyclerViewAdapter;
 import com.example.qrchive.Classes.Player;
 import com.example.qrchive.R;
@@ -33,11 +34,13 @@ import java.util.Map;
  */
 public class SearchResultFragment extends Fragment {
     public FirebaseFirestore db;
+    private FirebaseWrapper fbw;
 
     private String query;
     private String userId;
 
-    public SearchResultFragment(String query) {
+    public SearchResultFragment(String query, FirebaseWrapper fbw) {
+        this.fbw = fbw;
         this.query = query;
     }
 
@@ -118,7 +121,7 @@ public class SearchResultFragment extends Fragment {
         friendsAdapter.setOnItemClickListener(new FriendsRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(View view, int position) {
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(players.get(position)))
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment(players.get(position), fbw))
                         .commit();
 
             }

@@ -59,15 +59,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-/* For BottomNavItemListener: https://stackoverflow.com/questions/68021770/setonnavigationitemselectedlistener-deprecated
- *  For BottomNavImpl: https://www.geeksforgeeks.org/bottomnavigationview-inandroid/
- * */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoginDialogFragment.OnLoginSuccessListener{
 
     FirebaseWrapper fbw;
     SharedPreferences preferences; //IMP: This will work as a 'singleton pattern'/'a global struct' to save all (mostly static) required preferences
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
+
+    @Override
+    public void onLoginSuccess(String userDID, String userName) {
+        fbw = new FirebaseWrapper(userDID, userName);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         // User already exists in database
                         List<DocumentSnapshot> resultantDocuments = task.getResult().getDocuments();
+
                         if (resultantDocuments.size() == 0) {
                             // Make a dialog box to take user input
                             // TODO: Make sure unique username
@@ -116,9 +119,9 @@ public class MainActivity extends AppCompatActivity {
                             prefEditor.putString("deviceID", android_device_id);
                             prefEditor.putString("userDID", userDoc.getId());
                             prefEditor.apply();
+                            onLoginSuccess(preferences.getString("userDID", ""),
+                                    preferences.getString("userName", ""));
                         }
-                        String userDID = preferences.getString("userDID", "");
-                        fbw = new FirebaseWrapper(userDID);
                     }
                 });
 
@@ -136,8 +139,8 @@ public class MainActivity extends AppCompatActivity {
                                 new Player(
                                         preferences.getString("userName", ""),
                                         preferences.getString("emailID", ""),
-                                        preferences.getString("userDID", "")
-                                )));
+                                        preferences.getString("deviceID", "")
+                                ), fbw));
                         break;
                     case R.id.menu_dropdown_map:
                         transactFragment(new MapsFragment());
@@ -218,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // TODO Handle search query submission
-                transactFragment(new SearchResultFragment(query));
+                transactFragment(new SearchResultFragment(query, fbw));
                 Log.d("onSumbit", "onQueryTextSubmit: ");
                 return true;
             }
@@ -226,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 // TODO Handle search query text change (offer suggestion for partial input)
-                transactFragment(new SearchResultFragment(newText));
+                transactFragment(new SearchResultFragment(newText, fbw));
                 Log.d("onChange", "onQueryTextSubmit: ");
                 return true;
             }
@@ -267,7 +270,20 @@ public class MainActivity extends AppCompatActivity {
         return;
     }
 
+    /**@method:
+     * Utility method so we don't have to pass instance of firebase to every new Fragment
+     * through the constructor
+     * */
     public FirebaseWrapper getFirebaseWrapper() {
         return fbw;
+    }
+
+    /** @method: Utility class to convert Filename to Resource ID
+     * Non-android classes which don't have access to activity context, such as ScannedCode or MyScannedCodeCardRecyclerViewAdapter
+     * need to retrieve the Resource ID from the monster filename at runtime. This method will return the resource id using the
+     * getResource method on Activity given the filename as a parameter.
+     */
+    public int getDrawableResourceIdFromString(String filename) {
+        return getResources().getIdentifier(filename, "drawable", getPackageName());
     }
 }

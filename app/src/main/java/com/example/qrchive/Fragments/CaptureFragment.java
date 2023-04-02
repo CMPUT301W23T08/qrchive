@@ -5,6 +5,14 @@ import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.util.Size;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
@@ -19,23 +27,17 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.LifecycleOwner;
-
-import android.provider.MediaStore;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
 
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.R;
 import com.example.qrchive.databinding.ActivityMainBinding;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.checkerframework.checker.units.qual.A;
-
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +50,7 @@ import java.util.concurrent.Executors;
 public class CaptureFragment extends Fragment {
 
     private final ArrayList<String> REQUESTED_PERMISSIONS = new ArrayList<>(Arrays.asList(Manifest.permission.CAMERA));
+    private final String scannedCodeDID;
     private ActivityMainBinding binding;
     private ImageCapture imageCapture;
     private VideoCapture<Recorder> videoCapture;
@@ -61,10 +64,11 @@ public class CaptureFragment extends Fragment {
     private final int REQUEST_CODE = 10;
 
     private FirebaseWrapper fbw;
-    public CaptureFragment(FirebaseWrapper fbw) {
+    public CaptureFragment(FirebaseWrapper fbw, String scannedCodeDID) {
         super(R.layout.fragment_capture);
 
         this.fbw = fbw;
+        this.scannedCodeDID = scannedCodeDID;
     }
 
     @Override
@@ -89,7 +93,7 @@ public class CaptureFragment extends Fragment {
                         .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                         .build();
 
-                imageCapture = new ImageCapture.Builder().build();
+                imageCapture = new ImageCapture.Builder().setTargetResolution(new Size(640,480)).build();
 
                 preview.setSurfaceProvider(previewView.getSurfaceProvider());
                 try {
@@ -116,7 +120,7 @@ public class CaptureFragment extends Fragment {
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P)
-            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image");
+            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/qrchive");
         ImageCapture.OutputFileOptions outputFileOptions =
                 new ImageCapture.OutputFileOptions.Builder(requireContext().getContentResolver(),
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -130,7 +134,21 @@ public class CaptureFragment extends Fragment {
                                 outputFileResults.getSavedUri();
                         Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
                         Log.d(TAG, msg);
-                        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new ScanFragment(fbw),null).commit();
+
+                        try {
+                            InputStream inputStream = requireContext().getContentResolver().openInputStream(outputFileResults.getSavedUri());
+                            byte[] bytes = new byte[inputStream.available()];
+                            inputStream.read(bytes);
+                            inputStream.close();
+                            fbw.uploadImage(bytes, scannedCodeDID);
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error reading image file: " + e.getMessage());
+                        }
+
+                        FragmentManager fragmentManager = getParentFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentManager.popBackStack(); // Remove the fragment from the back stack
+                        fragmentTransaction.commit(); // Commit the transaction
                     }
 
                     @Override

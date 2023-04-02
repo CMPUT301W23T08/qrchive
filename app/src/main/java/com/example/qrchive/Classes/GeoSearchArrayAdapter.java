@@ -5,11 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.R;
 
 import java.util.ArrayList;
@@ -19,13 +21,16 @@ import java.util.ArrayList;
  * of the QR code name, date and points.
  * */
 public class GeoSearchArrayAdapter extends ArrayAdapter<ScannedCode> {
+
     private Context mContext;
     private int mResource;
+    private MainActivity mainActivity;
 
-    public GeoSearchArrayAdapter(@NonNull Context context, int resource, @NonNull ArrayList<ScannedCode> objects) {
+    public GeoSearchArrayAdapter(@NonNull Context context, int resource, @NonNull ArrayList<ScannedCode> objects, MainActivity mainActivity) {
         super(context, resource, objects);
         mContext = context;
         mResource = resource;
+        this.mainActivity = mainActivity;
     }
 
     /** Set the text fields in the view item to the contents of the QR code
@@ -45,11 +50,15 @@ public class GeoSearchArrayAdapter extends ArrayAdapter<ScannedCode> {
         TextView itemDate = convertView.findViewById(R.id.item_geo_search_date);
         TextView itemName = convertView.findViewById(R.id.item_geo_search_name);
         TextView itemPoints = convertView.findViewById(R.id.item_geo_search_points);
+        ImageView itemImage = convertView.findViewById(R.id.item_geo_search_image);
 
         // Set the text for each TextView
         itemDate.setText(String.valueOf(currentObject.getDate()));
         itemName.setText(String.valueOf(currentObject.getName()));
         itemPoints.setText("Points: " + String.valueOf(currentObject.getPoints()));
+        itemImage.setImageResource(mainActivity.getDrawableResourceIdFromString(
+                currentObject.getMonsterResourceName()
+        ));
 
         return convertView;
     }

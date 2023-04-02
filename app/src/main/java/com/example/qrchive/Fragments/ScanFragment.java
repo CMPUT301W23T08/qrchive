@@ -66,20 +66,21 @@ public class ScanFragment extends Fragment {
     private FirebaseWrapper fbw;
     private FirebaseFirestore db;
     private GeoFirestore geoFirestore;
-    private Result mResult;
+    private Result mResult; // decoded qr code string
 
     // The scanner view displays the camera preview on the screen.
     private CodeScannerView scannerView;
     // The reset button resets the scanner when clicked.
     private Button resetButton;
     private GeoPoint currentLocationGeopoint;
+    private Fragment scanFrag;
 
     // The flash button toggles the camera flash when clicked.
     private Button flashButton;
     boolean withinImpermissibleRadius;
+
+    private final String scannedCodeDID = UUID.randomUUID().toString();
     int docsWithinImpermissibleRadius = 0;
-
-
 
     public ScanFragment(FirebaseWrapper fbw) {
         this.fbw = fbw;
@@ -91,16 +92,13 @@ public class ScanFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         final Activity activity = getActivity();
         View root = inflater.inflate(R.layout.fragment_scan, container, false);
+        scanFrag = this;
 
         // Initialize the scanner view and code scanner objects.
         scannerView = root.findViewById(R.id.scanner_view);
         mCodeScanner = new CodeScanner(activity, scannerView);
 
-
-
         db = fbw.db;
-
-
         geoFirestore = new GeoFirestore(db.collection("ScannedCodes"));
         // Check if the camera permission has been granted.
         if (ContextCompat.checkSelfPermission(
@@ -114,8 +112,8 @@ public class ScanFragment extends Fragment {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-
                             mResult = result;
+                            docsWithinImpermissibleRadius = 0;
                             Toast.makeText(activity, mResult.getText(), Toast.LENGTH_SHORT).show();
                             scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
 
@@ -131,7 +129,9 @@ public class ScanFragment extends Fragment {
                                     }
                                 }
                                 @Override
-                                public void onDocumentExited(@NonNull DocumentSnapshot documentSnapshot) {}
+                                public void onDocumentExited(@NonNull DocumentSnapshot documentSnapshot) {
+                                    docsWithinImpermissibleRadius--;
+                                }
                                 @Override
                                 public void onDocumentMoved(@NonNull DocumentSnapshot documentSnapshot, @NonNull GeoPoint geoPoint) {}
                                 @Override
@@ -145,16 +145,13 @@ public class ScanFragment extends Fragment {
                                     }
                                     // !
                                     docsWithinImpermissibleRadius = 0;
-                                    new ScanResultPopupFragment(fbw).show(getParentFragmentManager(), "popup");
+                                    new ScanResultPopupFragment(fbw, scanFrag, scannedCodeDID).show(getParentFragmentManager(), "popup");
+                                    int i = 1+1;
                                 }
 
                                 @Override
                                 public void onGeoQueryError(@NonNull Exception e) {}
                             });
-
-
-
-
                         }
                     });
                 }
@@ -239,7 +236,7 @@ public class ScanFragment extends Fragment {
 
                 } else {
                     // Explain to the user that the feature is unavailable because the
-                    // feature requires a permission that the user has denied. At the
+
                     // same time, respect the user's decision. Don't link to system
                     // settings in an effort to convince the user to change their
                     // decision.
@@ -294,10 +291,10 @@ public class ScanFragment extends Fragment {
             ArrayList<String> preferences = data.getStringArrayListExtra(EXTRA_GREETING_MESSAGE);
 
             String code = mResult.getText();
-            String date = new Date().toString();
+            Date date = new Date();
             String locationImg = "placeholder_img";
             ScannedCode scannedCodeToUpload;
-            String scannedCodeDID = UUID.randomUUID().toString();
+//            String scannedCodeDID = UUID.randomUUID().toString();
             if(preferences.contains("Allow use of photo")){
 //                locationImg = ...
                 // TODO: Add photo
@@ -313,7 +310,7 @@ public class ScanFragment extends Fragment {
             }
             // At this point, scannedCode is ready!
             Map<String, Object> scannedCodeMap = new HashMap<>();
-            scannedCodeMap.put("date", scannedCodeToUpload.getDate());
+            scannedCodeMap.put("date", (Date) scannedCodeToUpload.getDate());
             scannedCodeMap.put("hasLocation", scannedCodeToUpload.getHasLocation());
             scannedCodeMap.put("hash", scannedCodeToUpload.getHash());
             scannedCodeMap.put("hashVal", scannedCodeToUpload.getHashVal());
