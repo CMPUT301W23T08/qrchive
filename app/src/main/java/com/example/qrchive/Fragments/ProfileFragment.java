@@ -20,8 +20,11 @@ import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.OnQRCountQueryListener;
 import com.example.qrchive.Classes.Player;
+import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.List;
 
 /** Profile Fragment
  */
@@ -29,10 +32,12 @@ public class ProfileFragment extends Fragment {
 
 
     public Player user;
+    private List<ScannedCode> scannedCodes;
     private FirebaseWrapper fbw;
     public ProfileFragment(Player user, FirebaseWrapper fbw) {
         this.fbw = fbw;
         this.user = user;
+        this.scannedCodes = fbw.getScannedCodesDict().get(user.getDeviceID());
     }
 
     /**
