@@ -63,18 +63,15 @@ public class GalleryBuilder {
      *    An ArrayList of GalleryListItem objects representing the images to display.
      */
     public static ArrayList<GalleryListItem> updateImageList(Player user){
-
-        fbw.refreshScannedCodesForUser(user.getDeviceID());
+        fbw.refreshScannedCodesForUser(fbw.getUserDID(user.getDeviceID()));
 
         // Testing qrcode gallery remove the following code block
-        List<ScannedCode> qrCodes = new ArrayList<>();
-        ScannedCode sc = new ScannedCode("ranaddshb", null, null, "nYGO0D2cAmW0FO4EsuUe", null);
-        for(int i = 1; i<6;i++){
-            qrCodes.add(sc);
-        }
-
-
-        //List<ScannedCode> qrCodes = fbw.getScannedCodesDict().get(user.getDeviceID());
+//        List<ScannedCode> qrCodes = new ArrayList<>();
+//        ScannedCode sc = new ScannedCode("ranaddshb", null, null, "nYGO0D2cAmW0FO4EsuUe", null);
+//        for(int i = 1; i<6;i++){
+//            qrCodes.add(sc);
+//        }
+        List<ScannedCode> qrCodes = fbw.getScannedCodesDict().get(fbw.getUserDID(user.getDeviceID()));
         System.out.println("Qrcodes : " + qrCodes);
         if (qrCodes == null){
             qrCodes = new ArrayList<>();

@@ -34,7 +34,7 @@ import java.util.Map;
 public class FirebaseWrapper {
     public FirebaseFirestore db;
     private String myDeviceID;
-
+    private HashMap<String,String> userDIDs = new HashMap<>();
     private String myUserDID;
     private String myUserName;
     private HashMap<String, ArrayList<ScannedCode>> scannedCodesDict = new HashMap<>();
@@ -55,6 +55,33 @@ public class FirebaseWrapper {
         this.myUserDID = myUserDID;
         this.myUserName = myUserName;
         this.refreshScannedCodesForUser(myUserDID);
+        this.refreshUserDIDs();
+    }
+
+    /**
+     * refreshUserDIDs will refresh the document ids for each user
+     */
+    public void refreshUserDIDs(){
+        db.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                for (DocumentSnapshot doc: docs){
+                    Map<String, Object> docData = doc.getData();
+                    userDIDs.put((String) docData.get("deviceID"),doc.getId());
+                }
+            }
+        });
+    }
+
+    /**
+     * getUserDID returns the UserDID for a specific user
+     *
+     * @param deviceID is the deviceID of the user
+     */
+    public String getUserDID(String deviceID){
+        this.refreshUserDIDs();
+        return userDIDs.get(deviceID);
     }
 
     /**
