@@ -76,7 +76,7 @@ public class FirebaseWrapper {
                             ScannedCode scannedCode = new ScannedCode
                                     (docData.get("hash").toString(),
                                             Integer.parseInt(docData.get("hashVal").toString()),
-                                            docData.get("date").toString(),
+                                            document.getTimestamp("date").toDate(),
                                             (GeoPoint) docData.get("location"),
                                             (boolean) docData.get("hasLocation"),
                                             docData.get("locationImage").toString(),
@@ -119,7 +119,7 @@ public class FirebaseWrapper {
                             ScannedCode scannedCode = new ScannedCode
                                     (docData.get("hash").toString(),
                                             Integer.parseInt(docData.get("hashVal").toString()),
-                                            docData.get("date").toString(),
+                                            document.getTimestamp("date").toDate(),
                                             (GeoPoint) docData.get("location"),
                                             (boolean) docData.get("hasLocation"),
                                             docData.get("locationImage").toString(),
