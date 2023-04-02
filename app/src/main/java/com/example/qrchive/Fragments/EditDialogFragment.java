@@ -31,6 +31,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+* This class is used to create a dialog for editing user details.
+*
+* The user details are fetched from a Firestore database and displayed in the dialog.
+*
+* The user can edit their username and email in the dialog, and the changes are saved to the database.
+*
+* Once the changes are saved, the user's details are updated in the shared preferences.
+*/
+
 public class EditDialogFragment extends DialogFragment {
 
     private Player user;
@@ -41,10 +51,21 @@ public class EditDialogFragment extends DialogFragment {
 
     private OnDismissListener mListener;
 
+    /**
+     * Sets the listener to be called when the dialog is dismissed.
+     * @param listener the listener to be called when the dialog is dismissed
+     */
     public void setOnDismissListener(OnDismissListener listener) {
         mListener = listener;
     }
 
+
+    /**
+     * Called when the dialog is dismissed. This method calls the parent's onDismiss method and
+     * then invokes the onDismiss method of the registered OnDismissListener, if there is one.
+     * @param dialog the dialog that was dismissed will be passed into the
+     *               method
+     */
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);

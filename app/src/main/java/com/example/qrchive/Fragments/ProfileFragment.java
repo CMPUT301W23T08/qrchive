@@ -26,7 +26,11 @@ import com.example.qrchive.Classes.Player;
 import com.example.qrchive.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-/** Profile Fragment
+/**
+ * A Fragment class that displays the user's profile information,
+ * including user name, email, user ID, user rank, and QR codes collected.
+ *
+ * @author Zayd & Shelly & Graden
  */
 public class ProfileFragment extends Fragment {
 
