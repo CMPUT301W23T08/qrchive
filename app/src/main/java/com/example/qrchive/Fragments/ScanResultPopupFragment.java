@@ -67,7 +67,6 @@ public class ScanResultPopupFragment extends DialogFragment {
                             .replace(R.id.fragment_container, new CaptureFragment(fbw, scannedCodeDID))
                             .addToBackStack(null)
                             .commit();
-//                    getParentFragmentManager().beginTransaction().replace(R.id.fragment_container,new CaptureFragment(fbw),null).commit();
                 }
                 sendResult();
             }

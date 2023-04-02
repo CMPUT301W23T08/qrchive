@@ -113,6 +113,7 @@ public class ScanFragment extends Fragment {
                         @Override
                         public void run() {
                             mResult = result;
+                            docsWithinImpermissibleRadius = 0;
                             Toast.makeText(activity, mResult.getText(), Toast.LENGTH_SHORT).show();
                             scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
 
@@ -128,7 +129,9 @@ public class ScanFragment extends Fragment {
                                     }
                                 }
                                 @Override
-                                public void onDocumentExited(@NonNull DocumentSnapshot documentSnapshot) {}
+                                public void onDocumentExited(@NonNull DocumentSnapshot documentSnapshot) {
+                                    docsWithinImpermissibleRadius--;
+                                }
                                 @Override
                                 public void onDocumentMoved(@NonNull DocumentSnapshot documentSnapshot, @NonNull GeoPoint geoPoint) {}
                                 @Override
