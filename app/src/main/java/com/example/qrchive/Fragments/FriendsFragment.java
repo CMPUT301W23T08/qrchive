@@ -61,7 +61,7 @@ public class FriendsFragment extends Fragment {
      * @return A new instance of fragment FriendsFragment.
      */
 //    public static FriendsFragment newInstance() {
-//        FriendsFragment fragment = new FriendsFragment();
+//        FriendsFragment fragment = new FriendsFragment(fbw);
 //
 //        return fragment;
 //    }
