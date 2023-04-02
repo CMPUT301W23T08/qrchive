@@ -45,6 +45,11 @@ public class Player {
     public String getEmail(){return this.email;}
     public String getUserName(){return this.playerName;}
     public String getDeviceID(){return this.deviceID;}
+
+    /**
+     * getRank returns a formatted string containing the rank of a user.
+     * @return a formatted string of the rank of a user, nothing if the user has no rank.
+     */
     public String getRank(){
         if(this.rank == -1){
             return "";
@@ -52,6 +57,11 @@ public class Player {
             return "Best Code: " + Integer.toString(rank) + "pts";
         }
     }
+
+    /**
+     * getNumericalRank returns the raw numerical value of the rank, this is useful for comparisons.
+     * @return the numerical value of the rank.
+     */
     public int getNumericalRank(){
         return this.rank;
     }
