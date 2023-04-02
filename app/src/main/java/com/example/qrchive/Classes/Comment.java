@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class Comment {
     String userName;
-    String codeDID;
+    String hash;
     String content;
     Date date;
 
@@ -13,8 +13,8 @@ public class Comment {
         return userName;
     }
 
-    public String getCodeDID() {
-        return codeDID;
+    public String getHash() {
+        return hash;
     }
 
     public String getContent() {
@@ -28,7 +28,7 @@ public class Comment {
 
     public Comment(String userName, String codeDID, String content, Date date) {
         this.userName = userName;
-        this.codeDID = codeDID;
+        this.hash = codeDID;
         this.content = content;
         this.date = date;
     }

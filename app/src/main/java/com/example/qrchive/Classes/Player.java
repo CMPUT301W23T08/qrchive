@@ -106,7 +106,7 @@ public class Player {
         if(this.rank == -1){
             return "";
         }else{
-            return "Best: " + Integer.toString(rank);
+            return "Best Code: " + Integer.toString(rank) + "pts";
         }
     }
     /**
@@ -155,13 +155,14 @@ public class Player {
                         List<DocumentSnapshot> docs = task.getResult().getDocuments();
 
                         int score = 0;
+//    public ScannedCode(String hash, int hashVal, Date date, GeoPoint location, boolean hasLocation, String locationImage, String userDID, String scannedCodeDID) {
 
                         for (DocumentSnapshot document : docs) {
                             Map<String, Object> docData = document.getData();
                             ScannedCode scannedCode = new ScannedCode
                                     (docData.get("hash").toString(),
                                             Integer.parseInt(docData.get("hashVal").toString()),
-                                            docData.get("date").toString(),
+                                            document.getTimestamp("date").toDate(),
                                             (GeoPoint) docData.get("location"),
                                             (boolean) docData.get("hasLocation"),
                                             docData.get("locationImage").toString(),

@@ -1,20 +1,19 @@
 package com.example.qrchive.Classes;
 
 import android.util.Pair;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.example.qrchive.Fragments.FriendsFragment;
-import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,8 +21,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
 
 // In the ScannedCodes collection on firebase, the userDID, location, hasLocation, hash can ...
 // ... uniquely identify a QR code
@@ -45,7 +42,8 @@ public class FirebaseWrapper {
     private HashMap<String, ScannedCode> topCodeForUser = new HashMap<>();
     private HashMap<String, Integer> userRank = new HashMap<>();
     private HashMap<String, String> deviceToDoc = new HashMap<>();
-    private Semaphore semaphore = new Semaphore(1);
+    private final FirebaseStorage storage = FirebaseStorage.getInstance("gs://qrchive-images");
+
 
     /**
      * FirebaseWrapper constructor, instantiates a single instance of the FirebaseWrapper class.
@@ -78,7 +76,7 @@ public class FirebaseWrapper {
                             ScannedCode scannedCode = new ScannedCode
                                     (docData.get("hash").toString(),
                                             Integer.parseInt(docData.get("hashVal").toString()),
-                                            docData.get("date").toString(),
+                                            document.getTimestamp("date").toDate(),
                                             (GeoPoint) docData.get("location"),
                                             (boolean) docData.get("hasLocation"),
                                             docData.get("locationImage").toString(),
@@ -121,7 +119,7 @@ public class FirebaseWrapper {
                             ScannedCode scannedCode = new ScannedCode
                                     (docData.get("hash").toString(),
                                             Integer.parseInt(docData.get("hashVal").toString()),
-                                            docData.get("date").toString(),
+                                            document.getTimestamp("date").toDate(),
                                             (GeoPoint) docData.get("location"),
                                             (boolean) docData.get("hasLocation"),
                                             docData.get("locationImage").toString(),
@@ -271,11 +269,11 @@ public class FirebaseWrapper {
     /**
      * deleteCode will delete a ScannedCode from the firebase DB and maintain the scannedCodesDict.
      *
-     * @param scannedCode is the code we wish to delete from the DB.
+     * @param scannedCodeDID is the codeDID we wish to delete from the DB.
      */
-    public void deleteCode(ScannedCode scannedCode) {
-//        Tasks.await()
-        db.collection("ScannedCodes").document(scannedCode.getScannedCodeDID())
+    public void deleteCode(String scannedCodeDID) {
+        // Delete the code
+        db.collection("ScannedCodes").document(scannedCodeDID)
                 .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -283,6 +281,14 @@ public class FirebaseWrapper {
                     }
                 });
 
+        // Delete the image
+        storage.getReference(scannedCodeDID + ".jpg")
+                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+
+            }
+        });
     }
 
     public void deleteUser(){
@@ -326,7 +332,7 @@ public class FirebaseWrapper {
                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                         List<DocumentSnapshot> docs = task.getResult().getDocuments();
                                         for (DocumentSnapshot doc : docs) {
-                                            doc.getReference().delete();
+                                            deleteCode(doc.getId());
                                         }
                                     }
                                 });
@@ -340,6 +346,21 @@ public class FirebaseWrapper {
      */
     public ArrayList<String> getUsers() {
         return users;
+    }
+
+    public void uploadImage(byte[] bytes, String scannedCodeDID) {
+        StorageReference storageRef = storage.getReference(scannedCodeDID + ".jpg");
+        UploadTask uploadTask = storageRef.putBytes(bytes);
+        uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+            }
+        });
+    }
+
+    public FirebaseStorage getStorage() {
+        return storage;
     }
 
     public interface OnUsersRetrievedListener {

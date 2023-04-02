@@ -7,10 +7,12 @@ import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Date;
+
 public class ScannedCodeUnitTest {
     private ScannedCode getMockCode(){
         // Note that the hash in Java takes out the new line character
-        ScannedCode mockCode = new ScannedCode("BFG5DGW54", "date", new GeoPoint(0,0), "locImg", "user", "scannedCodeDID");
+        ScannedCode mockCode = new ScannedCode("BFG5DGW54", new Date(), new GeoPoint(0,0), "locImg", "user", "scannedCodeDID");
         // Mock hash is 8227ad036b504e39fe29393ce170908be2b1ea636554488fa86de5d9d6cd2c32
         // it has four zeroes, 22, 44, 55, 88 which is 4 + 2 + 4 + 5 + 8 = 23 score
         // the first 6 bits are b000010

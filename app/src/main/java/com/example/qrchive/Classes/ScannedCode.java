@@ -1,22 +1,14 @@
 package com.example.qrchive.Classes;
 
 
-import android.util.Log;
-
-import com.example.qrchive.R;
 import com.google.common.hash.Hashing;
-import com.google.firebase.DataCollectionDefaultChange;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 
 /**
@@ -29,7 +21,7 @@ import javax.annotation.Nullable;
 public class ScannedCode {
     private String hash;
     private int hashVal;
-    private String date;
+    private Date date;
     private boolean hasLocation;
     private GeoPoint location;
     private String locationImage;
@@ -49,7 +41,7 @@ public class ScannedCode {
      * @param userDID is the users ID.
      * @param scannedCodeDID is the scanned codes ID.
      */
-    public ScannedCode(String code, String date, String locationImage, String userDID, String scannedCodeDID) {
+    public ScannedCode(String code, Date date, String locationImage, String userDID, String scannedCodeDID) {
         this(Hashing.sha256().hashString(code, StandardCharsets.UTF_8).toString(),
                 Hashing.sha256().hashString(code, StandardCharsets.UTF_8).asInt(),
                 date, new GeoPoint(0,0), false, locationImage, userDID, scannedCodeDID);
@@ -66,7 +58,7 @@ public class ScannedCode {
      * @param userDID is the users ID.
      * @param scannedCodeDID is the scanned codes ID.
      */
-    public ScannedCode(String code, String date, GeoPoint location, String locationImage, String userDID, String scannedCodeDID) {
+    public ScannedCode(String code, Date date, GeoPoint location, String locationImage, String userDID, String scannedCodeDID) {
         this(Hashing.sha256().hashString(code, StandardCharsets.UTF_8).toString(),
                 Hashing.sha256().hashString(code, StandardCharsets.UTF_8).asInt(),
                 date, location, true, locationImage, userDID, scannedCodeDID);
@@ -85,7 +77,7 @@ public class ScannedCode {
      * @param scannedCodeDID is the scanned codes ID.
      */
     // Base Constructor
-    public ScannedCode(String hash, int hashVal, String date, GeoPoint location, boolean hasLocation, String locationImage, String userDID, String scannedCodeDID) {
+    public ScannedCode(String hash, int hashVal, Date date, GeoPoint location, boolean hasLocation, String locationImage, String userDID, String scannedCodeDID) {
         this.hash = hash;
         this.hashVal = hashVal;
         this.date = date;
@@ -162,21 +154,15 @@ public class ScannedCode {
      *
      * @return Returns the private attribute date.
      */
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    @Nullable
-    @CheckForNull
-    public Date getDateObject() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-        try {
-            return dateFormat.parse(this.getDate());
-        } catch (ParseException e) {
-            return null;
-        }
-    }
 
+    public String getDateString() {
+
+        return ((new SimpleDateFormat("MM/dd/yy hh:mm a")).format(date));
+    }
     /**
      * A getter function for location as a GeoPoint.
      *
