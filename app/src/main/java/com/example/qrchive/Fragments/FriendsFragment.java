@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * displays list of fiends or list of all users
  *
- * @author Zayd
+ * @author Zayd & Grayden
  */
 public class FriendsFragment extends Fragment {
 
@@ -55,6 +55,10 @@ public class FriendsFragment extends Fragment {
     Button showRanklistButton;
 
 
+    /**
+     * The Constructor for the FriendsFragment.
+     * @param fbw is a FirebaseWrapper that allows persistence to minimize the amount of queries needed to be done.
+     */
     public FriendsFragment(FirebaseWrapper fbw) {this.fbw = fbw;}
 
     /**
@@ -65,6 +69,13 @@ public class FriendsFragment extends Fragment {
 //
 //        return fragment;
 //    }
+
+    /**
+     * onCreate will initialize an instance of the fragment.
+     *
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +89,20 @@ public class FriendsFragment extends Fragment {
 
     }
 
+    /**
+     * onCreateView will first set up the display of each button and the recyclerview and then it will
+     * set up listeners.
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View friendsView = inflater.inflate(R.layout.fragment_friends, container, false);
@@ -285,10 +310,21 @@ public class FriendsFragment extends Fragment {
      * listeners: listen for when we are done retrieving data from firebase
      */
     public interface OnFriendsRetrievedListener {
+        /**
+         * The callback function that the listener should perform.
+         * @param friends is a list of the friends that were retrieved.
+         */
         void onFriendsRetrieved(ArrayList<String> friends);
     }
 
+    /**
+     * Another listener for when all users have been retrieved.
+     */
     public interface OnUsersRetrievedListener {
+        /**
+         * The callback function that the listener should perform.
+         * @param users is a list of the users that were retrieved.
+         */
         void onUsersRetrieved(ArrayList<Player> users);
     }
 

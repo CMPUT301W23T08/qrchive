@@ -40,6 +40,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /** Profile Fragment
+ *
+ * @author Zayd & Grayden
  */
 public class ProfileFragment extends Fragment {
 
@@ -67,6 +69,20 @@ public class ProfileFragment extends Fragment {
         this.db = FirebaseFirestore.getInstance();
     }
 
+    /**
+     * onCreateView does a multitude of tasks, it first sets up all of the textViews and buttons to display properly
+     * then it sets up the buttons to have listeners that perform the appropriate actions.
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
