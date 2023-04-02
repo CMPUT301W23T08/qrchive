@@ -67,17 +67,6 @@ public class OnClickCodeFragment extends Fragment {
         this.fbw = fbw;
     }
 
-//    /**
-//     * Use this factory method to create a new instance of
-//     * this fragment using the provided parameters.
-//     *
-//     * @return A new instance of fragment OnClickCodeFragment.
-//     */
-//    TODO: Rename and change types and number of parameters
-//    public static OnClickCodeFragment newInstance(String param1, String param2) {
-//        return new OnClickCodeFragment();
-//    }
-
     /**
      * onCreate is called to do initial creation of a fragment.
      *
@@ -119,15 +108,9 @@ public class OnClickCodeFragment extends Fragment {
 
         String imageFileName = scannedCode.getMonsterResourceName();
         ((ImageView) rootLayout.findViewById(R.id.code_image)).setImageResource(getResources().getIdentifier(imageFileName, "drawable", getActivity().getPackageName()));
-
         ((TextView) rootLayout.findViewById(R.id.code_location)).setText(scannedCode.getLocationString());
-
-        TextView dateTextView = rootLayout.findViewById(R.id.code_date);
-        dateTextView.setText(scannedCode.getDateString());
-
+        ((TextView)  rootLayout.findViewById(R.id.code_date)).setText(scannedCode.getDateString());
         ((TextView) rootLayout.findViewById(R.id.code_hash_val)).setText(String.valueOf(scannedCode.getHashVal()));
-
-
         ((TextView) rootLayout.findViewById(R.id.code_points)).setText(String.valueOf(scannedCode.getPoints()));
 
 
@@ -163,10 +146,7 @@ public class OnClickCodeFragment extends Fragment {
                             e.printStackTrace();
                         }
 
-
                         ImageView imageView = rootLayout.findViewById(R.id.code_recorded_photo);
-//                        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-//                        imageView.setLayoutParams(new ViewGroup.LayoutParams(640, 480));
                         imageView.setImageBitmap(bitmap);
                     }
                 });

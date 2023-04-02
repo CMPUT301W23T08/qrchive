@@ -20,9 +20,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.video.Recorder;
-import androidx.camera.video.Recording;
-import androidx.camera.video.VideoCapture;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -33,7 +30,6 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.R;
-import com.example.qrchive.databinding.ActivityMainBinding;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.IOException;
@@ -47,14 +43,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
+/**
+ * A {@link Fragment} subclass implementing the photo capture functionality.
+ *
+ * @author: Eric, Shelly
+ */
 public class CaptureFragment extends Fragment {
 
     private final ArrayList<String> REQUESTED_PERMISSIONS = new ArrayList<>(Arrays.asList(Manifest.permission.CAMERA));
     private final String scannedCodeDID;
-    private ActivityMainBinding binding;
     private ImageCapture imageCapture;
-    private VideoCapture<Recorder> videoCapture;
-    private Recording recording;
     private final String FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS";
 
     private final String TAG = "CameraX";
@@ -64,6 +62,12 @@ public class CaptureFragment extends Fragment {
     private final int REQUEST_CODE = 10;
 
     private FirebaseWrapper fbw;
+
+    /**
+     * Constructor for the CaptureFragment class.
+     * @param fbw
+     * @param scannedCodeDID
+     */
     public CaptureFragment(FirebaseWrapper fbw, String scannedCodeDID) {
         super(R.layout.fragment_capture);
 

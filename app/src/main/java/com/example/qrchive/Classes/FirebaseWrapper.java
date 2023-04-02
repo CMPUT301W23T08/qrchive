@@ -22,18 +22,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// In the ScannedCodes collection on firebase, the userDID, location, hasLocation, hash can ...
-// ... uniquely identify a QR code
-
 /**
  * A wrapper class for Firebase that allows developers to easily manipulate the Firebase DB.
  *
- * @author Shelly
+ * @author Shelly, Zayd, Grayden
  * @version 1.0
  */
 public class FirebaseWrapper {
     public FirebaseFirestore db;
-    private String myDeviceID;
 
     private String myUserDID;
     private String myUserName;
@@ -291,6 +287,9 @@ public class FirebaseWrapper {
         });
     }
 
+    /**
+     * Deletes the current logged in user
+     */
     public void deleteUser(){
         System.out.println("user id:  " + myUserDID);
         db.collection("Users").document(myUserDID)
@@ -348,6 +347,11 @@ public class FirebaseWrapper {
         return users;
     }
 
+    /**
+     * uploads a new image to the firebase storage and uses scannedCodeDID in the name of the image file
+     * @param bytes
+     * @param scannedCodeDID
+     */
     public void uploadImage(byte[] bytes, String scannedCodeDID) {
         StorageReference storageRef = storage.getReference(scannedCodeDID + ".jpg");
         UploadTask uploadTask = storageRef.putBytes(bytes);
@@ -359,6 +363,10 @@ public class FirebaseWrapper {
         });
     }
 
+    /**
+     * Gets the FirebaseStorage reference associated with this project
+     * @return FirebaseStorage reference
+     */
     public FirebaseStorage getStorage() {
         return storage;
     }
