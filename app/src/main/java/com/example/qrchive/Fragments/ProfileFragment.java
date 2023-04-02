@@ -3,6 +3,8 @@ package com.example.qrchive.Fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.content.SharedPreferences;
 
@@ -18,6 +20,7 @@ import android.widget.Toast;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.FirebaseWrapper;
+import com.example.qrchive.Classes.GalleryBuilder;
 import com.example.qrchive.Classes.OnQRCountQueryListener;
 import com.example.qrchive.Classes.Player;
 import com.example.qrchive.Classes.ScannedCode;
@@ -34,6 +37,9 @@ public class ProfileFragment extends Fragment {
     public Player user;
     private List<ScannedCode> scannedCodes;
     private FirebaseWrapper fbw;
+
+    public static Bitmap defaultQr;
+
     public ProfileFragment(Player user, FirebaseWrapper fbw) {
         this.fbw = fbw;
         this.user = user;
@@ -52,6 +58,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        defaultQr = BitmapFactory.decodeResource(getResources(), R.drawable.icon_codes);
+
     }
 
     @Override
@@ -127,7 +135,8 @@ public class ProfileFragment extends Fragment {
         });
 
         //TODO: get favorite qrcode
-
+        GalleryBuilder gb = new GalleryBuilder(fbw);
+        gb.populateGallery(user,profileView.findViewById(R.id.imageHolder), getActivity().getApplicationContext());
         return profileView;
     }
 }
