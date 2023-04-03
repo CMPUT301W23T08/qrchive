@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -124,6 +125,8 @@ public class OnClickCodeFragment extends Fragment {
         ((TextView) rootLayout.findViewById(R.id.code_hash_val)).setText(String.valueOf(scannedCode.getHashVal()));
         ((TextView) rootLayout.findViewById(R.id.code_points)).setText(String.valueOf(scannedCode.getPoints()));
 
+        ImageView qrPhotoView = rootLayout.findViewById(R.id.code_recorded_photo);
+        qrPhotoView.setVisibility(View.GONE);
 
         // recorded photo code (get max 1MB)
         fbw.getStorage().getReference(scannedCode.getScannedCodeDID() + ".jpg")
@@ -215,6 +218,23 @@ public class OnClickCodeFragment extends Fragment {
                             commentsAdapter.notifyDataSetChanged();
                         }
                     });
+                }
+            }
+        });
+
+        rootLayout.findViewById(R.id.button_show_qr_photo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("CLICKED", "onClick: ");
+                ImageView qrPhotoView = rootLayout.findViewById(R.id.code_recorded_photo);
+                Button qrPhotoShowButton = rootLayout.findViewById(R.id.button_show_qr_photo);
+
+                if (qrPhotoView.getVisibility() == View.GONE) {
+                    qrPhotoShowButton.setText("Hide QR Photo");
+                    qrPhotoView.setVisibility(View.VISIBLE);
+                } else {
+                    qrPhotoShowButton.setText("Show QR Photo");
+                    qrPhotoView.setVisibility(View.GONE);
                 }
             }
         });

@@ -3,7 +3,12 @@ package com.example.qrchive;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import com.example.qrchive.Classes.GeoQueryListener;
+import com.example.qrchive.Classes.GeoQueryType;
 import com.example.qrchive.Classes.MapModel;
+import com.example.qrchive.Classes.OnQRCountQueryListener;
+import com.example.qrchive.Classes.ScannedCode;
 import com.google.firebase.firestore.GeoPoint;
 
 /**
@@ -38,7 +43,17 @@ public class MapModelTest {
     public void testSetNearbyQRCodes() {
         // Create a new MapModel object with (0,0) coordinates
         MapModel mapModel = new MapModel();
+        GeoQueryListener listener = new GeoQueryListener() {
+            @Override
+            public void onCodeGeoQueried(ScannedCode code) {
 
-        // Call setNearbyQRCodes() with a new onCodesGeoQueriedListener object
+            }
+
+            @Override
+            public void onCodeGeoSearched(ScannedCode code) {
+
+            }
+        };
+        mapModel.searchGeoQuery(54.1, 0.0, 0, listener);
     }
 }

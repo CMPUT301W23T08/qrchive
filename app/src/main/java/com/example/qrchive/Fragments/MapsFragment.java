@@ -318,17 +318,7 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
                     return;
                 }
                 radius = seekbarRadius;
-
-                // flush the previous list
                 mapModel.searchGeoQuery(latitude, longitude, radius, self);
-                geoSearchLayout.setVisibility(View.INVISIBLE);
-
-                if (geoQueryAdapter.getCount() == 0) {
-                    Toast.makeText(mainActivity, "No Codes near this location", Toast.LENGTH_SHORT).show();
-                    scrollView.setVisibility(View.INVISIBLE);
-                } else {
-                    scrollView.setVisibility(View.VISIBLE);
-                }
             }
         });
     }
@@ -434,7 +424,10 @@ public class MapsFragment extends Fragment implements GeoQueryListener {
         if (code != null) {
             Log.d(TAG, code.getName());
             code.setDistance(getMarkerDistance(code));
+            Log.d(TAG, "ADDD TO GEO QUERY ADAPTER!");
             geoQueryAdapter.add(code);
+            geoSearchLayout.setVisibility(View.INVISIBLE);
+            scrollView.setVisibility(View.VISIBLE);
         }
     }
 

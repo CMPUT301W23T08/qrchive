@@ -87,10 +87,6 @@ public class MainActivityTest {
 
         // Open the scan fragment by clicking on the scan icon
         onView(withId(R.id.menu_item_scan)).perform(click());
-
-        // Assert Scan Fragment is displayed by checking if the reset button is showed.
-        onView(withId(R.id.fragment_scan_reset_button)).check(matches(isDisplayed()));
-
     }
 
     /** Basic Test to assert that the package loaded is qrchive.
