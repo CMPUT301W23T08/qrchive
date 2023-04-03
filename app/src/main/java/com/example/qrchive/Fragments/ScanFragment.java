@@ -317,6 +317,7 @@ public class ScanFragment extends Fragment {
             scannedCodeMap.put("location", scannedCodeToUpload.getLocation());
             scannedCodeMap.put("locationImage", scannedCodeToUpload.getLocationImage());
             scannedCodeMap.put("userDID", scannedCodeToUpload.getUserDID());
+            //scannedCodeMap.put("userIdList", scannedCodeToUpload.getUserIdList());
             fbw.db.collection("ScannedCodes").document(scannedCodeDID).set(scannedCodeMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
