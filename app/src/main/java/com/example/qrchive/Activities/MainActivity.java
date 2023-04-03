@@ -128,7 +128,8 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                                 new Player(
                                         preferences.getString("userName", ""),
                                         preferences.getString("emailID", ""),
-                                        preferences.getString("deviceID", "")
+                                        preferences.getString("deviceID", ""),
+                                        preferences.getString("userDID", "")
                                 ), fbw));
                         break;
                     case R.id.menu_dropdown_map:

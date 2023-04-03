@@ -90,6 +90,7 @@ public class FriendsFragment extends Fragment {
     }
 
     /**
+
      * onCreateView will first set up the display of each button and the recyclerview and then it will
      * set up listeners.
      *
@@ -101,7 +102,8 @@ public class FriendsFragment extends Fragment {
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      * from a previous saved state as given here.
      *
-     * @return
+     * @return the inflated view of the fragment
+
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -208,6 +210,7 @@ public class FriendsFragment extends Fragment {
                     ArrayList<Player> users = new ArrayList<>();
                     for (DocumentSnapshot document : docs) {
                         Map<String, Object> docData = document.getData();
+                        String id = (String) document.getId();
                         fbw.getUserRank((String) docData.get("deviceID"), new FirebaseWrapper.OnRankRetrievedListener() {
                             @Override
                             public void OnRankRetrieved(int rank) {
@@ -215,7 +218,8 @@ public class FriendsFragment extends Fragment {
                                         (String) docData.get("userName"),
                                         (String) docData.get("emailID"),
                                         (String) docData.get("deviceID"),
-                                        rank
+                                        rank,
+                                        id
                                 );
                                 users.add(player);
                             }
@@ -250,7 +254,8 @@ public class FriendsFragment extends Fragment {
                             Player player = new Player(
                                     (String) docData.get("userName"),
                                     (String) docData.get("emailID"),
-                                    (String) docData.get("deviceID")
+                                    (String) docData.get("deviceID"),
+                                    (String) document.getId()
                             );
                             users.add(player);
                         }

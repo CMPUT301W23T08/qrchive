@@ -17,6 +17,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * An adapter class for RecyclerView that displays a list of friends with their details
+ *
+ * @author Zayd
+ */
+
 public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecyclerViewAdapter.PlayerViewHolder> {
 
     private ArrayList<Player> playerList;
@@ -27,11 +33,23 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
         this.clickListener = clickListener;
     }
 
+    /**
+     * Constructs a new FriendsRecyclerViewAdapter object with the given list of players.
+     * @param playerList playerList the list of players to display in the RecyclerView
+     */
     public FriendsRecyclerViewAdapter(ArrayList<Player> playerList) {
         Collections.sort(playerList, Comparator.comparing(p -> -p.getNumericalRank()));
         this.playerList = playerList;
     }
 
+    /**
+     * This method creates and returns a new instance of the PlayerViewHolder
+     * class by inflating the fragment_friends_content layout
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to
+     *                 an adapter position.
+     * @param viewType The view type of the new View.
+     * @return
+     */
     @NonNull
     @Override
     public PlayerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -39,11 +57,17 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
         return new PlayerViewHolder(view);
     }
 
+
+    /**
+     * Binds the data to the views in the PlayerViewHolder. This method is called by the RecyclerView
+     * to display the data at the specified position. The PlayerViewHolder object is created if it does not
+     * exist.
+     * @param holder   The ViewHolder which should be updated to represent the contents of the
+     *                 item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull PlayerViewHolder holder, @SuppressLint("RecyclerView") int position) {
-
-
-
         Player player = playerList.get(position);
         holder.playerName.setText(player.getUserName());
 
@@ -59,7 +83,13 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
                 holder.qrCount.setText("QR codes collected: error");
             }
         });
-        holder.playersPoints.setText(Integer.toString(player.getPoints()));
+        player.getScore(new Player.OnPlayerScoreRetrieved(){
+            @Override
+            public void onScoresRetrieved(int score) {
+                holder.playersPoints.setText(Integer.toString(score));
+            }
+        });
+
         holder.playerRank.setText(player.getRank());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -72,11 +102,18 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
         });
     }
 
+    /**
+     * Returns the total number of items in the data set held by the adapter.
+     * @return The total number of items in the data set
+     */
     @Override
     public int getItemCount() {
         return playerList.size();
     }
 
+    /**
+     * A view holder for the player information displayed in the FriendsRecyclerViewAdapter.
+     */
     public static class PlayerViewHolder extends RecyclerView.ViewHolder {
         TextView playerName, qrCount, playersPoints, playerRank;
 
@@ -91,6 +128,9 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
         }
     }
 
+    /**
+     * Interface definition for a callback to be invoked when an item in the RecyclerView has been clicked.
+     */
     public interface OnItemClickListener {
         void OnItemClick(View view, int position);
     }
