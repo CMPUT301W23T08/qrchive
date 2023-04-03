@@ -1,6 +1,7 @@
 package com.example.qrchive.Fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -10,6 +11,8 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,11 +45,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import java.util.List;
-
-/** Profile Fragment
+/**
+ * A Fragment class that displays the user's profile information,
+ * including user name, email, user ID, user rank, and QR codes collected.
  *
- * @author Zayd & Grayden
+ * @author Zayd & Shelly & Graden
  */
 public class ProfileFragment extends Fragment {
 
@@ -87,9 +90,9 @@ public class ProfileFragment extends Fragment {
     }
 
     /**
+
      * onCreateView does a multitude of tasks, it first sets up all of the textViews and buttons to display properly
      * then it sets up the buttons to have listeners that perform the appropriate actions.
-     *
      * @param inflater The LayoutInflater object that can be used to inflate
      * any views in the fragment,
      * @param container If non-null, this is the parent view that the fragment's
@@ -121,8 +124,7 @@ public class ProfileFragment extends Fragment {
 
         userNameTextView.setText(user.getUserName());
         emailTextView.setText(user.getEmail());
-        userIdTextView.setText(user.getDeviceID());
-        System.out.println(user.getDeviceID());
+        userIdTextView.setText(user.getUserDID());
         fbw.getUserRank(user.getDeviceID(), new FirebaseWrapper.OnRankRetrievedListener() {
             @Override
             public void OnRankRetrieved(int rank) {
@@ -132,7 +134,6 @@ public class ProfileFragment extends Fragment {
 
         if(deviceID.equals(user.getDeviceID())){
             deleteBtn.setVisibility(View.VISIBLE);
-            Toast.makeText(getContext(), "wkaaksdf", Toast.LENGTH_SHORT);
             deleteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -153,6 +154,21 @@ public class ProfileFragment extends Fragment {
                 }
             });
 
+            editFollowFBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EditDialogFragment fragment = new EditDialogFragment(user);
+                    fragment.setOnDismissListener(new EditDialogFragment.OnDismissListener() {
+                        @Override
+                        public void onDismiss() {
+                            userNameTextView.setText(user.getUserName());
+                            emailTextView.setText(user.getEmail());
+                        }
+                    });
+                    fragment.show(getParentFragmentManager(), "Edit Dialog");
+
+                }
+            });
 
         }else{
             db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -215,7 +231,6 @@ public class ProfileFragment extends Fragment {
 
         }
 
-
         user.getQRCount(new OnQRCountQueryListener() {
             @Override
             public void onQRCount(int count) {
@@ -228,7 +243,6 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        //TODO: get favorite qrcode
         GalleryBuilder gb = new GalleryBuilder(fbw);
         gb.populateGallery(user,profileView.findViewById(R.id.imageHolder), getActivity().getApplicationContext());
         return profileView;
