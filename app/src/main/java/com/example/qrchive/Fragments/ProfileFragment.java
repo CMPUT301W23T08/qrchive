@@ -1,13 +1,18 @@
 package com.example.qrchive.Fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +24,7 @@ import android.widget.Toast;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.FirebaseWrapper;
+import com.example.qrchive.Classes.GalleryBuilder;
 import com.example.qrchive.Classes.OnQRCountQueryListener;
 import com.example.qrchive.Classes.Player;
 import com.example.qrchive.Classes.ScannedCode;
@@ -39,34 +45,64 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/** Profile Fragment
+/**
+ * A Fragment class that displays the user's profile information,
+ * including user name, email, user ID, user rank, and QR codes collected.
+ *
+ * @author Zayd & Shelly & Graden
  */
 public class ProfileFragment extends Fragment {
 
 
     public Player user;
+    private List<ScannedCode> scannedCodes;
     private FirebaseWrapper fbw;
+    public static Bitmap defaultQr;
     public FirebaseFirestore db;
+    public static ProfileFragment instance;
+    
     public ProfileFragment(Player user, FirebaseWrapper fbw) {
         this.fbw = fbw;
         this.user = user;
+        fbw.refreshScannedCodesForUser(user.getDeviceID());
+        this.scannedCodes = fbw.getScannedCodesDict().get(user.getDeviceID());
     }
 
     /**
      * @return A new instance of fragment ProfileFragment.
      */
-//    public static ProfileFragment newInstance() {
-//        ProfileFragment fragment = new ProfileFragment();
-//        return fragment;
-//    }
+    public static ProfileFragment getInstance() {
+        return instance;
+    }
+
+    public static void setDefaultQr(ScannedCode qr){
+        MainActivity mainActivity = MainActivity.getInstance();
+        System.out.println("id" + mainActivity.getDrawableResourceIdFromString(qr.getMonsterResourceName()));
+        defaultQr = BitmapFactory.decodeResource(ProfileFragment.getInstance().getResources(), mainActivity.getDrawableResourceIdFromString(qr.getMonsterResourceName()));
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        defaultQr = BitmapFactory.decodeResource(getResources(), R.drawable.icon_codes);
         this.db = FirebaseFirestore.getInstance();
+        instance = this;
     }
 
+    /**
+
+     * onCreateView does a multitude of tasks, it first sets up all of the textViews and buttons to display properly
+     * then it sets up the buttons to have listeners that perform the appropriate actions.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -88,8 +124,7 @@ public class ProfileFragment extends Fragment {
 
         userNameTextView.setText(user.getUserName());
         emailTextView.setText(user.getEmail());
-        userIdTextView.setText(user.getDeviceID());
-        System.out.println(user.getDeviceID());
+        userIdTextView.setText(user.getUserDID());
         fbw.getUserRank(user.getDeviceID(), new FirebaseWrapper.OnRankRetrievedListener() {
             @Override
             public void OnRankRetrieved(int rank) {
@@ -99,7 +134,6 @@ public class ProfileFragment extends Fragment {
 
         if(deviceID.equals(user.getDeviceID())){
             deleteBtn.setVisibility(View.VISIBLE);
-            Toast.makeText(getContext(), "wkaaksdf", Toast.LENGTH_SHORT);
             deleteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -120,6 +154,21 @@ public class ProfileFragment extends Fragment {
                 }
             });
 
+            editFollowFBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EditDialogFragment fragment = new EditDialogFragment(user);
+                    fragment.setOnDismissListener(new EditDialogFragment.OnDismissListener() {
+                        @Override
+                        public void onDismiss() {
+                            userNameTextView.setText(user.getUserName());
+                            emailTextView.setText(user.getEmail());
+                        }
+                    });
+                    fragment.show(getParentFragmentManager(), "Edit Dialog");
+
+                }
+            });
 
         }else{
             db.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -182,7 +231,6 @@ public class ProfileFragment extends Fragment {
 
         }
 
-
         user.getQRCount(new OnQRCountQueryListener() {
             @Override
             public void onQRCount(int count) {
@@ -195,8 +243,8 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        //TODO: get favorite qrcode
-
+        GalleryBuilder gb = new GalleryBuilder(fbw);
+        gb.populateGallery(user,profileView.findViewById(R.id.imageHolder), getActivity().getApplicationContext());
         return profileView;
     }
 }
