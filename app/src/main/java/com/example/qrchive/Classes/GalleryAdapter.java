@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.example.qrchive.Activities.MainActivity;
+import com.example.qrchive.Fragments.OnClickCodeFragment;
 import com.example.qrchive.R;
 import com.google.firebase.firestore.auth.User;
 
@@ -115,6 +117,16 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             super(view);
 
             image = view.findViewById(R.id.image);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ScannedCode scannedCode = galleryList.get(getBindingAdapterPosition()).getQr();
+                    MainActivity.getInstance().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, new OnClickCodeFragment(scannedCode, MainActivity.getInstance().getFirebaseWrapper()))
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
 
         }
     }

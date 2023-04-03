@@ -12,7 +12,7 @@ import android.graphics.Bitmap;
 public class GalleryListItem {
 
     private Bitmap image;
-    private String hash;
+    private ScannedCode qr;
 
     /**
      * Returns the Bitmap image associated with this GalleryListItem.
@@ -32,22 +32,11 @@ public class GalleryListItem {
         this.image = bitmapImage;
     }
 
-    /**
-     * get the hashCode of the GalleryListItem object
-     * @return hashCode
-     */
-    public String getHash(){
-        return this.hash;
+    public ScannedCode getQr() {
+        return qr;
     }
 
-    /**
-     * sets the hashCode of the object to the param provided
-     * @param hash
-     *   the hash of the QR of the object
-     */
-    public void setHash(String hash){
-        this.hash = hash;
+    public void setQr(ScannedCode qr) {
+        this.qr = qr;
     }
-
-
 }

@@ -65,12 +65,6 @@ public class GalleryBuilder {
     public static ArrayList<GalleryListItem> updateImageList(Player user){
         fbw.refreshScannedCodesForUser(fbw.getUserDID(user.getDeviceID()));
 
-        // Testing qrcode gallery remove the following code block
-//        List<ScannedCode> qrCodes = new ArrayList<>();
-//        ScannedCode sc = new ScannedCode("ranaddshb", null, null, "nYGO0D2cAmW0FO4EsuUe", null);
-//        for(int i = 1; i<6;i++){
-//            qrCodes.add(sc);
-//        }
         List<ScannedCode> qrCodes = fbw.getScannedCodesDict().get(fbw.getUserDID(user.getDeviceID()));
         System.out.println("Qrcodes : " + qrCodes);
         if (qrCodes == null){
@@ -84,15 +78,9 @@ public class GalleryBuilder {
             GalleryListItem galleryListItem = new GalleryListItem();
 
             // Set the photo
-            // TODO: Fix this, for now it is default photo
-            if (qr.getLocationImage() == "placeholder_img") {
-                ProfileFragment.setDefaultQr(qr);
-                galleryListItem.setImage(ProfileFragment.defaultQr);
-            } else {
-                ProfileFragment.setDefaultQr(qr);
-                galleryListItem.setImage(ProfileFragment.defaultQr); // TODO
-            }
-            galleryListItem.setHash(qr.getHash());
+            ProfileFragment.setDefaultQr(qr);
+            galleryListItem.setImage(ProfileFragment.defaultQr);
+            galleryListItem.setQr(qr);
             listOfImages.add(galleryListItem);
         }
         return listOfImages;
