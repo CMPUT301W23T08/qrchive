@@ -86,8 +86,10 @@ public class GalleryBuilder {
             // Set the photo
             // TODO: Fix this, for now it is default photo
             if (qr.getLocationImage() == "placeholder_img") {
+                ProfileFragment.setDefaultQr(qr);
                 galleryListItem.setImage(ProfileFragment.defaultQr);
             } else {
+                ProfileFragment.setDefaultQr(qr);
                 galleryListItem.setImage(ProfileFragment.defaultQr); // TODO
             }
             galleryListItem.setHash(qr.getHash());

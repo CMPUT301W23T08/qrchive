@@ -66,6 +66,12 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     SharedPreferences preferences; //IMP: This will work as a 'singleton pattern'/'a global struct' to save all (mostly static) required preferences
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
 
+    private static MainActivity instance;
+
+    public static MainActivity getInstance(){
+        return instance;
+    }
+
     @Override
     public void onLoginSuccess(String userDID, String userName) {
         fbw = new FirebaseWrapper(userDID, userName);
@@ -75,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        instance = this;
         // Firestore setup
         FirebaseFirestore db =  FirebaseFirestore.getInstance();
 

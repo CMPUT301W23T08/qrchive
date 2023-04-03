@@ -54,6 +54,7 @@ public class ProfileFragment extends Fragment {
     private FirebaseWrapper fbw;
     public static Bitmap defaultQr;
     public FirebaseFirestore db;
+    public static ProfileFragment instance;
     
     public ProfileFragment(Player user, FirebaseWrapper fbw) {
         this.fbw = fbw;
@@ -65,16 +66,22 @@ public class ProfileFragment extends Fragment {
     /**
      * @return A new instance of fragment ProfileFragment.
      */
-//    public static ProfileFragment newInstance() {
-//        ProfileFragment fragment = new ProfileFragment();
-//        return fragment;
-//    }
+    public static ProfileFragment getInstance() {
+        return instance;
+    }
+
+    public static void setDefaultQr(ScannedCode qr){
+        MainActivity mainActivity = MainActivity.getInstance();
+        System.out.println("id" + mainActivity.getDrawableResourceIdFromString(qr.getMonsterResourceName()));
+        defaultQr = BitmapFactory.decodeResource(ProfileFragment.getInstance().getResources(), mainActivity.getDrawableResourceIdFromString(qr.getMonsterResourceName()));
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         defaultQr = BitmapFactory.decodeResource(getResources(), R.drawable.icon_codes);
         this.db = FirebaseFirestore.getInstance();
+        instance = this;
     }
 
     @Override
