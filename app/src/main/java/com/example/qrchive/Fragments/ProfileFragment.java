@@ -3,6 +3,8 @@ package com.example.qrchive.Fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.content.SharedPreferences;
 
@@ -19,6 +21,7 @@ import android.widget.Toast;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Activities.MainActivity;
 import com.example.qrchive.Classes.FirebaseWrapper;
+import com.example.qrchive.Classes.GalleryBuilder;
 import com.example.qrchive.Classes.OnQRCountQueryListener;
 import com.example.qrchive.Classes.Player;
 import com.example.qrchive.Classes.ScannedCode;
@@ -39,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import java.util.List;
+
 /** Profile Fragment
  *
  * @author Zayd & Grayden
@@ -47,26 +52,38 @@ public class ProfileFragment extends Fragment {
 
 
     public Player user;
+    private List<ScannedCode> scannedCodes;
     private FirebaseWrapper fbw;
+    public static Bitmap defaultQr;
     public FirebaseFirestore db;
+    public static ProfileFragment instance;
+    
     public ProfileFragment(Player user, FirebaseWrapper fbw) {
         this.fbw = fbw;
         this.user = user;
+        fbw.refreshScannedCodesForUser(user.getDeviceID());
+        this.scannedCodes = fbw.getScannedCodesDict().get(user.getDeviceID());
     }
 
     /**
      * @return A new instance of fragment ProfileFragment.
      */
-//    public static ProfileFragment newInstance() {
-//        ProfileFragment fragment = new ProfileFragment();
-//        return fragment;
-//    }
+    public static ProfileFragment getInstance() {
+        return instance;
+    }
+
+    public static void setDefaultQr(ScannedCode qr){
+        MainActivity mainActivity = MainActivity.getInstance();
+        System.out.println("id" + mainActivity.getDrawableResourceIdFromString(qr.getMonsterResourceName()));
+        defaultQr = BitmapFactory.decodeResource(ProfileFragment.getInstance().getResources(), mainActivity.getDrawableResourceIdFromString(qr.getMonsterResourceName()));
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        defaultQr = BitmapFactory.decodeResource(getResources(), R.drawable.icon_codes);
         this.db = FirebaseFirestore.getInstance();
+        instance = this;
     }
 
     /**
@@ -212,7 +229,8 @@ public class ProfileFragment extends Fragment {
         });
 
         //TODO: get favorite qrcode
-
+        GalleryBuilder gb = new GalleryBuilder(fbw);
+        gb.populateGallery(user,profileView.findViewById(R.id.imageHolder), getActivity().getApplicationContext());
         return profileView;
     }
 }
