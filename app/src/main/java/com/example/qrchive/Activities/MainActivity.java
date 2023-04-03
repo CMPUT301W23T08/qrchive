@@ -1,13 +1,9 @@
 package com.example.qrchive.Activities;
 
 import androidx.annotation.NonNull;
-
 import android.Manifest;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.content.res.XmlResourceParser;
 import android.provider.Settings;
 import android.util.Pair;
 import android.view.View;
@@ -17,17 +13,14 @@ import android.widget.SearchView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
-
-import com.example.qrchive.BuildConfig;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.Player;
-import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.Fragments.CodesFragment;
 import com.example.qrchive.Fragments.FriendsFragment;
 import com.example.qrchive.Fragments.HomeFragment;
@@ -40,24 +33,13 @@ import com.example.qrchive.Fragments.ScanFragment;
 import com.example.qrchive.Fragments.SettingsFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.rpc.context.AttributeContext;
-
-import org.xmlpull.v1.XmlPullParser;
-
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 
 public class MainActivity extends AppCompatActivity implements LoginDialogFragment.OnLoginSuccessListener{
@@ -65,6 +47,13 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     FirebaseWrapper fbw;
     SharedPreferences preferences; //IMP: This will work as a 'singleton pattern'/'a global struct' to save all (mostly static) required preferences
     private static final int REQUEST_CODE_FINE_LOCATION = 200;
+    private MainActivity mainActivity = this;
+
+    private static MainActivity instance;
+
+    public static MainActivity getInstance(){
+        return instance;
+    }
 
     @Override
     public void onLoginSuccess(String userDID, String userName) {
@@ -75,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        instance = this;
         // Firestore setup
         FirebaseFirestore db =  FirebaseFirestore.getInstance();
 
@@ -144,7 +133,13 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
                                 ), fbw));
                         break;
                     case R.id.menu_dropdown_map:
-                        transactFragment(new MapsFragment());
+                        if (ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            // Request permission before launching fragment.
+                            ActivityCompat.requestPermissions(mainActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_FINE_LOCATION);
+                        } else {
+                            // Permission already granted
+                            transactFragment(new MapsFragment());
+                        }
                         break;
                     case R.id.menu_dropdown_settings:
                         transactFragment(new SettingsFragment());
@@ -195,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         Toolbar topBar = (Toolbar) findViewById(R.id.app_bar);
         Menu topBarMenu = topBar.getMenu();
         onCreateOptionsMenu(topBarMenu);
-
         handleDropdownMenuWrapper(topBarMenu, dropdownNavWrapper);
 
         // Make app default load the home fragment
@@ -203,10 +197,30 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
     }
 
     /**
+     * @method:
+     * render the maps fragment based on whether the user allows or denys the
+     * current location.
+     * */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_CODE_FINE_LOCATION && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // permission granted, launch fragment
+            transactFragment(new MapsFragment());
+        } else {
+            // permission not granted, show error message or take appropriate action
+            Toast.makeText(this, "Without location permissions maps features are limited.", Toast.LENGTH_SHORT).show();
+            transactFragment(new MapsFragment());
+        }
+    }
+
+    /** @method:
      * Inflate the XML for the Toolbar in order to define search bar functionality.
      * */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d("========================== HER==============", "onCreateOptionsMenu: ");
         //load the menu XML into memory.
         getMenuInflater().inflate(R.menu.app_bar_menu, menu);
 

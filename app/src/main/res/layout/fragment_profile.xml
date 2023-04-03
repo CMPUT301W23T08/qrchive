@@ -84,5 +84,12 @@
         android:text="Delete Account"
         android:layout_alignParentEnd="true"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/imageHolder"
+        android:layout_width="395dp"
+        android:layout_height="414dp"
+        android:layout_below="@+id/profile_edit_button"
+        android:layout_marginTop="20dp" />
+
 
 </RelativeLayout>

@@ -61,7 +61,7 @@ public class Player {
     /**
      * Sets the email of the player.
      * @param email The email to be set for the player.
-\     */
+     */
     public void setEmail(String email){ this.email = email; }
 
     /**
@@ -98,9 +98,11 @@ public class Player {
      * @return userDID
      */
     public String getUserDID(){ return this.userDID; }
+
+
     /**
-     * returns the users rank
-     * @return rank
+     * getRank returns a formatted string containing the rank of a user.
+     * @return a formatted string of the rank of a user, nothing if the user has no rank.
      */
     public String getRank(){
         if(this.rank == -1){
@@ -109,9 +111,11 @@ public class Player {
             return "Best Code: " + Integer.toString(rank) + "pts";
         }
     }
+
+
     /**
-     * returns the users numerical rank
-     * @return rank
+     * getNumericalRank returns the raw numerical value of the rank, this is useful for comparisons.
+     * @return the numerical value of the rank.
      */
     public int getNumericalRank(){
         return this.rank;

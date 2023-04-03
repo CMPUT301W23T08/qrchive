@@ -34,7 +34,7 @@ import java.util.Map;
 public class FirebaseWrapper {
     public FirebaseFirestore db;
     private String myDeviceID;
-
+    private HashMap<String,String> userDIDs = new HashMap<>();
     private String myUserDID;
     private String myUserName;
     private HashMap<String, ArrayList<ScannedCode>> scannedCodesDict = new HashMap<>();
@@ -55,6 +55,33 @@ public class FirebaseWrapper {
         this.myUserDID = myUserDID;
         this.myUserName = myUserName;
         this.refreshScannedCodesForUser(myUserDID);
+        this.refreshUserDIDs();
+    }
+
+    /**
+     * refreshUserDIDs will refresh the document ids for each user
+     */
+    public void refreshUserDIDs(){
+        db.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                for (DocumentSnapshot doc: docs){
+                    Map<String, Object> docData = doc.getData();
+                    userDIDs.put((String) docData.get("deviceID"),doc.getId());
+                }
+            }
+        });
+    }
+
+    /**
+     * getUserDID returns the UserDID for a specific user
+     *
+     * @param deviceID is the deviceID of the user
+     */
+    public String getUserDID(String deviceID){
+        this.refreshUserDIDs();
+        return userDIDs.get(deviceID);
     }
 
     /**
@@ -92,6 +119,11 @@ public class FirebaseWrapper {
                 });
     }
 
+    /**
+     * Gets a list of all the users and calls back to the listener to notify once the list of users has been acquired.
+     *
+     * @param listener is a listener to perform a callback on the user list.
+     */
     public void getAllUsers(final OnUsersRetrievedListener listener){
         db.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -108,6 +140,11 @@ public class FirebaseWrapper {
         });
     }
 
+    /**
+     * Gets the top score for a list of users, one score per user.
+     *
+     * @param listener is a listener to perform a callback on the score map.
+     */
     public void getTopScoreForUsers(final OnScoresRetrievedListener listener){
         db.collection("ScannedCodes").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -136,6 +173,12 @@ public class FirebaseWrapper {
                 });
     }
 
+    /**
+     * createRanklist will first get all users and then get their top scores, once the top scores have been acquired
+     * it will sort the users by their top scoring code and then return a map of their ranking.
+     *
+     * @param listener is a listener to perform a callback on the ranklist.
+     */
     public void createRanklist(final OnRanklistRetrievedListener listener){
         getAllUsers(new OnUsersRetrievedListener() {
             @Override
@@ -170,6 +213,13 @@ public class FirebaseWrapper {
         });
     }
 
+    /**
+     * getUserRank will get either a users top score or their ranking of top scores.
+     *
+     * @param userDeviceID is the device ID for the user which we are attempting to get the rank of.
+     * @param listener is a listener that performs a callback on the numerical value of the rank.
+     * @param rawVal is a boolean that signifies whether we want the raw point value or the numerical rank.
+     */
     public void getUserRank(String userDeviceID, final OnRankRetrievedListener listener, boolean rawVal){
         String docID = deviceToDoc.get(userDeviceID);
 
@@ -363,18 +413,49 @@ public class FirebaseWrapper {
         return storage;
     }
 
+    /**
+     * OnUsersRetrievedListener is a listener interface that enables the ability to sequence queries.
+     */
     public interface OnUsersRetrievedListener {
+        /**
+         * onUsersRetrived is a callback function for the listener
+         * @param users is a list of users
+         * @param deviceToDoc is a map from deviceID to document ID
+         */
         void onUsersRetrieved(ArrayList<String> users, HashMap<String, String> deviceToDoc);
     }
+    /**
+     * OnScoresRetrievedListener is a listener interface that enables the ability to sequence queries.
+     */
     public interface OnScoresRetrievedListener {
+
+        /**
+         * onScoresRetrieved is a callback function for the listener.
+         * @param topCodeForUser is a map of each users top scoring code.
+         */
         void onScoresRetrieved(HashMap<String, ScannedCode> topCodeForUser);
     }
 
+    /**
+     * OnRanklistRetrievedListener is a listener interface that enables the ability to sequence queries.
+     */
     public interface OnRanklistRetrievedListener {
+        /**
+         * onRanklistRetrived is a callback function for the listener.
+         * @param userRank is a map from user documentID to their numerical rank.
+         * @param topCodeForUser is a map from user documentID to their top scoring code.
+         */
         void OnRanklistRetrieved(HashMap<String, Integer> userRank, HashMap<String, ScannedCode> topCodeForUser);
     }
 
+    /**
+     * OnRankRetrievedListener is a listener interface that enables the ability to sequence queries.
+     */
     public interface OnRankRetrievedListener {
+        /**
+         * OnRankRetrived is a callback function for the listener.
+         * @param rank is a numerical value indicating the rank of a user.
+         */
         void OnRankRetrieved(int rank);
     }
 }
