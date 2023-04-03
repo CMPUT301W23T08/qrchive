@@ -2,15 +2,20 @@ package com.example.qrchive.Classes;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.qrchive.Fragments.ProfileFragment;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * GalleryBuilder is a helper class that populates a RecyclerView with a grid of images
@@ -53,6 +58,7 @@ public class GalleryBuilder {
 
         GalleryAdapter galleryListAdapter = new GalleryAdapter(context, listOfImages);
         galleryRecyclerView.setAdapter(galleryListAdapter);
+        galleryListAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -63,26 +69,43 @@ public class GalleryBuilder {
      *    An ArrayList of GalleryListItem objects representing the images to display.
      */
     public static ArrayList<GalleryListItem> updateImageList(Player user){
-        fbw.refreshScannedCodesForUser(fbw.getUserDID(user.getDeviceID()));
 
-        List<ScannedCode> qrCodes = fbw.getScannedCodesDict().get(fbw.getUserDID(user.getDeviceID()));
-        System.out.println("Qrcodes : " + qrCodes);
-        if (qrCodes == null){
-            qrCodes = new ArrayList<>();
-        }
-        System.out.println("this is updateImageList "+ qrCodes);
+        String userDID = fbw.getUserDID(user.getDeviceID());
+        ArrayList<ScannedCode> scannedCodes = new ArrayList<>();
         ArrayList<GalleryListItem> listOfImages = new ArrayList<>();
+        fbw.db.collection("ScannedCodes").whereEqualTo("userDID", userDID).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> docs = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : docs) {
+                            Map<String, Object> docData = document.getData();
+                            ScannedCode scannedCode = new ScannedCode
+                                    (docData.get("hash").toString(),
+                                            Integer.parseInt(docData.get("hashVal").toString()),
+                                            document.getTimestamp("date").toDate(),
+                                            (GeoPoint) docData.get("location"),
+                                            (boolean) docData.get("hasLocation"),
+                                            docData.get("locationImage").toString(),
+                                            docData.get("userDID").toString(),
+                                            document.getId());
+                            scannedCodes.add(scannedCode);
+                        }
 
-        for(ScannedCode qr : qrCodes ){
 
-            GalleryListItem galleryListItem = new GalleryListItem();
+                        for(ScannedCode qr : scannedCodes){
 
-            // Set the photo
-            ProfileFragment.setDefaultQr(qr);
-            galleryListItem.setImage(ProfileFragment.defaultQr);
-            galleryListItem.setQr(qr);
-            listOfImages.add(galleryListItem);
-        }
+                            GalleryListItem galleryListItem = new GalleryListItem();
+
+                            // Set the photo
+                            ProfileFragment.setDefaultQr(qr);
+                            galleryListItem.setImage(ProfileFragment.defaultQr);
+                            galleryListItem.setQr(qr);
+                            listOfImages.add(galleryListItem);
+                        }
+                    }
+                });
+
         return listOfImages;
     }
 
