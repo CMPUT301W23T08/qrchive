@@ -3,22 +3,24 @@ package com.example.qrchive.Activities;
 import androidx.annotation.NonNull;
 import android.Manifest;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
+
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.Player;
 import com.example.qrchive.Fragments.CodesFragment;
@@ -27,10 +29,10 @@ import com.example.qrchive.Fragments.HomeFragment;
 import com.example.qrchive.Fragments.LoginDialogFragment;
 import com.example.qrchive.Fragments.MapsFragment;
 import com.example.qrchive.Fragments.ProfileFragment;
-import com.example.qrchive.Fragments.SearchResultFragment;
-import com.example.qrchive.R;
 import com.example.qrchive.Fragments.ScanFragment;
+import com.example.qrchive.Fragments.SearchResultFragment;
 import com.example.qrchive.Fragments.SettingsFragment;
+import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -38,10 +40,15 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * This class represents the main activity of the app, which extends AppCompatActivity and
+ * implements the OnLoginSuccessListener interface of LoginDialogFragment.
+ */
 public class MainActivity extends AppCompatActivity implements LoginDialogFragment.OnLoginSuccessListener{
 
     FirebaseWrapper fbw;
@@ -85,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
 
                         if (resultantDocuments.size() == 0) {
                             // Make a dialog box to take user input
-                            // TODO: Make sure unique username
+                            // Make sure unique username
                             Pair<ArrayList<String>, ArrayList<String>> usernameAndEmailList = new Pair<>(new ArrayList<>(), new ArrayList<>());
                             db.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
@@ -278,6 +285,10 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         });
     }
 
+    /**
+     * This method is used to replace the current fragment with the new one passed as parameter.
+     * @param fragment The new fragment to be displayed.
+     */
     private void transactFragment(Fragment fragment) {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment)

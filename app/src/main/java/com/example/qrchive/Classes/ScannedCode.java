@@ -162,6 +162,11 @@ public class ScannedCode {
     }
 
 
+    /**
+     * Gets the formatted date string
+     *
+     * @return Returns the formatted date string
+     */
     public String getDateString() {
 
         return ((new SimpleDateFormat("MM/dd/yy hh:mm a")).format(date));
