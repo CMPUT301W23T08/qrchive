@@ -7,6 +7,7 @@ import com.google.firebase.firestore.GeoPoint;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -31,6 +32,8 @@ public class ScannedCode {
     private String monsterResourceName;
     private String scannedCodeDID; // Document ID on firestore corresponding to this scannedCode
     private double distance = 0; //Distance from the Users current location (init to prevent null ref on non-geo-loc codes)
+
+    private ArrayList<String> userIdList;
 
     /**
      * This is a constructor for ScannedCode which uses code and assumes location should not be used.
@@ -285,4 +288,8 @@ public class ScannedCode {
     public void setDistance(double distance) {
         this.distance = distance;
     }
+    public ArrayList getUserIdList(){
+        return userIdList;
+    }
 }
+

@@ -21,5 +21,6 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="player_also_captured">player also captured</string>
 
 </resources>

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.qrchive.Classes.Comment;
 import com.example.qrchive.Classes.FirebaseWrapper;
 import com.example.qrchive.Classes.MyCommentCardRecyclerViewAdapter;
+import com.example.qrchive.Classes.Player;
 import com.example.qrchive.Classes.ScannedCode;
 import com.example.qrchive.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,6 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -55,6 +58,8 @@ public class OnClickCodeFragment extends Fragment {
     ArrayList<Comment> comments = new ArrayList<>();
     MyCommentCardRecyclerViewAdapter commentsAdapter;
     RecyclerView recyclerView;
+
+    ArrayList<String> userIdList;
 
     /**
      * The constructor for the fragment.
@@ -110,7 +115,13 @@ public class OnClickCodeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_on_click_code, container, false);
         recyclerView = view.findViewById(R.id.comments_recycler_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-
+        Button playerAlsoCaptured = view.findViewById(R.id.player_also_captured_button);
+        playerAlsoCaptured.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchUserFromFirebase(v);
+            }
+        });
         fetchCommentsFromFirebase(view);
 
         // Setting the fragment elements
@@ -249,6 +260,23 @@ public class OnClickCodeFragment extends Fragment {
                         commentsAdapter.notifyDataSetChanged();
                         recyclerView.setAdapter(commentsAdapter);
                     }
+                });
+    }
+
+    private void fetchUserFromFirebase(View view) {
+        SharedPreferences preferences = getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        String userId = preferences.getString("userDID", "no user id found");
+        String deviceID = preferences.getString("deviceID", "no user id found");
+        userIdList = new ArrayList<>();
+        fbw.db.collection("ScannedCodes").whereEqualTo("hash", scannedCode.getHash())
+                .get().addOnCompleteListener(task -> {
+                   List<DocumentSnapshot> documentSnapshotList = task.getResult().getDocuments();
+                   for (DocumentSnapshot doc: documentSnapshotList) {
+                       String userDID = Objects.requireNonNull(doc.get("userDID")).toString();
+                       if (!userDID.equals(userId))
+                        userIdList.add(userDID);
+                   }
+                   new SameQrDialogFragment(userIdList, fbw).show(getChildFragmentManager(), "SameQRDialogFragment");
                 });
     }
 }
