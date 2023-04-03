@@ -8,6 +8,7 @@
             <AndroidTestResultsTableState>
               <option name="preferredColumnWidths">
                 <map>
+                  <entry key="Debug_Pixel" value="120" />
                   <entry key="Duration" value="90" />
                   <entry key="Pixel_4_API_30" value="120" />
                   <entry key="Tests" value="360" />

@@ -56,31 +56,46 @@ tools:context=".Fragments.OnClickCodeFragment">
             android:text="Loading..."
             android:textStyle="bold"
             android:typeface="monospace"
-            app:layout_constraintBottom_toTopOf="@id/code_recorded_photo"
+            app:layout_constraintBottom_toTopOf="@id/code_recorded_photo_layout"
             app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/delete_button" />
 
-        <ImageView
-            android:id="@+id/code_recorded_photo"
+
+        <LinearLayout
+            android:id="@+id/code_recorded_photo_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="centerCrop"
+            android:orientation="vertical"
+            android:padding="16dp"
             app:layout_constraintLeft_toRightOf="parent"
             app:layout_constraintRight_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/code_image"
-            app:layout_constraintBottom_toTopOf="@id/code_stats"/>
-
+            app:layout_constraintBottom_toTopOf="@id/code_stats">
+            <Button
+                android:id="@+id/button_show_qr_photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="Show Capture Photo"/>
+            <ImageView
+                android:id="@+id/code_recorded_photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:layout_weight="0.8"/>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/code_stats"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/code_recorded_photo"
-            app:layout_constraintBottom_toTopOf="@+id/code_comment_text_box_card">
+            app:layout_constraintTop_toBottomOf="@+id/code_recorded_photo_layout"
+            >
 
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
