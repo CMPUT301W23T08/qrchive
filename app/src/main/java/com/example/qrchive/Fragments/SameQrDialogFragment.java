@@ -51,7 +51,8 @@ public class SameQrDialogFragment extends DialogFragment {
                         Player player = new Player(
                                 (String) docData.get("userName"),
                                 (String) docData.get("emailID"),
-                                (String) docData.get("deviceID")
+                                (String) docData.get("deviceID"),
+                                (String) docData.get("userDID")
                         );
                         playerArrayList.add(player);
                         adapter.notifyItemInserted(playerArrayList.size() - 1);
