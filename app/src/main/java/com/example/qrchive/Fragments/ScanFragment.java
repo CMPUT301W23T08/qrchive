@@ -79,7 +79,7 @@ public class ScanFragment extends Fragment {
     private Button flashButton;
     boolean withinImpermissibleRadius;
 
-    private final String scannedCodeDID = UUID.randomUUID().toString();
+    private String scannedCodeDID;
     int docsWithinImpermissibleRadius = 0;
 
     public ScanFragment(FirebaseWrapper fbw) {
@@ -113,6 +113,7 @@ public class ScanFragment extends Fragment {
                         @Override
                         public void run() {
                             mResult = result;
+                            scannedCodeDID = UUID.randomUUID().toString();
                             docsWithinImpermissibleRadius = 0;
                             Toast.makeText(activity, mResult.getText(), Toast.LENGTH_SHORT).show();
                             scannerView.setForeground(new ColorDrawable(Color.TRANSPARENT));
